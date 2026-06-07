@@ -1,0 +1,210 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { VueFlow, useVueFlow } from '@vue-flow/core'
+import { Background } from '@vue-flow/background'
+import { Controls } from '@vue-flow/controls'
+import StartNode from './node-components/StartNode.vue'
+import EndNode from './node-components/EndNode.vue'
+import DeclareNode from './node-components/DeclareNode.vue'
+import AssignNode from './node-components/AssignNode.vue'
+import '@vue-flow/core/dist/style.css'
+import '@vue-flow/core/dist/theme-default.css'
+
+// 1. 测试
+// 从fprg/next.fprg中读取数据 → AST → VueFlow 节点/边
+import fprgXml from './fprg/next.fprg?raw'
+import { parseFprgToAst, statementToLabel, type Program, type Statement } from './fprg-ast'
+
+/**
+ * AST 语句 kind → VueFlow 节点类型 映射
+ * 尚未实现组件的类型暂时映射到 'default'
+ */
+const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
+  'declare': 'declare',
+  'assign':  'assign',
+  'input':   'input',
+  'output':  'output',
+  'call':    'call',
+  'if':      'default',
+  'while':   'default',
+  'for':     'default',
+  'do':      'default',
+  'more':    'default',
+}
+
+/**
+ * 将 AST 的 Main 函数转换为 VueFlow 节点/边
+ * (当前按顺序语句线性渲染，if/while/for/do 嵌套体留待后续)
+ */
+function astToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowEdge[] } {
+  const mainFunc = program.functions.find((f) => f.name === 'Main')
+  if (!mainFunc) return { nodes: [], edges: [] }
+
+  const nodes: FlowNode[] = []
+  const edges: FlowEdge[] = []
+  let idCounter = 0
+  const newId = () => 'node_' + ++idCounter
+
+  const NODE_H = 50
+  const MIN_W = 100
+  const SPACING = 60
+  let currentY = 50
+
+  function createNode(type: FlowNodeType, label: string, width?: number): FlowNode {
+    const textWidth = label.length * 8
+    const nodeWidth = Math.max(width ?? textWidth + 40, MIN_W)
+    const node: FlowNode = {
+      id: newId(),
+      type,
+      label,
+      width: nodeWidth,
+      height: NODE_H,
+      position: { x: -nodeWidth / 2, y: currentY },
+    }
+    nodes.push(node)
+    currentY += NODE_H + SPACING
+    return node
+  }
+
+  function connect(from: FlowNode, to: FlowNode) {
+    edges.push({
+      id: `edge_${from.id}_${to.id}`,
+      source: from.id,
+      target: to.id,
+    })
+  }
+
+  // START
+  let prev = createNode('start', 'START', 80)
+  prev.position.x = 0 // START 节点左对齐原点
+
+  // 遍历 Main 函数 body 中的每条语句
+  for (const stmt of mainFunc.body) {
+    const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
+    const label = statementToLabel(stmt)
+    const node = createNode(nodeType, label)
+    connect(prev, node)
+    prev = node
+  }
+
+  // END
+  const endNode = createNode('end', 'END', 80)
+  connect(prev, endNode)
+
+  return { nodes, edges }
+}
+
+// 解析 fprg → AST → VueFlow 数据
+const program = parseFprgToAst(fprgXml)
+console.log('AST Program:', program)
+
+const { nodes: parsedNodes, edges: parsedEdges } = astToFlowchart(program)
+console.log('VueFlow nodes:', parsedNodes)
+console.log('VueFlow edges:', parsedEdges)
+
+const nodes = ref<FlowNode[]>(parsedNodes)
+const edges = ref<FlowEdge[]>(parsedEdges)
+
+
+// ============================================
+// Types
+// ============================================
+type FlowNodeType =
+  | 'start'
+  | 'end'
+  | 'declare'
+  | 'assign'
+  | 'input'
+  | 'output'
+  | 'call'
+  | 'default'
+
+interface FlowNode {
+  id: string
+  type: FlowNodeType
+  label: string
+  width?: number
+  height?: number
+  position: {
+    x: number
+    y: number
+  }
+}
+
+interface FlowEdge {
+  id: string
+  source: string
+  target: string
+}
+
+const { fitView } = useVueFlow()
+onMounted(() => {
+  setTimeout(() => fitView(), 100)
+})
+</script>
+
+<template>
+  <div class="flowchart-sandbox">
+    <div class="header">
+      <h1>Flowgorithm JS - VueFlow Edition</h1>
+      <p>Sequence Flowchart Demo</p>
+    </div>
+    <div class="flow-container">
+      <VueFlow
+        :nodes="nodes"
+        :edges="edges"
+        :default-viewport="{ zoom: 1, x: 50, y: 20 }"
+        :min-zoom="0.1"
+        :max-zoom="4"
+        fit-view-on-init
+      >
+        <Background pattern-color="#aaa" :gap="20" />
+        <Controls />
+        <template #node-start="nodeProps"
+          ><StartNode v-bind="nodeProps"
+        /></template>
+        <template #node-end="nodeProps"
+          ><EndNode v-bind="nodeProps"
+        /></template>
+        <template #node-default="nodeProps"
+          ><div class="default-node-fallback" :style="{ width: (nodeProps.data?.width ?? 120) + 'px', height: (nodeProps.data?.height ?? 50) + 'px' }">{{ nodeProps.data?.label ?? '' }}</div
+        /></template>
+        <template #node-declare="nodeProps"
+          ><DeclareNode v-bind="nodeProps"
+        /></template>
+        <template #node-assign="nodeProps"
+          ><AssignNode v-bind="nodeProps"
+        /></template>
+      </VueFlow>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.flowchart-sandbox {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a2e;
+}
+.header {
+  padding: 20px;
+  color: #eee;
+  text-align: center;
+}
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 300;
+}
+.header p {
+  margin: 8px 0 0;
+  color: #888;
+}
+.flow-container {
+  flex: 1;
+  width: 100%;
+}
+</style>
+

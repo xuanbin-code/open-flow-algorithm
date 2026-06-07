@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import Sandbox from './sandbox/index.vue'
 </script>
 
 <template>
-  <HelloWorld />
+  <Sandbox />
 </template>
