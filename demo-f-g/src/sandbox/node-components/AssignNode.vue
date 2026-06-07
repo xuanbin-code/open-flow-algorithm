@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
+import { type Statement } from '../fprg-ast'
 
 interface AssignNodeProps {
   id: string
@@ -8,6 +9,7 @@ interface AssignNodeProps {
     label?: string
     width?: number
     height?: number
+    statement?: Statement
   }
   selected?: boolean
   dragging?: boolean
@@ -20,7 +22,13 @@ const props = withDefaults(defineProps<AssignNodeProps>(), {
 
 const nodeWidth = computed(() => props.data?.width ?? 160)
 const nodeHeight = computed(() => props.data?.height ?? 50)
-const label = computed(() => props.data?.label ?? '')
+const label = computed(() => {
+  const s = props.data?.statement
+  if (s?.kind === 'assign') {
+    return `${s.variable} = ${s.expression}`
+  }
+  return props.data?.label ?? ''
+})
 </script>
 
 <template>

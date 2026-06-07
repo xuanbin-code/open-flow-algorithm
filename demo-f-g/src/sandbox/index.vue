@@ -52,16 +52,14 @@ function astToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowEdge[
   const SPACING = 60
   let currentY = 50
 
-  function createNode(type: FlowNodeType, label: string, width?: number): FlowNode {
+  function createNode(type: FlowNodeType, label: string, width?: number, statement?: Statement): FlowNode {
     const textWidth = label.length * 8
     const nodeWidth = Math.max(width ?? textWidth + 40, MIN_W)
     const node: FlowNode = {
       id: newId(),
       type,
-      label,
-      width: nodeWidth,
-      height: NODE_H,
       position: { x: -nodeWidth / 2, y: currentY },
+      data: { label, width: nodeWidth, height: NODE_H, statement },
     }
     nodes.push(node)
     currentY += NODE_H + SPACING
@@ -84,7 +82,7 @@ function astToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowEdge[
   for (const stmt of mainFunc.body) {
     const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
     const label = statementToLabel(stmt)
-    const node = createNode(nodeType, label)
+    const node = createNode(nodeType, label, undefined, stmt)
     connect(prev, node)
     prev = node
   }
@@ -124,12 +122,15 @@ type FlowNodeType =
 interface FlowNode {
   id: string
   type: FlowNodeType
-  label: string
-  width?: number
-  height?: number
   position: {
     x: number
     y: number
+  }
+  data: {
+    label: string
+    width?: number
+    height?: number
+    statement?: Statement
   }
 }
 
