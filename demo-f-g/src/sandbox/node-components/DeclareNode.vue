@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Handle, Position } from '@vue-flow/core'
 
 interface DeclareNodeProps {
   id: string
@@ -31,7 +32,9 @@ const label = computed(() => props.data?.label ?? '')
       height: nodeHeight + 'px',
     }"
   >
+    <Handle type="target" :position="Position.Top" />
     {{ label }}
+    <Handle type="source" :position="Position.Bottom" />
   </div>
 </template>
 

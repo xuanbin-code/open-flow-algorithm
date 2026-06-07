@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 
-interface AssignNodeProps {
+interface InputNodeProps {
   id: string
   data?: {
     label?: string
@@ -13,19 +13,19 @@ interface AssignNodeProps {
   dragging?: boolean
 }
 
-const props = withDefaults(defineProps<AssignNodeProps>(), {
+const props = withDefaults(defineProps<InputNodeProps>(), {
   selected: false,
   dragging: false,
 })
 
-const nodeWidth = computed(() => props.data?.width ?? 160)
+const nodeWidth = computed(() => props.data?.width ?? 80)
 const nodeHeight = computed(() => props.data?.height ?? 50)
 const label = computed(() => props.data?.label ?? '')
 </script>
 
 <template>
   <div
-    class="flow-node assign-node"
+    class="flow-node fg-input-node"
     :class="{ selected, dragging }"
     :style="{
       width: nodeWidth + 'px',
@@ -46,20 +46,20 @@ const label = computed(() => props.data?.label ?? '')
   color: white;
   font-size: 13px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  border: 2px solid #8e44ad;
+  border: 2px solid #d35400;
+  transform: skewX(-10deg);
 }
 
-.assign-node {
-  background: #9b59b6;
-  border-radius: 4px;
-  border-color: #8e44ad;
+.fg-input-node {
+  background: #e67e22;
+  border-color: #d35400;
 }
 
-.assign-node.selected {
-  box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.5);
+.fg-input-node.selected {
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.5);
 }
 
-.assign-node.dragging {
+.fg-input-node.dragging {
   opacity: 0.8;
   cursor: grabbing;
 }

@@ -7,6 +7,8 @@ import StartNode from './node-components/StartNode.vue'
 import EndNode from './node-components/EndNode.vue'
 import DeclareNode from './node-components/DeclareNode.vue'
 import AssignNode from './node-components/AssignNode.vue'
+import InputNode from './node-components/InputNode.vue'
+import OutputNode from './node-components/OutputNode.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
@@ -17,13 +19,13 @@ import { parseFprgToAst, statementToLabel, type Program, type Statement } from '
 
 /**
  * AST 语句 kind → VueFlow 节点类型 映射
- * 尚未实现组件的类型暂时映射到 'default'
+ * 尚未实现组件的类型（if/while/for/do/more）暂时映射到 'default'
  */
 const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
   'declare': 'declare',
   'assign':  'assign',
-  'input':   'input',
-  'output':  'output',
+  'input':   'fg-input',
+  'output':  'fg-output',
   'call':    'call',
   'if':      'default',
   'while':   'default',
@@ -114,8 +116,8 @@ type FlowNodeType =
   | 'end'
   | 'declare'
   | 'assign'
-  | 'input'
-  | 'output'
+  | 'fg-input'
+  | 'fg-output'
   | 'call'
   | 'default'
 
@@ -174,6 +176,12 @@ onMounted(() => {
         /></template>
         <template #node-assign="nodeProps"
           ><AssignNode v-bind="nodeProps"
+        /></template>
+        <template #node-fg-input="nodeProps"
+          ><InputNode v-bind="nodeProps"
+        /></template>
+        <template #node-fg-output="nodeProps"
+          ><OutputNode v-bind="nodeProps"
         /></template>
       </VueFlow>
     </div>

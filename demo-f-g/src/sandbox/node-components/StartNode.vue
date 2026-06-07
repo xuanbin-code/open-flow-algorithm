@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Handle, Position } from '@vue-flow/core'
 
 interface StartNodeProps {
   id: string
@@ -32,6 +33,7 @@ const label = computed(() => props.data?.label ?? 'START')
     }"
   >
     {{ label }}
+    <Handle type="source" :position="Position.Bottom" />
   </div>
 </template>
 
