@@ -11,13 +11,14 @@ import InputNode from './node-components/InputNode.vue'
 import OutputNode from './node-components/OutputNode.vue'
 import IfNode from './node-components/IfNode.vue'
 import MergeNode from './node-components/MergeNode.vue'
+import ForNode from './node-components/ForNode.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
 // 1. 测试
 // 从fprg/next.fprg中读取数据 → AST → VueFlow 节点/边
 import fprgXml from './fprg/next.fprg?raw'
-import { parseFprgToAst, statementToLabel, type Program, type Statement, type IfStatement } from './fprg-ast'
+import { parseFprgToAst, statementToLabel, type Program, type Statement, type IfStatement, type ForStatement } from './fprg-ast'
 
 /**
  * AST 语句 kind → VueFlow 节点类型 映射
@@ -31,7 +32,7 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
   'call':    'call',
   'if':      'fg-if',
   'while':   'default',
-  'for':     'default',
+  'for':     'fg-for',
   'do':      'default',
   'more':    'default',
 }
@@ -44,6 +45,8 @@ const START_Y = 50
 const NODE_H = 50
 const IF_NODE_H = 80        // IfNode.vue 默认高度
 const IF_NODE_MIN_W = 160   // IfNode.vue 默认宽度
+const FOR_NODE_H = 80       // ForNode.vue 默认高度
+const FOR_NODE_MIN_W = 160  // ForNode.vue 默认宽度
 const MERGE_NODE_W = 20     // MergeNode.vue 宽度/高度
 const MERGE_NODE_H = 20
 const START_W = 80          // StartNode / EndNode 宽度
@@ -105,6 +108,10 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
         const [ifNode, mergeNode] = buildIfStatement(stmt, prev)
         if (!first) first = ifNode
         prev = mergeNode
+      } else if (stmt.kind === 'for') {
+        const forNode = buildForStatement(stmt, prev)
+        if (!first) first = forNode
+        prev = forNode
       } else {
         const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
         const label = statementToLabel(stmt)
@@ -158,15 +165,33 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
     return [ifNode, mergeNode]
   }
 
+  /**
+   * 构建 for 循环节点，递归处理 body
+   * 返回 forNode（自身作为出口，Bottom source 连下一条语句）
+   */
+  function buildForStatement(stmt: ForStatement & { _nodeId?: string }, prevNode: FlowNode | null): FlowNode {
+    const label = statementToLabel(stmt)
+    const forNode = createNode('fg-for', label, undefined, stmt)
+    stmt._nodeId = forNode.id
+    if (prevNode) connect(prevNode, forNode)
+
+    // body 从 loop-body(Right source) 出 → loop-back(Bottom target) 回
+    processBranch(stmt.body, forNode, 'loop-body', forNode, 'loop-back')
+
+    return forNode
+  }
+
   // START
   let prev: FlowNode = createNode('start', 'START', 80)
 
-  // 遍历 Main 函数 body 中的每条语句（递归处理嵌套 if）
+  // 遍历 Main 函数 body 中的每条语句（递归处理嵌套 if/for）
   for (const stmt of mainFunc.body) {
     console.log('Processing statement:', stmt)
     if (stmt.kind === 'if') {
       const [, mergeNode] = buildIfStatement(stmt, prev)
       prev = mergeNode
+    } else if (stmt.kind === 'for') {
+      prev = buildForStatement(stmt, prev)
     } else {
       const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
       const label = statementToLabel(stmt)
@@ -237,6 +262,14 @@ function measureExtents(statements: Statement[], nodesMap: Map<string, FlowNode>
       const blockLeft = Math.max(ifW / 2, ifW / 2 + BRANCH_H_GAP + elseE.totalWidth)
       left = Math.max(left, blockLeft)
       right = Math.max(right, blockRight)
+    } else if (stmt.kind === 'for') {
+      const forNode = nodesMap.get(stmt._nodeId!)
+      const forW = forNode?.data.width ?? FOR_NODE_MIN_W
+      const bodyE = measureExtents(stmt.body, nodesMap)
+      // for 体仅在右侧：右拓展 = max(for右半, for右半 + 间隙 + body全宽)
+      const blockRight = Math.max(forW / 2, forW / 2 + BRANCH_H_GAP + bodyE.totalWidth)
+      left = Math.max(left, forW / 2)
+      right = Math.max(right, blockRight)
     } else {
       const node = nodesMap.get(stmt._nodeId!)
       const w = (node?.data.width ?? 100) / 2
@@ -264,6 +297,10 @@ function layoutBlock(
   for (const stmt of statements) {
     if (stmt.kind === 'if') {
       const result = layoutIfSelection(stmt, centerX, cursor, nodesMap)
+      cursor = result.endY
+      maxW = Math.max(maxW, result.width)
+    } else if (stmt.kind === 'for') {
+      const result = layoutForSelection(stmt, centerX, cursor, nodesMap)
       cursor = result.endY
       maxW = Math.max(maxW, result.width)
     } else {
@@ -330,6 +367,40 @@ function layoutIfSelection(
 }
 
 /**
+ * 排版 for 语句：
+ * 1. for 六边形节点置于顶部居中
+ * 2. body 递归排版于右侧（与 forNode 同 Y 起点）
+ * 3. forNode 自身底部为出口，endY 取 for 底部与 body 结束的较大者
+ */
+function layoutForSelection(
+  stmt: ForStatement & { _nodeId?: string },
+  centerX: number,
+  startY: number,
+  nodesMap: Map<string, FlowNode>,
+): LayoutResult {
+  const forNode = nodesMap.get(stmt._nodeId!)
+  if (!forNode) return { endY: startY, width: 0 }
+
+  const forW = forNode.data.width ?? FOR_NODE_MIN_W
+  const forH = forNode.data.height ?? FOR_NODE_H
+
+  // 1. 放置 for 六边形节点
+  forNode.position = { x: centerX - forW / 2, y: startY }
+
+  // 2. 测量并排版 body（右侧，从 forNode 下方开始）
+  const bodyExtents = measureExtents(stmt.body, nodesMap)
+  const bodyCenterX = centerX + forW / 2 + BRANCH_H_GAP + bodyExtents.leftExtent
+  const bodyStartY = startY + forH + BRANCH_V_GAP
+  const bodyResult = layoutBlock(stmt.body, bodyCenterX, bodyStartY, nodesMap)
+
+  const totalWidth = forW + BRANCH_H_GAP + bodyResult.width
+  // endY: 取 forNode 底部与 body 结束的较大者 + 间距
+  const endY = Math.max(startY + forH, bodyResult.endY) + SPACING
+
+  return { endY, width: totalWidth }
+}
+
+/**
  * 流程入口排版函数：
  * 放置 START → 递归排版 Main body → 放置 END
  */
@@ -393,6 +464,7 @@ type FlowNodeType =
   | 'fg-output'
   | 'call'
   | 'fg-if'
+  | 'fg-for'
   | 'fg-merge'
   | 'default'
 
@@ -470,6 +542,9 @@ onMounted(() => {
         /></template>
         <template #node-fg-merge="nodeProps"
           ><MergeNode v-bind="nodeProps"
+        /></template>
+        <template #node-fg-for="nodeProps"
+          ><ForNode v-bind="nodeProps"
         /></template>
       </VueFlow>
     </div>
