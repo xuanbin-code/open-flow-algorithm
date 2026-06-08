@@ -34,7 +34,7 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
   'more':    'default',
 }
 const SPACING = 60
-let currentY = 50
+const START_Y = 50
 /**
  * 将 AST 的 Main 函数转换为 VueFlow 节点/边
  * (当前按顺序语句线性渲染，if/while/for/do 嵌套体留待后续)
@@ -56,7 +56,7 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
     const node: FlowNode = {
       id: newId(),
       type,
-      position: { x: 0, y:0 }, // init position, 后续可改为更智能的布局
+      position: { x: 0, y: 0 },
       data: { label, width: nodeWidth, height: NODE_H, statement },
     }
     nodes.push(node)
@@ -74,7 +74,6 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
 
   // START
   let prev = createNode('start', 'START', 80)
-  prev.position.x = 0 // START 节点左对齐原点
 
   // 遍历 Main 函数 body 中的每条语句
   for (const stmt of mainFunc.body) {
@@ -94,24 +93,39 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
   return { nodes, edges, nodesMap }
 }
 
+/**
+ * 简单顺序排版：将节点按 Y 游标垂直排列
+ * (仅处理线性语句，if/while/for/do 嵌套体留待后续)
+ */
+function layoutSequence(nodes: FlowNode[]): void {
+  const NODE_H = 50
+  // 计算最大宽度，用于 X 轴中心对齐
+  const maxWidth = Math.max(...nodes.map(n => n.data.width ?? 100))
+  let yCursor = START_Y
+  for (const node of nodes) {
+    const w = node.data.width ?? 100
+    node.position.x = (maxWidth - w) / 2
+    node.position.y = yCursor
+    yCursor += NODE_H + SPACING
+  }
+}
+
 // 解析 fprg → AST → VueFlow 数据
 const program = parseFprgToAst(fprgXml)
 console.log('AST Program:', program)
 
-// 1. 初始化fprg得到一个VueFlow 数据
+// 1. 初始化 fprg → VueFlow 节点/边（纯数据，不排版）
 const { nodes: parsedNodes, edges: parsedEdges, nodesMap } = initAstToFlowchart(program)
+
+// 2. 排版布局
+layoutSequence(parsedNodes)
 console.log('Program :', program) // program的statement对象已有_nodeId
 console.log('VueFlow nodes:', parsedNodes)
 console.log('VueFlow edges:', parsedEdges)
 console.log('VueFlow nodesMap:', nodesMap)
 
-// 排版顺序语句
-function layoutSequence() { 
-}
 
-
-
-// 2. 遍历ast语法树，以排版布局
+// 3. 绑定到 VueFlow
 const nodes = ref<FlowNode[]>(parsedNodes)
 const edges = ref<FlowEdge[]>(parsedEdges)
 
