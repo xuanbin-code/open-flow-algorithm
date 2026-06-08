@@ -90,7 +90,7 @@ const label = computed(() => {
 }
 
 /* loop-back handle 偏移到 center-bottom source 右边 20px */
-.handle-loop-back:deep(.vue-flow__handle) {
-  left: calc(50% + 20px);
+:deep(.handle-loop-back) {
+  left: calc(50% + 20px) !important;
 }
 </style>
