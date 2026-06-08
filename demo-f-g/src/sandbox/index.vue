@@ -101,18 +101,19 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
     let prev: FlowNode | null = null
 
     for (const stmt of statements) {
-      let node: FlowNode
       if (stmt.kind === 'if') {
-        node = buildIfStatement(stmt, prev)
+        const [ifNode, mergeNode] = buildIfStatement(stmt, prev)
+        if (!first) first = ifNode
+        prev = mergeNode
       } else {
         const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
         const label = statementToLabel(stmt)
-        node = createNode(nodeType, label, undefined, stmt)
+        const node = createNode(nodeType, label, undefined, stmt)
         stmt._nodeId = node.id
         if (prev) connect(prev, node)
+        if (!first) first = node
+        prev = node
       }
-      if (!first) first = node
-      prev = node
     }
 
     return [first!, prev!]
@@ -141,9 +142,9 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
 
   /**
    * 构建 if 判断节点 + 汇集点，递归处理 then/else 分支
-   * 返回 mergeNode（作为后续节点的前驱）
+   * 返回 [ifNode, mergeNode]（首节点 + 尾节点）
    */
-  function buildIfStatement(stmt: IfStatement & { _nodeId?: string }, prevNode: FlowNode | null): FlowNode {
+  function buildIfStatement(stmt: IfStatement & { _nodeId?: string }, prevNode: FlowNode | null): [FlowNode, FlowNode] {
     const ifNode = createNode('fg-if', stmt.expression, undefined, stmt)
     stmt._nodeId = ifNode.id
     if (prevNode) connect(prevNode, ifNode)
@@ -154,7 +155,7 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
     processBranch(stmt.thenBranch, ifNode, 'then', mergeNode, 'then-in')
     processBranch(stmt.elseBranch, ifNode, 'else', mergeNode, 'else-in')
 
-    return mergeNode
+    return [ifNode, mergeNode]
   }
 
   // START
@@ -164,7 +165,8 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
   for (const stmt of mainFunc.body) {
     console.log('Processing statement:', stmt)
     if (stmt.kind === 'if') {
-      prev = buildIfStatement(stmt, prev)
+      const [, mergeNode] = buildIfStatement(stmt, prev)
+      prev = mergeNode
     } else {
       const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
       const label = statementToLabel(stmt)
