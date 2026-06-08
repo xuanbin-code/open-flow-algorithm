@@ -37,6 +37,20 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
 }
 const SPACING = 60
 const START_Y = 50
+
+// ============================================
+// Layout constants (仿 flowgorithm.js drawSelection)
+// ============================================
+const NODE_H = 50
+const IF_NODE_H = 80        // IfNode.vue 默认高度
+const IF_NODE_MIN_W = 160   // IfNode.vue 默认宽度
+const MERGE_NODE_W = 20     // MergeNode.vue 宽度/高度
+const MERGE_NODE_H = 20
+const START_W = 80          // StartNode / EndNode 宽度
+const START_END_H = 40      // StartNode / EndNode 高度
+const BRANCH_H_GAP = 50     // 分支与菱形顶点的水平间距
+const BRANCH_V_GAP = 30     // 分支内容与菱形底部的垂直间距
+const FLOW_CENTER_X = 400   // 流程水平中心点
 /**
  * 将 AST 的 Main 函数转换为 VueFlow 节点/边
  * (当前按顺序语句线性渲染，if/while/for/do 嵌套体留待后续)
@@ -169,32 +183,150 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
 }
 
 /**
- * 简单顺序排版：将节点按 Y 游标垂直排列
- * (仅处理线性语句，if/while/for/do 嵌套体留待后续)
+ * 根据 ifNodeId 查找对应的 merge 节点
  */
-function layoutSequence(nodes: FlowNode[]): void {
-  const NODE_H = 50
-  // 计算最大宽度，用于 X 轴中心对齐
-  const maxWidth = Math.max(...nodes.map(n => n.data.width ?? 100))
-  // 快速查找表，用于 merge 节点对齐其 if 节点
-  const nodeById = new Map(nodes.map(n => [n.id, n]))
-  let yCursor = START_Y
-  for (const node of nodes) {
-    const w = node.data.width ?? 100
-    // merge 节点与其所属 if 节点 X 轴居中对齐
-    if (node.type === 'fg-merge' && node.data.ifNodeId) {
-      const ifNode = nodeById.get(node.data.ifNodeId)
-      if (ifNode) {
-        const ifW = ifNode.data.width ?? 100
-        node.position.x = ifNode.position.x + ifW / 2 - w / 2
-      } else {
-        node.position.x = (maxWidth - w) / 2
-      }
+function findMergeNode(ifNodeId: string, nodesMap: Map<string, FlowNode>): FlowNode | undefined {
+  for (const node of nodesMap.values()) {
+    if (node.type === 'fg-merge' && node.data.ifNodeId === ifNodeId) return node
+  }
+}
+
+/** 排版结果：块结束 Y 坐标 + 块内最大宽度 */
+interface LayoutResult {
+  endY: number
+  width: number
+}
+
+/**
+ * 纯测量：递归计算一组语句的最大节点宽度（不设 position）
+ * 用于分支排版前确定分支需要占用的水平空间
+ */
+function measureBlock(statements: Statement[], nodesMap: Map<string, FlowNode>): number {
+  let maxW = 0
+  for (const stmt of statements) {
+    if (stmt.kind === 'if') {
+      const ifNode = nodesMap.get(stmt._nodeId!)
+      maxW = Math.max(maxW, ifNode?.data.width ?? IF_NODE_MIN_W)
+      maxW = Math.max(maxW, measureBlock(stmt.thenBranch, nodesMap))
+      maxW = Math.max(maxW, measureBlock(stmt.elseBranch, nodesMap))
     } else {
-      node.position.x = (maxWidth - w) / 2
+      const node = nodesMap.get(stmt._nodeId!)
+      maxW = Math.max(maxW, node?.data.width ?? 100)
     }
-    node.position.y = yCursor
-    yCursor += NODE_H + SPACING
+  }
+  return maxW
+}
+
+/**
+ * 递归排版一组语句（序列），在局部 centerX / startY 坐标系内排列。
+ * 返回该块结束时的 Y 坐标和块内最大宽度。
+ */
+function layoutBlock(
+  statements: Statement[],
+  centerX: number,
+  startY: number,
+  nodesMap: Map<string, FlowNode>,
+): LayoutResult {
+  let cursor = startY
+  let maxW = 0
+
+  for (const stmt of statements) {
+    if (stmt.kind === 'if') {
+      const result = layoutIfSelection(stmt, centerX, cursor, nodesMap)
+      cursor = result.endY
+      maxW = Math.max(maxW, result.width)
+    } else {
+      const node = nodesMap.get(stmt._nodeId!)
+      if (node) {
+        const w = node.data.width ?? 100
+        maxW = Math.max(maxW, w)
+        node.position = { x: centerX - w / 2, y: cursor }
+        cursor += NODE_H + SPACING
+      }
+    }
+  }
+
+  return { endY: cursor, width: maxW }
+}
+
+/**
+ * 排版 if 语句（仿 flowgorithm.js drawSelection）：
+ * 1. if 菱形节点置于顶部居中
+ * 2. then 分支递归排版于右侧
+ * 3. else 分支递归排版于左侧
+ * 4. merge 节点置于较深分支底部居中
+ * 5. 返回整个 if-block 的结束 Y 和总宽度
+ */
+function layoutIfSelection(
+  stmt: IfStatement & { _nodeId?: string },
+  centerX: number,
+  startY: number,
+  nodesMap: Map<string, FlowNode>,
+): LayoutResult {
+  const ifNode = nodesMap.get(stmt._nodeId!)
+  if (!ifNode) return { endY: startY, width: 0 }
+
+  const ifW = ifNode.data.width ?? IF_NODE_MIN_W
+
+  // 1. 放置 if 菱形节点
+  ifNode.position = { x: centerX - ifW / 2, y: startY }
+  const branchStartY = startY + IF_NODE_H + BRANCH_V_GAP
+
+  // 2. 先测量 then 分支宽度 → 确定其 centerX → 递归排版
+  const thenWidth = measureBlock(stmt.thenBranch, nodesMap)
+  const thenCenterX = centerX + ifW / 2 + BRANCH_H_GAP + thenWidth / 2
+  const thenResult = layoutBlock(stmt.thenBranch, thenCenterX, branchStartY, nodesMap)
+
+  // 3. 先测量 else 分支宽度 → 确定其 centerX → 递归排版
+  const elseWidth = measureBlock(stmt.elseBranch, nodesMap)
+  const elseCenterX = centerX - ifW / 2 - BRANCH_H_GAP - elseWidth / 2
+  const elseResult = layoutBlock(stmt.elseBranch, elseCenterX, branchStartY, nodesMap)
+
+  // 4. merge 节点在较深分支下方居中（与 if 菱形 X 中心对齐）
+  const maxBranchEndY = Math.max(thenResult.endY, elseResult.endY)
+  const mergeNode = findMergeNode(ifNode.id, nodesMap)
+  if (mergeNode) {
+    mergeNode.position = { x: centerX - MERGE_NODE_W / 2, y: maxBranchEndY + BRANCH_V_GAP }
+  }
+
+  // 5. 总宽度 = 菱形宽 + 左右分支
+  const totalWidth = ifW + BRANCH_H_GAP * 2 + thenWidth + elseWidth
+
+  return {
+    endY: maxBranchEndY + MERGE_NODE_H + BRANCH_V_GAP + SPACING,
+    width: totalWidth,
+  }
+}
+
+/**
+ * 流程入口排版函数：
+ * 放置 START → 递归排版 Main body → 放置 END
+ */
+function layoutFlowchart(program: Program, nodesMap: Map<string, FlowNode>): void {
+  const mainFunc = program.functions.find((f) => f.name === 'Main')
+  if (!mainFunc) return
+
+  // 查找 START/END 节点
+  let startNode: FlowNode | undefined
+  let endNode: FlowNode | undefined
+  for (const node of nodesMap.values()) {
+    if (node.type === 'start') startNode = node
+    if (node.type === 'end') endNode = node
+  }
+
+  // 放置 START
+  const startX = FLOW_CENTER_X - START_W / 2
+  if (startNode) {
+    startNode.position = { x: startX, y: START_Y }
+  }
+
+  // 递归排版 Main body
+  const bodyStartY = START_Y + START_END_H + SPACING
+  const bodyResult = layoutBlock(mainFunc.body, FLOW_CENTER_X, bodyStartY, nodesMap)
+
+  // 放置 END
+  if (endNode) {
+    endNode.position = { x: startX, y: bodyResult.endY }
   }
 }
 
@@ -205,8 +337,8 @@ console.log('AST Program:', program)
 // 1. 初始化 fprg → VueFlow 节点/边（纯数据，不排版）
 const { nodes: parsedNodes, edges: parsedEdges, nodesMap } = initAstToFlowchart(program)
 
-// 2. 排版布局
-layoutSequence(parsedNodes)
+// 2. 递归排版布局（仿 flowgorithm.js drawSelection）
+layoutFlowchart(program, nodesMap)
 console.log('Program :', program) // program的statement对象已有_nodeId
 console.log('VueFlow nodes:', parsedNodes)
 console.log('VueFlow edges:', parsedEdges)

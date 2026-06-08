@@ -4,10 +4,10 @@
         <attribute name="name" value="Next number"/>
         <attribute name="authors" value="Andrea Vallorani"/>
         <attribute name="about" value="Print the next of a given number"/>
-        <attribute name="saved" value="2026-06-08 11:44:55 &#19978;&#21320;"/>
+        <attribute name="saved" value="2026-06-08 03:08:25 &#19979;&#21320;"/>
         <attribute name="created" value="YW5kcmU7REVTS1RPUC1TNFFIVENJOzIwMTktMDItMTc7IjA0LjI4LjI4ICI7Mjc5NA=="/>
         <attribute name="edited" value="YW5kcmU7REVTS1RPUC1TNFFIVENJOzIwMTktMDItMTc7IjA0LjI4LjQ1ICI7MTsyOTAx"/>
-        <attribute name="edited" value="Mjg0ODk7VEhJTktYOzIwMjYtMDYtMDg7MTE6NDQ6NTUg5LiK5Y2IOzE7NDMyNzg="/>
+        <attribute name="edited" value="Mjg0ODk7VEhJTktYOzIwMjYtMDYtMDg7MDM6MDg6MjUg5LiL5Y2IOzc7NDMyODM="/>
     </attributes>
     <function name="Main" type="None" variable="">
         <parameters/>
@@ -17,8 +17,24 @@
             <assign variable="NEXT" expression="N+1"/>
             <output expression="&quot;Next is &quot; &amp; NEXT" newline="True"/>
             <if expression="N&gt;1">
-                <then/>
-                <else/>
+                <then>
+                    <declare name="b" type="Integer" array="False" size=""/>
+                    <if expression="e">
+                        <then/>
+                        <else/>
+                    </if>
+                </then>
+                <else>
+                    <declare name="a" type="Integer" array="False" size=""/>
+                    <if expression="a&gt;1">
+                        <then>
+                            <declare name="d" type="Integer" array="False" size=""/>
+                        </then>
+                        <else>
+                            <declare name="c" type="Integer" array="False" size=""/>
+                        </else>
+                    </if>
+                </else>
             </if>
         </body>
     </function>
