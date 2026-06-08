@@ -33,36 +33,34 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
   'do':      'default',
   'more':    'default',
 }
-
+const SPACING = 60
+let currentY = 50
 /**
  * 将 AST 的 Main 函数转换为 VueFlow 节点/边
  * (当前按顺序语句线性渲染，if/while/for/do 嵌套体留待后续)
  */
-function astToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowEdge[] } {
+function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowEdge[], nodesMap: Map<string, FlowNode> } {
   const mainFunc = program.functions.find((f) => f.name === 'Main')
-  if (!mainFunc) return { nodes: [], edges: [] }
+  if (!mainFunc) return { nodes: [], edges: [], nodesMap: new Map() }
 
   const nodes: FlowNode[] = []
   const edges: FlowEdge[] = []
+  const nodesMap = new Map<string, FlowNode>()
   let idCounter = 0
   const newId = () => 'node_' + ++idCounter
-
   const NODE_H = 50
   const MIN_W = 100
-  const SPACING = 60
-  let currentY = 50
-
   function createNode(type: FlowNodeType, label: string, width?: number, statement?: Statement): FlowNode {
     const textWidth = label.length * 8
     const nodeWidth = Math.max(width ?? textWidth + 40, MIN_W)
     const node: FlowNode = {
       id: newId(),
       type,
-      position: { x: -nodeWidth / 2, y: currentY },
+      position: { x: 0, y:0 }, // init position, 后续可改为更智能的布局
       data: { label, width: nodeWidth, height: NODE_H, statement },
     }
     nodes.push(node)
-    currentY += NODE_H + SPACING
+    nodesMap.set(node.id, node)
     return node
   }
 
@@ -80,9 +78,11 @@ function astToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowEdge[
 
   // 遍历 Main 函数 body 中的每条语句
   for (const stmt of mainFunc.body) {
+    console.log('Processing statement:', stmt)
     const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
     const label = statementToLabel(stmt)
     const node = createNode(nodeType, label, undefined, stmt)
+    stmt._nodeId = node.id // 将生成的节点ID附加到语句对象上，后续处理嵌套语句时可用
     connect(prev, node)
     prev = node
   }
@@ -91,17 +91,27 @@ function astToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowEdge[
   const endNode = createNode('end', 'END', 80)
   connect(prev, endNode)
 
-  return { nodes, edges }
+  return { nodes, edges, nodesMap }
 }
 
 // 解析 fprg → AST → VueFlow 数据
 const program = parseFprgToAst(fprgXml)
 console.log('AST Program:', program)
 
-const { nodes: parsedNodes, edges: parsedEdges } = astToFlowchart(program)
+// 1. 初始化fprg得到一个VueFlow 数据
+const { nodes: parsedNodes, edges: parsedEdges, nodesMap } = initAstToFlowchart(program)
+console.log('Program :', program) // program的statement对象已有_nodeId
 console.log('VueFlow nodes:', parsedNodes)
 console.log('VueFlow edges:', parsedEdges)
+console.log('VueFlow nodesMap:', nodesMap)
 
+// 排版顺序语句
+function layoutSequence() { 
+}
+
+
+
+// 2. 遍历ast语法树，以排版布局
 const nodes = ref<FlowNode[]>(parsedNodes)
 const edges = ref<FlowEdge[]>(parsedEdges)
 

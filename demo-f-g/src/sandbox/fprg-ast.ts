@@ -93,8 +93,8 @@ export interface MoreStatement {
   kind: 'more'
 }
 
-/** 所有语句类型的联合 */
-export type Statement =
+/** 所有语句类型的联合，_nodeId 由消费者（VueFlow）在运行时挂载 */
+export type Statement = (
   | DeclareStatement
   | AssignStatement
   | InputStatement
@@ -105,6 +105,7 @@ export type Statement =
   | ForStatement
   | DoStatement
   | MoreStatement
+) & { _nodeId?: string }
 
 /** 函数定义 */
 export interface FunctionDef {
