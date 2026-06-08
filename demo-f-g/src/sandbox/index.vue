@@ -9,6 +9,8 @@ import DeclareNode from './node-components/DeclareNode.vue'
 import AssignNode from './node-components/AssignNode.vue'
 import InputNode from './node-components/InputNode.vue'
 import OutputNode from './node-components/OutputNode.vue'
+import IfNode from './node-components/IfNode.vue'
+import MergeNode from './node-components/MergeNode.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
@@ -27,7 +29,7 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
   'input':   'fg-input',
   'output':  'fg-output',
   'call':    'call',
-  'if':      'default',
+  'if':      'fg-if',
   'while':   'default',
   'for':     'default',
   'do':      'default',
@@ -141,6 +143,8 @@ type FlowNodeType =
   | 'fg-input'
   | 'fg-output'
   | 'call'
+  | 'fg-if'
+  | 'fg-merge'
   | 'default'
 
 interface FlowNode {
@@ -207,6 +211,12 @@ onMounted(() => {
         /></template>
         <template #node-fg-output="nodeProps"
           ><OutputNode v-bind="nodeProps"
+        /></template>
+        <template #node-fg-if="nodeProps"
+          ><IfNode v-bind="nodeProps"
+        /></template>
+        <template #node-fg-merge="nodeProps"
+          ><MergeNode v-bind="nodeProps"
         /></template>
       </VueFlow>
     </div>
