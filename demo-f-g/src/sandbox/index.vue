@@ -51,7 +51,10 @@ watch(LP, () => {
   if (layoutTimer) clearTimeout(layoutTimer)
   layoutTimer = setTimeout(() => {
     engine.layout()
-  }, 30) // 30ms 防抖，保证拖滑块丝滑
+    // 触发 Vue 响应式：engine 绕过 Proxy 修改了原始对象，需手动通知
+    nodes.value = [...engine.nodes]
+    console.log('Re-layout done, node count:', nodes.value.length)
+  }, 30)
 })
 
 console.log('VueFlow nodes:', engine.nodes)
