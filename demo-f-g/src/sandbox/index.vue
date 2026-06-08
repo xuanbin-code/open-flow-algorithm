@@ -17,7 +17,7 @@ import '@vue-flow/core/dist/theme-default.css'
 // 1. 测试
 // 从fprg/next.fprg中读取数据 → AST → VueFlow 节点/边
 import fprgXml from './fprg/next.fprg?raw'
-import { parseFprgToAst, statementToLabel, type Program, type Statement } from './fprg-ast'
+import { parseFprgToAst, statementToLabel, type Program, type Statement, type IfStatement } from './fprg-ast'
 
 /**
  * AST 语句 kind → VueFlow 节点类型 映射
@@ -54,7 +54,7 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
   const MIN_W = 100
   function createNode(type: FlowNodeType, label: string, width?: number, statement?: Statement): FlowNode {
     const textWidth = label.length * 8
-    const nodeWidth = Math.max(width ?? textWidth + 40, MIN_W)
+    const nodeWidth = type === 'fg-merge' ? 20 : Math.max(width ?? textWidth + 40, MIN_W)
     const node: FlowNode = {
       id: newId(),
       type,
@@ -66,26 +66,99 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
     return node
   }
 
-  function connect(from: FlowNode, to: FlowNode) {
+  function connect(from: FlowNode, to: FlowNode, opts?: { sourceHandle?: string; targetHandle?: string }) {
+    const sh = opts?.sourceHandle
+    const th = opts?.targetHandle
     edges.push({
-      id: `edge_${from.id}_${to.id}`,
+      id: `edge_${from.id}_${to.id}${sh ? '_' + sh : ''}${th ? '_' + th : ''}`,
       source: from.id,
       target: to.id,
+      sourceHandle: sh,
+      targetHandle: th,
     })
   }
 
-  // START
-  let prev = createNode('start', 'START', 80)
+  /**
+   * 递归处理一组语句，返回 [首节点, 尾节点]
+   * 遇 if 语句则深度优先地构建子图（if-node → branches → merge-node）
+   */
+  function processSequence(statements: Statement[]): [FlowNode, FlowNode] {
+    let first: FlowNode | null = null
+    let prev: FlowNode | null = null
 
-  // 遍历 Main 函数 body 中的每条语句
+    for (const stmt of statements) {
+      let node: FlowNode
+      if (stmt.kind === 'if') {
+        node = buildIfStatement(stmt, prev)
+      } else {
+        const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
+        const label = statementToLabel(stmt)
+        node = createNode(nodeType, label, undefined, stmt)
+        stmt._nodeId = node.id
+        if (prev) connect(prev, node)
+      }
+      if (!first) first = node
+      prev = node
+    }
+
+    return [first!, prev!]
+  }
+
+  /**
+   * 处理单个分支（then 或 else）：
+   * - 空分支：直接连接 fromNode → toNode（带 handle）
+   * - 非空：递归 processSequence，首尾用指定 handle 连接
+   */
+  function processBranch(
+    statements: Statement[],
+    fromNode: FlowNode,
+    fromHandle: string,
+    toNode: FlowNode,
+    toHandle: string,
+  ): void {
+    if (statements.length === 0) {
+      connect(fromNode, toNode, { sourceHandle: fromHandle, targetHandle: toHandle })
+      return
+    }
+    const [first, last] = processSequence(statements)
+    connect(fromNode, first, { sourceHandle: fromHandle })
+    connect(last, toNode, { targetHandle: toHandle })
+  }
+
+  /**
+   * 构建 if 判断节点 + 汇集点，递归处理 then/else 分支
+   * 返回 mergeNode（作为后续节点的前驱）
+   */
+  function buildIfStatement(stmt: IfStatement & { _nodeId?: string }, prevNode: FlowNode | null): FlowNode {
+    const ifNode = createNode('fg-if', stmt.expression, undefined, stmt)
+    stmt._nodeId = ifNode.id
+    if (prevNode) connect(prevNode, ifNode)
+
+    const mergeNode = createNode('fg-merge', '', 20)
+    mergeNode.data.ifNodeId = ifNode.id
+
+    processBranch(stmt.thenBranch, ifNode, 'then', mergeNode, 'then-in')
+    processBranch(stmt.elseBranch, ifNode, 'else', mergeNode, 'else-in')
+
+    return mergeNode
+  }
+
+  // START
+  let prev: FlowNode = createNode('start', 'START', 80)
+
+  // 遍历 Main 函数 body 中的每条语句（递归处理嵌套 if）
   for (const stmt of mainFunc.body) {
     console.log('Processing statement:', stmt)
-    const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
-    const label = statementToLabel(stmt)
-    const node = createNode(nodeType, label, undefined, stmt)
-    stmt._nodeId = node.id // 将生成的节点ID附加到语句对象上，后续处理嵌套语句时可用
-    connect(prev, node)
-    prev = node
+    if (stmt.kind === 'if') {
+      prev = buildIfStatement(stmt, prev)
+    } else {
+      const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
+      const label = statementToLabel(stmt)
+      const node = createNode(nodeType, label, undefined, stmt)
+      stmt._nodeId = node.id
+      connect(prev, node)
+      prev = node
+    }
   }
 
   // END
@@ -103,10 +176,23 @@ function layoutSequence(nodes: FlowNode[]): void {
   const NODE_H = 50
   // 计算最大宽度，用于 X 轴中心对齐
   const maxWidth = Math.max(...nodes.map(n => n.data.width ?? 100))
+  // 快速查找表，用于 merge 节点对齐其 if 节点
+  const nodeById = new Map(nodes.map(n => [n.id, n]))
   let yCursor = START_Y
   for (const node of nodes) {
     const w = node.data.width ?? 100
-    node.position.x = (maxWidth - w) / 2
+    // merge 节点与其所属 if 节点 X 轴居中对齐
+    if (node.type === 'fg-merge' && node.data.ifNodeId) {
+      const ifNode = nodeById.get(node.data.ifNodeId)
+      if (ifNode) {
+        const ifW = ifNode.data.width ?? 100
+        node.position.x = ifNode.position.x + ifW / 2 - w / 2
+      } else {
+        node.position.x = (maxWidth - w) / 2
+      }
+    } else {
+      node.position.x = (maxWidth - w) / 2
+    }
     node.position.y = yCursor
     yCursor += NODE_H + SPACING
   }
@@ -159,6 +245,8 @@ interface FlowNode {
     width?: number
     height?: number
     statement?: Statement
+    /** merge 节点记录其所属 if 节点 ID，用于居中对齐 */
+    ifNodeId?: string
   }
 }
 
@@ -166,6 +254,8 @@ interface FlowEdge {
   id: string
   source: string
   target: string
+  sourceHandle?: string
+  targetHandle?: string
 }
 
 const { fitView } = useVueFlow()
