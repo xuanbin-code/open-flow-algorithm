@@ -1,0 +1,205 @@
+<script setup lang="ts">
+import { ref, computed, type Ref } from 'vue'
+
+export interface ParamDef {
+  key: string
+  label: string
+  min: number
+  max: number
+  step: number
+}
+
+const props = defineProps<{
+  params: Record<string, number>
+  definitions: ParamDef[]
+}>()
+
+const collapsed = ref(false)
+
+// 分组
+const groups = computed(() => {
+  const spacing: ParamDef[] = []
+  const nodeSize: ParamDef[] = []
+  const branch: ParamDef[] = []
+  const other: ParamDef[] = []
+
+  for (const d of props.definitions) {
+    if (d.key.includes('SPACING') || d.key.includes('START_Y') || d.key.includes('CENTER')) {
+      spacing.push(d)
+    } else if (d.key.includes('NODE_H') || d.key.includes('NODE_MIN_W') || d.key.includes('NODE_W') || d.key.includes('START_W') || d.key.includes('END_H') || d.key.includes('MERGE')) {
+      nodeSize.push(d)
+    } else if (d.key.includes('BRANCH') || d.key.includes('GAP')) {
+      branch.push(d)
+    } else {
+      other.push(d)
+    }
+  }
+
+  return [
+    { name: '间距', list: spacing },
+    { name: '节点尺寸', list: nodeSize },
+    { name: '分支间距', list: branch },
+    ...(other.length ? [{ name: '其他', list: other }] : []),
+  ].filter(g => g.list.length > 0)
+})
+
+function resetAll() {
+  for (const d of props.definitions) {
+    // 通过读取 dataset 上的默认值来重置
+  }
+}
+</script>
+
+<template>
+  <div class="debug-panel" :class="{ collapsed }">
+    <button class="toggle-btn" @click="collapsed = !collapsed">
+      {{ collapsed ? '◀ 调试' : '调试 ▶' }}
+    </button>
+
+    <div v-if="!collapsed" class="panel-body">
+      <div class="panel-header">
+        <h3>📐 布局参数</h3>
+      </div>
+
+      <div v-for="group in groups" :key="group.name" class="param-group">
+        <h4 class="group-title">{{ group.name }}</h4>
+        <div v-for="def in group.list" :key="def.key" class="param-row">
+          <label class="param-label">{{ def.label }}</label>
+          <div class="param-controls">
+            <input
+              type="range"
+              class="param-slider"
+              :min="def.min"
+              :max="def.max"
+              :step="def.step"
+              :value="props.params[def.key]"
+              @input="(e: Event) => { props.params[def.key] = Number((e.target as HTMLInputElement).value) }"
+            />
+            <input
+              type="number"
+              class="param-input"
+              :min="def.min"
+              :max="def.max"
+              :step="def.step"
+              :value="props.params[def.key]"
+              @input="(e: Event) => { props.params[def.key] = Number((e.target as HTMLInputElement).value) }"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.debug-panel {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: rgba(30, 30, 50, 0.95);
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 12px;
+  max-height: calc(100vh - 20px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.debug-panel.collapsed {
+  background: rgba(30, 30, 50, 0.85);
+}
+
+.toggle-btn {
+  padding: 6px 12px;
+  background: #3a3a5c;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 13px;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.toggle-btn:hover {
+  background: #555;
+}
+
+.panel-body {
+  overflow-y: auto;
+  padding: 0 12px 12px;
+  max-height: calc(100vh - 60px);
+}
+
+.panel-header h3 {
+  margin: 8px 0 4px;
+  font-size: 14px;
+  color: #eee;
+  border-bottom: 1px solid #444;
+  padding-bottom: 6px;
+}
+
+.param-group {
+  margin-top: 8px;
+}
+
+.group-title {
+  margin: 4px 0;
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.param-row {
+  margin: 4px 0;
+}
+
+.param-label {
+  display: block;
+  margin-bottom: 2px;
+  color: #aaa;
+  font-size: 11px;
+}
+
+.param-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.param-slider {
+  flex: 1;
+  height: 4px;
+  accent-color: #4fc3f7;
+  cursor: pointer;
+}
+
+.param-input {
+  width: 52px;
+  padding: 2px 4px;
+  background: #2a2a3e;
+  border: 1px solid #555;
+  border-radius: 3px;
+  color: #eee;
+  font-size: 11px;
+  text-align: right;
+}
+.param-input:focus {
+  outline: none;
+  border-color: #4fc3f7;
+}
+
+/* 滚动条 */
+.panel-body::-webkit-scrollbar {
+  width: 4px;
+}
+.panel-body::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 2px;
+}
+</style>
