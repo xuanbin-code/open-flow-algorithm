@@ -93,6 +93,7 @@ function initAstToFlowchart(program: Program): { nodes: FlowNode[]; edges: FlowE
       sourceHandle: sh,
       targetHandle: th,
       type: (sh || th) ? 'step' : 'default',
+      markerEnd: 'arrowclosed',
     })
   }
 
@@ -493,6 +494,7 @@ interface FlowEdge {
   sourceHandle?: string
   targetHandle?: string
   type?: string
+  markerEnd?: string
 }
 
 const { fitView } = useVueFlow()
