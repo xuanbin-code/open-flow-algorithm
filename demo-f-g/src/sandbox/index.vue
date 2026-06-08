@@ -206,9 +206,11 @@ function measureBlock(statements: Statement[], nodesMap: Map<string, FlowNode>):
   for (const stmt of statements) {
     if (stmt.kind === 'if') {
       const ifNode = nodesMap.get(stmt._nodeId!)
-      maxW = Math.max(maxW, ifNode?.data.width ?? IF_NODE_MIN_W)
-      maxW = Math.max(maxW, measureBlock(stmt.thenBranch, nodesMap))
-      maxW = Math.max(maxW, measureBlock(stmt.elseBranch, nodesMap))
+      const ifW = ifNode?.data.width ?? IF_NODE_MIN_W
+      const thenW = measureBlock(stmt.thenBranch, nodesMap)
+      const elseW = measureBlock(stmt.elseBranch, nodesMap)
+      // if-block 完整渲染宽度 = 菱形 + 左右分支（仿 flowgorithm.js calcBlockX 测量完整 SVG）
+      maxW = Math.max(maxW, ifW + BRANCH_H_GAP * 2 + thenW + elseW)
     } else {
       const node = nodesMap.get(stmt._nodeId!)
       maxW = Math.max(maxW, node?.data.width ?? 100)
