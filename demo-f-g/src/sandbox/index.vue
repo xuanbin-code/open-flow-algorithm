@@ -198,25 +198,52 @@ interface LayoutResult {
 }
 
 /**
- * 纯测量：递归计算一组语句的最大节点宽度（不设 position）
- * 用于分支排版前确定分支需要占用的水平空间
+ * 测量拓展信息
+ * leftExtent  — 块中心到块内最左边缘的距离
+ * rightExtent — 块中心到块内最右边缘的距离
+ * totalWidth  — leftExtent + rightExtent
  */
-function measureBlock(statements: Statement[], nodesMap: Map<string, FlowNode>): number {
-  let maxW = 0
+interface Extents {
+  leftExtent: number
+  rightExtent: number
+  totalWidth: number
+}
+
+function makeExtents(left: number, right: number): Extents {
+  return { leftExtent: left, rightExtent: right, totalWidth: left + right }
+}
+
+/**
+ * 纯测量：递归计算一组语句的左右拓展（不设 position）
+ * 仿 flowgorithm.js：
+ *   - calcBlockX → 左拓展（用于 then 分支靠右对齐）
+ *   - calcBlockWidth - calcBlockX → 右拓展（用于 else 分支靠左对齐）
+ */
+function measureExtents(statements: Statement[], nodesMap: Map<string, FlowNode>): Extents {
+  let left = 0
+  let right = 0
+
   for (const stmt of statements) {
     if (stmt.kind === 'if') {
       const ifNode = nodesMap.get(stmt._nodeId!)
       const ifW = ifNode?.data.width ?? IF_NODE_MIN_W
-      const thenW = measureBlock(stmt.thenBranch, nodesMap)
-      const elseW = measureBlock(stmt.elseBranch, nodesMap)
-      // if-block 完整渲染宽度 = 菱形 + 左右分支（仿 flowgorithm.js calcBlockX 测量完整 SVG）
-      maxW = Math.max(maxW, ifW + BRANCH_H_GAP * 2 + thenW + elseW)
+      const thenE = measureExtents(stmt.thenBranch, nodesMap)
+      const elseE = measureExtents(stmt.elseBranch, nodesMap)
+      // if-block 右拓展 = max(菱形右半, 菱形右顶点 + 间隙 + then 分支全宽)
+      const blockRight = Math.max(ifW / 2, ifW / 2 + BRANCH_H_GAP + thenE.totalWidth)
+      // if-block 左拓展 = max(菱形左半, 菱形左顶点 + 间隙 + else 分支全宽)
+      const blockLeft = Math.max(ifW / 2, ifW / 2 + BRANCH_H_GAP + elseE.totalWidth)
+      left = Math.max(left, blockLeft)
+      right = Math.max(right, blockRight)
     } else {
       const node = nodesMap.get(stmt._nodeId!)
-      maxW = Math.max(maxW, node?.data.width ?? 100)
+      const w = (node?.data.width ?? 100) / 2
+      left = Math.max(left, w)
+      right = Math.max(right, w)
     }
   }
-  return maxW
+
+  return makeExtents(left, right)
 }
 
 /**
@@ -274,25 +301,25 @@ function layoutIfSelection(
   ifNode.position = { x: centerX - ifW / 2, y: startY }
   const branchStartY = startY + IF_NODE_H + BRANCH_V_GAP
 
-  // 2. 先测量 then 分支宽度 → 确定其 centerX → 递归排版
-  const thenWidth = measureBlock(stmt.thenBranch, nodesMap)
-  const thenCenterX = centerX + ifW / 2 + BRANCH_H_GAP + thenWidth / 2
+  // 2. 测量 then 分支左右拓展 → 用左拓展确定 centerX → 递归排版
+  const thenExtents = measureExtents(stmt.thenBranch, nodesMap)
+  const thenCenterX = centerX + ifW / 2 + BRANCH_H_GAP + thenExtents.leftExtent
   const thenResult = layoutBlock(stmt.thenBranch, thenCenterX, branchStartY, nodesMap)
 
-  // 3. 先测量 else 分支宽度 → 确定其 centerX → 递归排版
-  const elseWidth = measureBlock(stmt.elseBranch, nodesMap)
-  const elseCenterX = centerX - ifW / 2 - BRANCH_H_GAP - elseWidth / 2
+  // 3. 测量 else 分支左右拓展 → 用右拓展确定 centerX → 递归排版
+  const elseExtents = measureExtents(stmt.elseBranch, nodesMap)
+  const elseCenterX = centerX - ifW / 2 - BRANCH_H_GAP - elseExtents.rightExtent
   const elseResult = layoutBlock(stmt.elseBranch, elseCenterX, branchStartY, nodesMap)
 
-  // 4. merge 节点在较深分支下方居中（与 if 菱形 X 中心对齐）
+  // 4. 以实际排版结果的分支宽度为准
+  const totalWidth = ifW + BRANCH_H_GAP * 2 + thenResult.width + elseResult.width
+
+  // 5. merge 节点在较深分支下方居中（与 if 菱形 X 中心对齐）
   const maxBranchEndY = Math.max(thenResult.endY, elseResult.endY)
   const mergeNode = findMergeNode(ifNode.id, nodesMap)
   if (mergeNode) {
     mergeNode.position = { x: centerX - MERGE_NODE_W / 2, y: maxBranchEndY + BRANCH_V_GAP }
   }
-
-  // 5. 总宽度 = 菱形宽 + 左右分支
-  const totalWidth = ifW + BRANCH_H_GAP * 2 + thenWidth + elseWidth
 
   return {
     endY: maxBranchEndY + MERGE_NODE_H + BRANCH_V_GAP + SPACING,
