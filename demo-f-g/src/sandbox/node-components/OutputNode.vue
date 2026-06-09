@@ -47,7 +47,7 @@ const label = computed(() => props.data?.label ?? '')
   font-size: 13px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   border: 2px solid #16a085;
-  transform: skewX(10deg);
+  transform: skewX(-10deg);
 }
 
 .fg-output-node {
