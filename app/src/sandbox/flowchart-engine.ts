@@ -17,6 +17,7 @@ import {
   statementToLabel,
   createDefaultStatement,
   findStatementLocation,
+  isStatementEmpty,
 } from './fprg-ast'
 import type { EdgeMarkerType } from '@vue-flow/core'
 import { measureTextWidth } from './text-measure'
@@ -50,6 +51,8 @@ export interface FlowNode {
     width?: number
     height?: number
     statement?: Statement
+    /** 节点内容是否为空（未配置属性） */
+    isEmpty?: boolean
     /** merge 节点记录其所属 if 节点 ID，用于居中对齐 */
     ifNodeId?: string
   }
@@ -261,6 +264,7 @@ export class FlowchartEngine {
         width: nodeWidth,
         height: this.params.NODE_H,
         statement,
+        isEmpty: statement ? isStatementEmpty(statement) : false,
       },
     }
     this.nodes.push(node)

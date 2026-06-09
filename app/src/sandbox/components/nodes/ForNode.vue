@@ -8,6 +8,7 @@ interface ForNodeProps {
     label?: string
     width?: number
     height?: number
+    isEmpty?: boolean
   }
   selected?: boolean
   dragging?: boolean
@@ -21,12 +22,13 @@ const props = withDefaults(defineProps<ForNodeProps>(), {
 const nodeWidth = computed(() => props.data?.width ?? 160)
 const nodeHeight = computed(() => props.data?.height ?? 80)
 const label = computed(() => props.data?.label ?? '')
+const isEmpty = computed(() => props.data?.isEmpty ?? false)
 </script>
 
 <template>
   <div
     class="flow-node for-node"
-    :class="{ selected, dragging }"
+    :class="{ selected, dragging, 'is-empty': isEmpty }"
     :style="{
       width: nodeWidth + 'px',
       height: nodeHeight + 'px',
@@ -80,6 +82,11 @@ const label = computed(() => props.data?.label ?? '')
 .for-node.dragging {
   opacity: 0.8;
   cursor: grabbing;
+}
+
+.for-node.is-empty {
+  opacity: 0.6;
+  filter: grayscale(0.7);
 }
 
 /* loop-back handle 偏移到 center-bottom source 右边 20px */

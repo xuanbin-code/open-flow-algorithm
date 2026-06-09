@@ -248,7 +248,7 @@ async function handleSaveAs() {
           ><EndNode v-bind="nodeProps"
         /></template>
         <template #node-default="nodeProps"
-          ><div class="default-node-fallback" :style="{ width: (nodeProps.data?.width ?? 120) + 'px', height: (nodeProps.data?.height ?? 50) + 'px' }">{{ nodeProps.data?.label ?? '' }}</div
+          ><div class="default-node-fallback" :class="{ 'is-empty': nodeProps.data?.isEmpty }" :style="{ width: (nodeProps.data?.width ?? 120) + 'px', height: (nodeProps.data?.height ?? 50) + 'px' }">{{ nodeProps.data?.label ?? '' }}</div
         /></template>
         <template #node-declare="nodeProps"
           ><DeclareNode v-bind="nodeProps"
@@ -345,5 +345,27 @@ async function handleSaveAs() {
 .toast-fade-leave-to {
   opacity: 0;
   transform: translateY(12px);
+}
+
+/* ---- 默认节点回退样式 ---- */
+.default-node-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  background: #7f8c8d;
+  border: 2px solid #6c7a7a;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8px;
+}
+
+.default-node-fallback.is-empty {
+  opacity: 0.6;
+  filter: grayscale(0.7);
 }
 </style>

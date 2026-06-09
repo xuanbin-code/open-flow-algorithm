@@ -8,6 +8,7 @@ interface StartNodeProps {
     label?: string
     width?: number
     height?: number
+    isEmpty?: boolean
   }
   selected?: boolean
   dragging?: boolean
@@ -21,6 +22,9 @@ const props = withDefaults(defineProps<StartNodeProps>(), {
 const nodeWidth = computed(() => props.data?.width ?? 80)
 const nodeHeight = computed(() => props.data?.height ?? 50)
 const label = computed(() => props.data?.label ?? '开始')
+const isEmpty = computed(() => props.data?.isEmpty ?? false)
+
+// StartNode is never empty — it's always a fixed "开始" node
 </script>
 
 <template>

@@ -5,7 +5,8 @@
       "Bash(npx vite *)",
       "Bash(rustc --version)",
       "Bash(cargo --version)",
-      "Bash(pnpm --version)"
+      "Bash(pnpm --version)",
+      "Bash(netstat -ano)"
     ]
   }
 }

@@ -305,19 +305,24 @@ function parseStatement(el: Element): Statement | null {
 // ============================================================
 
 /**
- * 将一条 AST 语句转换为显示标签文本
+ * 将一条 AST 语句转换为显示标签文本。
+ * 内容为空时返回中文类型名作为占位提示。
  */
 export function statementToLabel(stmt: Statement): string {
   switch (stmt.kind) {
     case 'declare': {
+      if (!stmt.name) return '声明'
       const arr = stmt.array ? `[${stmt.size}]` : ''
       return `${typeNameToCN(stmt.type)} ${stmt.name}${arr}`
     }
     case 'assign':
+      if (!stmt.variable) return '赋值'
       return `${stmt.variable} = ${stmt.expression}`
     case 'input':
+      if (!stmt.variable) return '输入'
       return `输入 ${stmt.variable}`
     case 'output': {
+      if (!stmt.expression) return '输出'
       const expr = stmt.expression
         .replace(/&quot;/g, '"')
         .replace(/&amp;/g, '&')
@@ -328,20 +333,50 @@ export function statementToLabel(stmt: Statement): string {
       return `输出 ${expr}`
     }
     case 'call':
+      if (!stmt.expression) return '调用'
       return `调用 ${stmt.expression}`
     case 'if':
-      return stmt.expression
+      return stmt.expression || '判断'
     case 'while':
-      return stmt.expression
+      return stmt.expression || 'while 循环'
     case 'for': {
+      if (!stmt.variable) return 'for 循环'
       let label = `${stmt.variable} = ${stmt.start} 到 ${stmt.end}`
       if (stmt.step && stmt.step !== '1') label += ` 步长 ${stmt.step}`
       return label
     }
     case 'do':
-      return stmt.expression
+      return stmt.expression || 'do 循环'
     case 'more':
       return '...'
+  }
+}
+
+/**
+ * 判断语句是否为空（所有用户可编辑的字段均为空/默认值）
+ */
+export function isStatementEmpty(stmt: Statement): boolean {
+  switch (stmt.kind) {
+    case 'declare':
+      return !stmt.name
+    case 'assign':
+      return !stmt.variable
+    case 'input':
+      return !stmt.variable
+    case 'output':
+      return !stmt.expression
+    case 'call':
+      return !stmt.expression
+    case 'if':
+      return !stmt.expression
+    case 'while':
+      return !stmt.expression
+    case 'for':
+      return !stmt.variable
+    case 'do':
+      return !stmt.expression
+    case 'more':
+      return false
   }
 }
 
@@ -370,23 +405,23 @@ export function typeNameToCN(en: string): string {
 export function createDefaultStatement(kind: Statement['kind']): Statement {
   switch (kind) {
     case 'declare':
-      return { kind: 'declare', name: '变量', type: 'Integer', array: false, size: '' }
+      return { kind: 'declare', name: '', type: 'Integer', array: false, size: '' }
     case 'assign':
-      return { kind: 'assign', variable: '变量', expression: '0' }
+      return { kind: 'assign', variable: '', expression: '' }
     case 'input':
-      return { kind: 'input', variable: '变量' }
+      return { kind: 'input', variable: '' }
     case 'output':
-      return { kind: 'output', expression: '"输出"', newline: true }
+      return { kind: 'output', expression: '', newline: true }
     case 'call':
-      return { kind: 'call', expression: '函数()' }
+      return { kind: 'call', expression: '' }
     case 'if':
-      return { kind: 'if', expression: 'true', thenBranch: [], elseBranch: [] }
+      return { kind: 'if', expression: '', thenBranch: [], elseBranch: [] }
     case 'while':
-      return { kind: 'while', expression: 'true', body: [] }
+      return { kind: 'while', expression: '', body: [] }
     case 'for':
-      return { kind: 'for', variable: 'i', start: '0', end: '10', step: '1', body: [] }
+      return { kind: 'for', variable: '', start: '', end: '', step: '1', body: [] }
     case 'do':
-      return { kind: 'do', expression: 'true', body: [] }
+      return { kind: 'do', expression: '', body: [] }
     case 'more':
       return { kind: 'more' }
   }

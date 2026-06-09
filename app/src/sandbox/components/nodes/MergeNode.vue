@@ -3,11 +3,14 @@ import { Handle, Position } from '@vue-flow/core'
 
 interface MergeNodeProps {
   id: string
+  data?: {
+    isEmpty?: boolean
+  }
   selected?: boolean
   dragging?: boolean
 }
 
-withDefaults(defineProps<MergeNodeProps>(), {
+const props = withDefaults(defineProps<MergeNodeProps>(), {
   selected: false,
   dragging: false,
 })
