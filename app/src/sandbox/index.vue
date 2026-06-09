@@ -12,6 +12,7 @@ import OutputNode from './components/nodes/OutputNode.vue'
 import IfNode from './components/nodes/IfNode.vue'
 import MergeNode from './components/nodes/MergeNode.vue'
 import ForNode from './components/nodes/ForNode.vue'
+import WhileNode from './components/nodes/WhileNode.vue'
 import InsertNodePanel from './components/panels/InsertNodePanel.vue'
 import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
 import MenuBar from './components/MenuBar.vue'
@@ -361,6 +362,9 @@ async function handleSaveAs() {
         /></template>
         <template #node-fg-for="nodeProps"
           ><ForNode v-bind="nodeProps"
+        /></template>
+        <template #node-fg-while="nodeProps"
+          ><WhileNode v-bind="nodeProps"
         /></template>
       </VueFlow>
     </div>

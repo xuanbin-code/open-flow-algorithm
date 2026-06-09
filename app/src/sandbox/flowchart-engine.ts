@@ -14,6 +14,7 @@ import {
   type Statement,
   type IfStatement,
   type ForStatement,
+  type WhileStatement,
   statementToLabel,
   createDefaultStatement,
   findStatementLocation,
@@ -36,6 +37,7 @@ export type FlowNodeType =
   | 'call'
   | 'fg-if'
   | 'fg-for'
+  | 'fg-while'
   | 'fg-merge'
   | 'default'
 
@@ -77,6 +79,8 @@ export interface LayoutParams {
   IF_NODE_MIN_W: number
   FOR_NODE_H: number
   FOR_NODE_MIN_W: number
+  WHILE_NODE_H: number
+  WHILE_NODE_MIN_W: number
   MERGE_NODE_W: number
   MERGE_NODE_H: number
   START_W: number
@@ -99,6 +103,8 @@ export const DEFAULT_PARAMS: LayoutParams = {
   IF_NODE_MIN_W: 160,
   FOR_NODE_H: 80,
   FOR_NODE_MIN_W: 160,
+  WHILE_NODE_H: 80,
+  WHILE_NODE_MIN_W: 160,
   MERGE_NODE_W: 20,
   MERGE_NODE_H: 20,
   START_W: 80,
@@ -120,6 +126,8 @@ export const PARAM_DEFS = [
   { key: 'IF_NODE_MIN_W', label: 'If 节点最小宽 IF_NODE_MIN_W', min: 80, max: 500, step: 10 },
   { key: 'FOR_NODE_H', label: 'For 节点高 FOR_NODE_H', min: 40, max: 300, step: 5 },
   { key: 'FOR_NODE_MIN_W', label: 'For 节点最小宽 FOR_NODE_MIN_W', min: 80, max: 500, step: 10 },
+  { key: 'WHILE_NODE_H', label: 'While 节点高 WHILE_NODE_H', min: 40, max: 300, step: 5 },
+  { key: 'WHILE_NODE_MIN_W', label: 'While 节点最小宽 WHILE_NODE_MIN_W', min: 80, max: 500, step: 10 },
   { key: 'MERGE_NODE_W', label: 'Merge 节点宽 MERGE_NODE_W', min: 10, max: 80, step: 2 },
   { key: 'MERGE_NODE_H', label: 'Merge 节点高 MERGE_NODE_H', min: 10, max: 80, step: 2 },
   { key: 'START_W', label: 'Start 节点宽 START_W', min: 40, max: 300, step: 5 },
@@ -137,7 +145,7 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
   output: 'fg-output',
   call: 'call',
   if: 'fg-if',
-  while: 'default',
+  while: 'fg-while',
   for: 'fg-for',
   do: 'default',
   more: 'default'
@@ -146,7 +154,8 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
 /** clip-path 形状的文本可视区小于 CSS 宽度，需要放大系数 */
 const SHAPE_WIDTH_FACTOR: Partial<Record<FlowNodeType, number>> = {
   'fg-if': 1.9,   // 菱形可视区约 55%
-  'fg-for': 1.7,  // 六边形可视区约 60%
+  'fg-for': 1.7,   // 六边形可视区约 60%
+  'fg-while': 1.7, // 六边形可视区约 60%
 }
 
 const NODE_MAX_W = 400   // 节点最大宽度
@@ -211,6 +220,8 @@ export class FlowchartEngine {
           prev = mergeNode
         } else if (stmt.kind === 'for') {
           prev = this.buildForStatement(stmt, prev)
+        } else if (stmt.kind === 'while') {
+          prev = this.buildWhileStatement(stmt, prev)
         } else {
           const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
           const label = statementToLabel(stmt)
@@ -376,6 +387,10 @@ export class FlowchartEngine {
         const forNode = this.buildForStatement(stmt, prev)
         if (!first) first = forNode
         prev = forNode
+      } else if (stmt.kind === 'while') {
+        const whileNode = this.buildWhileStatement(stmt, prev)
+        if (!first) first = whileNode
+        prev = whileNode
       } else {
         const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
         const label = statementToLabel(stmt)
@@ -454,6 +469,25 @@ export class FlowchartEngine {
     return forNode
   }
 
+  /**
+   * 构建 while 循环节点，递归处理 body
+   * 返回 whileNode（自身作为出口，Bottom source 连下一条语句）
+   */
+  private buildWhileStatement(
+    stmt: WhileStatement & { _nodeId?: string },
+    prevNode: FlowNode | null
+  ): FlowNode {
+    const label = statementToLabel(stmt)
+    const whileNode = this.createNode('fg-while', label, undefined, stmt)
+    stmt._nodeId = whileNode.id
+    if (prevNode) this.connect(prevNode, whileNode)
+
+    // body 从 loop-body(Right source) 出 → loop-back(Bottom target) 回
+    this.processBranch(stmt.body, whileNode, 'loop-body', whileNode, 'loop-back')
+
+    return whileNode
+  }
+
   // ==========================================
   // Phase 2: Layout
   // ==========================================
@@ -498,6 +532,16 @@ export class FlowchartEngine {
         )
         left = Math.max(left, forW / 2)
         right = Math.max(right, blockRight)
+      } else if (stmt.kind === 'while') {
+        const whileNode = this.nodesMap.get(stmt._nodeId!)
+        const whileW = whileNode?.data.width ?? this.params.WHILE_NODE_MIN_W
+        const bodyE = this.measureExtents(stmt.body)
+        const blockRight = Math.max(
+          whileW / 2,
+          whileW / 2 + this.params.BRANCH_H_GAP + bodyE.totalWidth
+        )
+        left = Math.max(left, whileW / 2)
+        right = Math.max(right, blockRight)
       } else {
         const node = this.nodesMap.get(stmt._nodeId!)
         const w = (node?.data.width ?? 100) / 2
@@ -523,6 +567,10 @@ export class FlowchartEngine {
         maxW = Math.max(maxW, result.width)
       } else if (stmt.kind === 'for') {
         const result = this.layoutForSelection(stmt, centerX, cursor)
+        cursor = result.endY
+        maxW = Math.max(maxW, result.width)
+      } else if (stmt.kind === 'while') {
+        const result = this.layoutWhileSelection(stmt, centerX, cursor)
         cursor = result.endY
         maxW = Math.max(maxW, result.width)
       } else {
@@ -611,6 +659,35 @@ export class FlowchartEngine {
 
     const totalWidth = forW + this.params.BRANCH_H_GAP + bodyResult.width
     const endY = Math.max(startY + forH, bodyResult.endY) + this.params.SPACING
+
+    return { endY, width: totalWidth }
+  }
+
+  /**
+   * 排版 while 语句
+   */
+  private layoutWhileSelection(
+    stmt: WhileStatement & { _nodeId?: string },
+    centerX: number,
+    startY: number
+  ): LayoutResult {
+    const whileNode = this.nodesMap.get(stmt._nodeId!)
+    if (!whileNode) return { endY: startY, width: 0 }
+
+    const whileW = whileNode.data.width ?? this.params.WHILE_NODE_MIN_W
+    const whileH = whileNode.data.height ?? this.params.WHILE_NODE_H
+
+    // 1. 放置 while 六边形节点
+    whileNode.position = { x: centerX - whileW / 2, y: startY }
+
+    // 2. 测量并排版 body
+    const bodyExtents = this.measureExtents(stmt.body)
+    const bodyCenterX = centerX + whileW / 2 + this.params.BRANCH_H_GAP + bodyExtents.leftExtent
+    const bodyStartY = startY + whileH + this.params.BRANCH_V_GAP
+    const bodyResult = this.layoutBlock(stmt.body, bodyCenterX, bodyStartY)
+
+    const totalWidth = whileW + this.params.BRANCH_H_GAP + bodyResult.width
+    const endY = Math.max(startY + whileH, bodyResult.endY) + this.params.SPACING
 
     return { endY, width: totalWidth }
   }

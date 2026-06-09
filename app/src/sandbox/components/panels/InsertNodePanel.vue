@@ -106,8 +106,7 @@ const categories: Category[] = [
     name: '循环',
     nodes: [
       { type: 'for',   label: 'for 循环',   category: '循环', bg: '#2ecc71', border: '#27ae60', shape: 'hexagon' },
-      { type: 'while', label: 'while 循环', category: '循环', bg: '#f1c40f', border: '#d4ac0d', shape: 'diamond' },
-      { type: 'do',    label: 'do 循环',    category: '循环', bg: '#e74c3c', border: '#c0392b', shape: 'diamond' },
+      { type: 'while', label: 'while 循环', category: '循环', bg: '#f1c40f', border: '#d4ac0d', shape: 'hexagon' },
     ],
   },
 ]
