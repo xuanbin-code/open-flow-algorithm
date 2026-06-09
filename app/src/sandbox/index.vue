@@ -170,6 +170,19 @@ function onEdgeClick(data: any) {
   panelVisible.value = true
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function onNodeClick(data: any) {
+  const stmt: Statement | undefined = data.node?.data?.statement
+  if (!stmt) return  // Start/End/Merge 节点无 statement，不弹出面板
+  clickedEdgeId.value = null
+  editingStatement.value = stmt
+  panelPosition.value = {
+    x: data.event.clientX + 24,
+    y: data.event.clientY - 120,
+  }
+  panelVisible.value = true
+}
+
 function onInsertNode(type: string) {
   if (clickedEdgeId.value) {
     const newStmt = engine.insertNodeAtEdge(clickedEdgeId.value, type as Statement['kind'])
@@ -315,6 +328,7 @@ async function handleSaveAs() {
         :max-zoom="4"
         fit-view-on-init
         @edge-click="onEdgeClick"
+        @node-click="onNodeClick"
       >
         <Background pattern-color="#aaa" :gap="20" />
         <Controls />

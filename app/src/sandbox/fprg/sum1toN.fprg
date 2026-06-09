@@ -10,7 +10,7 @@
         <parameters/>
         <body>
             <declare name="N, i, sum" type="Integer" array="False" size=""/>
-            <output expression="&quot;请输入 N：&quot;" newline="True"/>
+            <output expression="&quot;亲爱的，请输入 N：&quot;" newline="True"/>
             <input variable="N"/>
             <assign variable="sum" expression="0"/>
             <for variable="i" start="1" end="N" step="1">
