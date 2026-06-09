@@ -342,6 +342,12 @@ export class FlowchartEngine {
       if (forStmt) {
         forStmt.body.unshift(newStmt)
       }
+    } else if (sourceNode.type === 'fg-while' && edge.sourceHandle === 'loop-body') {
+      // while 节点 → 循环体：插入到 body 开头
+      const whileStmt = sourceNode.data.statement as WhileStatement | undefined
+      if (whileStmt) {
+        whileStmt.body.unshift(newStmt)
+      }
     } else if (sourceNode.data.statement) {
       // 普通顺序边：在 source 语句之后插入
       const loc = findStatementLocation(this.program, sourceNode.data.statement)
