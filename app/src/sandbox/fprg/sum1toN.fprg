@@ -13,7 +13,7 @@
             <output expression="&quot;请输入 N：&quot;" newline="True"/>
             <input variable="N"/>
             <assign variable="sum" expression="0"/>
-            <for variable="i" start="1" end="N" direction="inc" step="1">
+            <for variable="i" start="1" end="N" step="1">
                 <assign variable="sum" expression="sum + i"/>
             </for>
             <output expression="&quot;1+2+...+&quot; &amp; N &amp; &quot; = &quot; &amp; sum" newline="True"/>

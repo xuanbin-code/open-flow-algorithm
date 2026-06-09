@@ -124,6 +124,32 @@ export interface Program {
   functions: FunctionDef[]
 }
 
+/**
+ * 创建一个空白 Program（仅含 Main 函数、空 body）。
+ * 用于新建文件或上次文件加载失败时的回退。
+ */
+export function createEmptyProgram(name?: string): Program {
+  return {
+    kind: 'program',
+    attributes: {
+      name: name ?? '未命名',
+      authors: '',
+      about: '',
+      saved: new Date().toISOString().split('T')[0],
+    },
+    functions: [
+      {
+        kind: 'function',
+        name: 'Main',
+        type: '',
+        variable: '',
+        parameters: [],
+        body: [],
+      },
+    ],
+  }
+}
+
 // ============================================================
 // Parser
 // ============================================================

@@ -6,7 +6,10 @@
       "Bash(rustc --version)",
       "Bash(cargo --version)",
       "Bash(pnpm --version)",
-      "Bash(netstat -ano)"
+      "Bash(netstat -ano)",
+      "Bash(node -e \"try { require\\('@tauri-apps/api/path'\\); console.log\\('path module available'\\); } catch\\(e\\) { console.log\\('NOT found as CJS'\\); }\")",
+      "Bash(ls node_modules/@tauri-apps/api/package.json)",
+      "Bash(node -e \"const p = require\\('@tauri-apps/api/package.json'\\); console.log\\('version:', p.version\\)\")"
     ]
   }
 }

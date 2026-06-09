@@ -18,10 +18,10 @@ import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
-import { parseFprgToAst, astToFprgXml, type Program, type Statement } from './fprg-ast'
+import { parseFprgToAst, astToFprgXml, createEmptyProgram, type Program, type Statement } from './fprg-ast'
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs'
-import defaultFprgXml from './fprg/compareTwoNumbers.fprg?raw'
+import { addRecentFile, loadRecentFiles, getLastFile, type RecentEntry } from './recent-files'
 import {
   FlowchartEngine,
   DEFAULT_PARAMS,
@@ -40,12 +40,18 @@ const LP = reactive<LayoutParams>({ ...DEFAULT_PARAMS })
 // Program & Engine
 // ============================================
 
-let program: Program = parseFprgToAst(defaultFprgXml)
+// 先用空白 Program 初始化，onMounted 中尝试恢复上次文件
+let program: Program = createEmptyProgram()
 let engine = new FlowchartEngine(program, LP)
-console.log('Default program:', program.attributes.name)
 
 /** 当前打开的文件路径（null 表示尚未关联文件） */
 const currentFilePath = ref<string | null>(null)
+
+/** 是否为新建空白文件（保存时走另存为） */
+const isNewFile = ref(false)
+
+/** 最近打开的文件列表 */
+const recentFiles = ref<RecentEntry[]>([])
 
 /** 加载 fprg XML → 重建 engine + 更新 VueFlow 响应式数据 */
 function loadProgram(xml: string, filePath?: string) {
@@ -53,7 +59,10 @@ function loadProgram(xml: string, filePath?: string) {
   engine = new FlowchartEngine(program, LP)
   nodes.value = [...engine.nodes]
   edges.value = [...engine.edges]
-  if (filePath) currentFilePath.value = filePath
+  if (filePath) {
+    currentFilePath.value = filePath
+    isNewFile.value = false
+  }
   console.log('Loaded program:', program.attributes.name, filePath ? `(${filePath})` : '')
 }
 
@@ -73,10 +82,45 @@ watch(LP, () => {
   }, 30)
 })
 
-console.log('VueFlow nodes:', engine.nodes)
-console.log('VueFlow edges:', engine.edges)
-
 const { fitView } = useVueFlow()
+
+// ============================================
+// 启动：尝试恢复上次文件
+// ============================================
+
+async function initApp() {
+  const lastFile = await getLastFile()
+
+  if (lastFile) {
+    try {
+      const xml = await readTextFile(lastFile)
+      loadProgram(xml, lastFile)
+      await refreshRecentFiles()
+      console.log('已恢复上次文件:', lastFile)
+      return
+    } catch {
+      console.warn('上次文件无法打开，回退到空白画布:', lastFile)
+    }
+  }
+
+  // 文件不存在 / 首次启动 → 空白画布
+  program = createEmptyProgram()
+  engine = new FlowchartEngine(program, LP)
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
+  currentFilePath.value = null
+  isNewFile.value = true
+  await refreshRecentFiles()
+  console.log('空白画布已创建')
+}
+
+async function refreshRecentFiles() {
+  try {
+    recentFiles.value = await loadRecentFiles()
+  } catch {
+    recentFiles.value = []
+  }
+}
 
 // CTRL+S 快捷键
 function onKeydown(e: KeyboardEvent) {
@@ -86,7 +130,8 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await initApp()
   setTimeout(() => fitView(), 100)
   window.addEventListener('keydown', onKeydown)
 })
@@ -159,7 +204,32 @@ function onCloseEditor() {
 // ============================================
 
 async function onMenuAction(actionId: string) {
+  // 处理「打开最近文件」点击
+  if (actionId.startsWith('open-recent:')) {
+    const filePath = actionId.slice('open-recent:'.length)
+    try {
+      const xml = await readTextFile(filePath)
+      loadProgram(xml, filePath)
+      await addRecentFile(filePath)
+      await refreshRecentFiles()
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
+      showToast(`无法打开文件: ${msg}`, 'error')
+    }
+    return
+  }
+
   switch (actionId) {
+    case 'new': {
+      program = createEmptyProgram()
+      engine = new FlowchartEngine(program, LP)
+      nodes.value = [...engine.nodes]
+      edges.value = [...engine.edges]
+      currentFilePath.value = null
+      isNewFile.value = true
+      setTimeout(() => fitView(), 100)
+      break
+    }
     case 'open': {
       const selected = await open({
         filters: [{ name: 'Flowgorithm 文件', extensions: ['fprg'] }],
@@ -168,6 +238,8 @@ async function onMenuAction(actionId: string) {
       if (selected) {
         const xml = await readTextFile(selected as string)
         loadProgram(xml, selected as string)
+        await addRecentFile(selected as string)
+        await refreshRecentFiles()
       }
       break
     }
@@ -184,9 +256,9 @@ async function onMenuAction(actionId: string) {
   }
 }
 
-/** 保存到当前文件（无路径则走另存为） */
+/** 保存到当前文件（新建文件或无路径则走另存为） */
 async function handleSave() {
-  if (!currentFilePath.value) {
+  if (isNewFile.value || !currentFilePath.value) {
     await handleSaveAs()
     return
   }
@@ -196,6 +268,8 @@ async function handleSave() {
     // 重新读取验证
     const verifyXml = await readTextFile(currentFilePath.value)
     loadProgram(verifyXml, currentFilePath.value)
+    await addRecentFile(currentFilePath.value)
+    await refreshRecentFiles()
     showToast('保存成功', 'success')
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
@@ -214,8 +288,11 @@ async function handleSaveAs() {
       const xml = astToFprgXml(program)
       await writeTextFile(savePath as string, xml)
       currentFilePath.value = savePath as string
+      isNewFile.value = false
       const verifyXml = await readTextFile(savePath as string)
       loadProgram(verifyXml, currentFilePath.value)
+      await addRecentFile(savePath as string)
+      await refreshRecentFiles()
       showToast('另存成功', 'success')
     }
   } catch (e: unknown) {
@@ -228,7 +305,7 @@ async function handleSaveAs() {
 
 <template>
   <div class="flowchart-sandbox">
-    <MenuBar @action="onMenuAction" />
+    <MenuBar :recent-files="recentFiles" @action="onMenuAction" />
     <div class="flow-container">
       <VueFlow
         :nodes="nodes"

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="未命名"/>
+        <attribute name="authors" value=""/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2026-06-09"/>
+    </attributes>
+    <function name="Main" type="" variable="">
+        <parameters/>
+        <body>
+            <declare name="a" type="Integer" array="False" size=""/>
+            <input variable=""/>
+        </body>
+    </function>
+</flowgorithm>

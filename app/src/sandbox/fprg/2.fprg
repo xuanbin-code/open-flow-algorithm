@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="比较两数大小"/>
+        <attribute name="authors" value="Open Flow Algorithm"/>
+        <attribute name="about" value="输入两个整数，比较并输出较大的数"/>
+        <attribute name="saved" value="2026-06-09"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="a, b" type="Integer" array="False" size=""/>
+            <declare name="c" type="Integer" array="False" size=""/>
+            <assign variable="c" expression="a"/>
+            <output expression="&quot;请输入两个整数：&quot;" newline="True"/>
+            <output expression="&quot;我喜欢你&quot;" newline="True"/>
+            <input variable="a"/>
+            <input variable="b"/>
+            <input variable="c"/>
+            <if expression="a &gt; b">
+                <then>
+                    <output expression="a &amp; &quot; 大于 &quot; &amp; b" newline="True"/>
+                </then>
+                <else>
+                    <if expression="a &lt; b">
+                        <then>
+                            <output expression="b &amp; &quot; 大于 &quot; &amp; a" newline="True"/>
+                        </then>
+                        <else>
+                            <output expression="&quot;两数相等&quot;" newline="True"/>
+                        </else>
+                    </if>
+                </else>
+            </if>
+        </body>
+    </function>
+</flowgorithm>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // ============================================================
 // Types
@@ -20,12 +20,19 @@ interface TopMenu {
   items: MenuItem[]
 }
 
+interface RecentEntry {
+  path: string
+  name: string
+  openedAt: string
+}
+
 // ============================================================
 // Props & Emits
 // ============================================================
 
-defineProps<{
+const props = defineProps<{
   selectedNodeId?: string | null
+  recentFiles?: RecentEntry[]
 }>()
 
 const emit = defineEmits<{
@@ -33,23 +40,36 @@ const emit = defineEmits<{
 }>()
 
 // ============================================================
-// Menu data
+// Menu data (dynamic file menu with recent files)
 // ============================================================
 
-const menus: TopMenu[] = [
+const menuFileItems = computed<MenuItem[]>(() => {
+  const base: MenuItem[] = [
+    { id: 'new', label: '新建' },
+    { id: 'open', label: '打开' },
+    { id: 'save', label: '保存' },
+    { id: 'saveAs', label: '另存为' },
+  ]
+
+  const recents = props.recentFiles ?? []
+  if (recents.length > 0) {
+    base.push({ id: 'div1', label: '', divider: true })
+    base.push({ id: 'recent-label', label: '最近打开的文件', sublabel: '最近打开的文件', disabled: true })
+    for (const entry of recents) {
+      base.push({ id: `open-recent:${entry.path}`, label: entry.name })
+    }
+  }
+
+  base.push({ id: 'div-close', label: '', divider: true })
+  base.push({ id: 'exit', label: '退出' })
+  return base
+})
+
+const menus = computed<TopMenu[]>(() => [
   {
     id: 'file',
     label: '文件',
-    items: [
-      { id: 'new', label: '新建' },
-      { id: 'open', label: '打开' },
-      { id: 'save', label: '保存' },
-      { id: 'saveAs', label: '另存为' },
-      { id: 'div1', label: '', divider: true },
-      { id: 'recent-label', label: '最近打开的文件', sublabel: '最近打开的文件', disabled: true },
-      { id: 'div2', label: '', divider: true },
-      { id: 'exit', label: '退出' },
-    ],
+    items: menuFileItems.value,
   },
   {
     id: 'edit',
@@ -79,7 +99,7 @@ const menus: TopMenu[] = [
       },
     ],
   },
-]
+])
 
 // ============================================================
 // Dropdown state
