@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<EndNodeProps>(), {
 
 const nodeWidth = computed(() => props.data?.width ?? 80)
 const nodeHeight = computed(() => props.data?.height ?? 50)
-const label = computed(() => props.data?.label ?? 'END')
+const label = computed(() => props.data?.label ?? '结束')
 </script>
 
 <template>

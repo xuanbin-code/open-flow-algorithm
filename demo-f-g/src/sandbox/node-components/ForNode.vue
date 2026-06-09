@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
-import { type Statement } from '../fprg-ast'
 
 interface ForNodeProps {
   id: string
@@ -9,7 +8,6 @@ interface ForNodeProps {
     label?: string
     width?: number
     height?: number
-    statement?: Statement
   }
   selected?: boolean
   dragging?: boolean
@@ -22,14 +20,7 @@ const props = withDefaults(defineProps<ForNodeProps>(), {
 
 const nodeWidth = computed(() => props.data?.width ?? 160)
 const nodeHeight = computed(() => props.data?.height ?? 80)
-const label = computed(() => {
-  const s = props.data?.statement
-  if (s?.kind === 'for') {
-    const base = `${s.variable} = ${s.start} TO ${s.end}`
-    return s.step && s.step !== '1' ? `${base} STEP ${s.step}` : base
-  }
-  return props.data?.label ?? ''
-})
+const label = computed(() => props.data?.label ?? '')
 </script>
 
 <template>

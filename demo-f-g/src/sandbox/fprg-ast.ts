@@ -311,29 +311,51 @@ export function statementToLabel(stmt: Statement): string {
   switch (stmt.kind) {
     case 'declare': {
       const arr = stmt.array ? `[${stmt.size}]` : ''
-      return `${stmt.type} ${stmt.name}${arr}`
+      return `${typeNameToCN(stmt.type)} ${stmt.name}${arr}`
     }
     case 'assign':
       return `${stmt.variable} = ${stmt.expression}`
     case 'input':
-      return `Input ${stmt.variable}`
+      return `输入 ${stmt.variable}`
     case 'output': {
       const expr = stmt.expression
         .replace(/&quot;/g, '"')
         .replace(/&amp;/g, '&')
-      return `Output ${expr}`
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&#13;/g, '')
+        .replace(/&#10;/g, '')
+      return `输出 ${expr}`
     }
     case 'call':
-      return `Call ${stmt.expression}`
+      return `调用 ${stmt.expression}`
     case 'if':
       return stmt.expression
     case 'while':
       return stmt.expression
-    case 'for':
-      return `${stmt.variable} = ${stmt.start} TO ${stmt.end}`
+    case 'for': {
+      let label = `${stmt.variable} = ${stmt.start} 到 ${stmt.end}`
+      if (stmt.step && stmt.step !== '1') label += ` 步长 ${stmt.step}`
+      return label
+    }
     case 'do':
       return stmt.expression
     case 'more':
       return '...'
   }
+}
+
+// ============================================================
+// Type name localization (English → Chinese)
+// ============================================================
+
+const TYPE_NAME_CN: Record<string, string> = {
+  'Integer': '整数',
+  'Real':    '实数',
+  'Boolean': '布尔',
+  'String':  '字符串',
+}
+
+export function typeNameToCN(en: string): string {
+  return TYPE_NAME_CN[en] ?? en
 }

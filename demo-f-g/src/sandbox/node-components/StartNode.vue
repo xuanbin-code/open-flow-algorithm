@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<StartNodeProps>(), {
 
 const nodeWidth = computed(() => props.data?.width ?? 80)
 const nodeHeight = computed(() => props.data?.height ?? 50)
-const label = computed(() => props.data?.label ?? 'START')
+const label = computed(() => props.data?.label ?? '开始')
 </script>
 
 <template>

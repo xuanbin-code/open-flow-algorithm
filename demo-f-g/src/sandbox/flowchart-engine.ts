@@ -181,7 +181,7 @@ export class FlowchartEngine {
     if (!mainFunc) return
 
     // START
-    let prev: FlowNode = this.createNode('start', 'START', 80)
+    let prev: FlowNode = this.createNode('start', '开始', 80)
 
     // 遍历 Main 函数 body 中的每条语句（递归处理嵌套 if/for）
     for (const stmt of mainFunc.body) {
@@ -201,7 +201,7 @@ export class FlowchartEngine {
     }
 
     // END
-    const endNode = this.createNode('end', 'END', 80)
+    const endNode = this.createNode('end', '结束', 80)
     this.connect(prev, endNode)
   }
 
