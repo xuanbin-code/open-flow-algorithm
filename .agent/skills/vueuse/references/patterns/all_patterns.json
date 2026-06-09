@@ -1,0 +1,67 @@
+[
+  {
+    "file_path": "D:\\A_MY_CODE_WORK\\skill-seekers-files\\vueuse\\packages\\core\\useEventSource\\index.test.ts",
+    "language": "TypeScript",
+    "patterns": [
+      {
+        "pattern_type": "Observer",
+        "category": "Behavioral",
+        "confidence": 0.75,
+        "location": "D:\\A_MY_CODE_WORK\\skill-seekers-files\\vueuse\\packages\\core\\useEventSource\\index.test.ts",
+        "class_name": "MockEventSource",
+        "method_name": "addEventListener",
+        "line_number": null,
+        "evidence": [
+          "Observer method detected: addEventListener",
+          "EventEmitter pattern detected"
+        ],
+        "related_classes": []
+      }
+    ],
+    "total_classes": 1,
+    "total_functions": 0,
+    "analysis_depth": "surface",
+    "pattern_summary": {
+      "Observer": 1
+    }
+  },
+  {
+    "file_path": "D:\\A_MY_CODE_WORK\\skill-seekers-files\\vueuse\\packages\\rxjs\\watchExtractedObservable\\index.test.ts",
+    "language": "TypeScript",
+    "patterns": [
+      {
+        "pattern_type": "Decorator",
+        "category": "Structural",
+        "confidence": 0.65,
+        "location": "D:\\A_MY_CODE_WORK\\skill-seekers-files\\vueuse\\packages\\rxjs\\watchExtractedObservable\\index.test.ts",
+        "class_name": "TestWrapper",
+        "method_name": null,
+        "line_number": 10,
+        "evidence": [
+          "Class name suggests Decorator: TestWrapper"
+        ],
+        "related_classes": []
+      },
+      {
+        "pattern_type": "Adapter",
+        "category": "Structural",
+        "confidence": 0.7,
+        "location": "D:\\A_MY_CODE_WORK\\skill-seekers-files\\vueuse\\packages\\rxjs\\watchExtractedObservable\\index.test.ts",
+        "class_name": "TestWrapper",
+        "method_name": null,
+        "line_number": 10,
+        "evidence": [
+          "Class name suggests Adapter: TestWrapper"
+        ],
+        "related_classes": []
+      }
+    ],
+    "total_classes": 1,
+    "total_functions": 5,
+    "analysis_depth": "surface",
+    "pattern_summary": {
+      "Decorator": 1,
+      "Adapter": 1
+    }
+  }
+]

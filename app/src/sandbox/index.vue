@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
+import { useRefHistory } from '@vueuse/core'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -42,8 +43,13 @@ const LP = reactive<LayoutParams>({ ...DEFAULT_PARAMS })
 // ============================================
 
 // 先用空白 Program 初始化，onMounted 中尝试恢复上次文件
-let program: Program = createEmptyProgram()
-let engine = new FlowchartEngine(program, LP)
+const program = ref<Program>(createEmptyProgram())
+let engine = new FlowchartEngine(program.value, LP)
+
+const programHistory = useRefHistory(program, {
+  deep: true,
+  capacity: 50,
+})
 
 /** 当前打开的文件路径（null 表示尚未关联文件） */
 const currentFilePath = ref<string | null>(null)
@@ -56,15 +62,15 @@ const recentFiles = ref<RecentEntry[]>([])
 
 /** 加载 fprg XML → 重建 engine + 更新 VueFlow 响应式数据 */
 function loadProgram(xml: string, filePath?: string) {
-  program = parseFprgToAst(xml)
-  engine = new FlowchartEngine(program, LP)
+  program.value = parseFprgToAst(xml)
+  engine = new FlowchartEngine(program.value, LP)
   nodes.value = [...engine.nodes]
   edges.value = [...engine.edges]
   if (filePath) {
     currentFilePath.value = filePath
     isNewFile.value = false
   }
-  console.log('Loaded program:', program.attributes.name, filePath ? `(${filePath})` : '')
+  console.log('Loaded program:', program.value.attributes.name, filePath ? `(${filePath})` : '')
 }
 
 // 绑定到 VueFlow
@@ -105,8 +111,8 @@ async function initApp() {
   }
 
   // 文件不存在 / 首次启动 → 空白画布
-  program = createEmptyProgram()
-  engine = new FlowchartEngine(program, LP)
+  program.value = createEmptyProgram()
+  engine = new FlowchartEngine(program.value, LP)
   nodes.value = [...engine.nodes]
   edges.value = [...engine.edges]
   currentFilePath.value = null
@@ -123,16 +129,42 @@ async function refreshRecentFiles() {
   }
 }
 
-// CTRL+S / Delete 快捷键
+// CTRL+S / Ctrl+Z / Ctrl+Y / Delete 快捷键
 function onKeydown(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault()
     handleSave()
   }
+  // Ctrl+Z → 撤销
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') {
+    e.preventDefault()
+    undo()
+  }
+  // Ctrl+Y (或 Ctrl+Shift+Z) → 重做
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
+    e.preventDefault()
+    redo()
+  }
   if (e.key === 'Delete' && selectedNodeId.value) {
     e.preventDefault()
     deleteSelectedNode()
   }
+}
+
+function undo() {
+  programHistory.undo()
+  engine = new FlowchartEngine(program.value, LP)
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
+  syncSelectionState()
+}
+
+function redo() {
+  programHistory.redo()
+  engine = new FlowchartEngine(program.value, LP)
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
+  syncSelectionState()
 }
 
 /** 同步 selectedNodeId → nodes 数组中对应节点的 selected 属性 */
@@ -218,7 +250,7 @@ function deleteSelectedNode() {
   if (!node?.data?.statement) return  // Start/End/Merge 不可删除
 
   const stmt = node.data.statement
-  const loc = findStatementLocation(program, stmt)
+  const loc = findStatementLocation(program.value, stmt)
   if (loc) {
     loc.body.splice(loc.index, 1)
   }
@@ -282,8 +314,8 @@ async function onMenuAction(actionId: string) {
 
   switch (actionId) {
     case 'new': {
-      program = createEmptyProgram()
-      engine = new FlowchartEngine(program, LP)
+      program.value = createEmptyProgram()
+      engine = new FlowchartEngine(program.value, LP)
       nodes.value = [...engine.nodes]
       edges.value = [...engine.edges]
       currentFilePath.value = null
@@ -312,6 +344,14 @@ async function onMenuAction(actionId: string) {
       await handleSaveAs()
       break
     }
+    case 'undo': {
+      undo()
+      break
+    }
+    case 'redo': {
+      redo()
+      break
+    }
     default:
       console.log(`Menu action: ${actionId} (未实现)`)
   }
@@ -324,7 +364,7 @@ async function handleSave() {
     return
   }
   try {
-    const xml = astToFprgXml(program)
+    const xml = astToFprgXml(program.value)
     await writeTextFile(currentFilePath.value, xml)
     // 重新读取验证
     const verifyXml = await readTextFile(currentFilePath.value)
@@ -346,7 +386,7 @@ async function handleSaveAs() {
       filters: [{ name: 'Flowgorithm 文件', extensions: ['fprg'] }],
     })
     if (savePath) {
-      const xml = astToFprgXml(program)
+      const xml = astToFprgXml(program.value)
       await writeTextFile(savePath as string, xml)
       currentFilePath.value = savePath as string
       isNewFile.value = false

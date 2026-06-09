@@ -1,0 +1,3964 @@
+{
+  "total_files": 563,
+  "categories": {
+    "other": [
+      ".github\\PULL_REQUEST_TEMPLATE.md",
+      "packages\\add-ons.md",
+      "packages\\components\\README.md",
+      "packages\\core\\computedAsync\\index.md",
+      "packages\\core\\computedInject\\index.md",
+      "packages\\core\\createUnrefFn\\index.md",
+      "packages\\core\\onClickOutside\\index.md",
+      "packages\\core\\onElementRemoval\\index.md",
+      "packages\\core\\onKeyStroke\\index.md",
+      "packages\\core\\onLongPress\\index.md",
+      "packages\\core\\onStartTyping\\index.md",
+      "packages\\core\\README.md",
+      "packages\\core\\unrefElement\\index.md",
+      "packages\\core\\useActiveElement\\index.md",
+      "packages\\core\\useAnimate\\index.md",
+      "packages\\core\\useAsyncQueue\\index.md",
+      "packages\\core\\useAsyncState\\index.md",
+      "packages\\core\\useBase64\\index.md",
+      "packages\\core\\useBattery\\index.md",
+      "packages\\core\\useBluetooth\\index.md",
+      "packages\\core\\useBreakpoints\\index.md",
+      "packages\\core\\useBroadcastChannel\\index.md",
+      "packages\\core\\useBrowserLocation\\index.md",
+      "packages\\core\\useCached\\index.md",
+      "packages\\core\\useClipboard\\index.md",
+      "packages\\core\\useClipboardItems\\index.md",
+      "packages\\core\\useCloned\\index.md",
+      "packages\\core\\useColorMode\\index.md",
+      "packages\\core\\useConfirmDialog\\index.md",
+      "packages\\core\\useCountdown\\index.md",
+      "packages\\core\\useCssSupports\\index.md",
+      "packages\\core\\useCssVar\\index.md",
+      "packages\\core\\useCurrentElement\\index.md",
+      "packages\\core\\useCycleList\\index.md",
+      "packages\\core\\useDark\\index.md",
+      "packages\\core\\useDebouncedRefHistory\\index.md",
+      "packages\\core\\useDeviceMotion\\index.md",
+      "packages\\core\\useDeviceOrientation\\index.md",
+      "packages\\core\\useDevicePixelRatio\\index.md",
+      "packages\\core\\useDevicesList\\index.md",
+      "packages\\core\\useDisplayMedia\\index.md",
+      "packages\\core\\useDocumentVisibility\\index.md",
+      "packages\\core\\useDraggable\\index.md",
+      "packages\\core\\useDropZone\\index.md",
+      "packages\\core\\useElementBounding\\index.md",
+      "packages\\core\\useElementByPoint\\index.md",
+      "packages\\core\\useElementHover\\index.md",
+      "packages\\core\\useElementSize\\index.md",
+      "packages\\core\\useElementVisibility\\index.md",
+      "packages\\core\\useEventBus\\index.md",
+      "packages\\core\\useEventListener\\index.md",
+      "packages\\core\\useEventSource\\index.md",
+      "packages\\core\\useEyeDropper\\index.md",
+      "packages\\core\\useFavicon\\index.md",
+      "packages\\core\\useFetch\\index.md",
+      "packages\\core\\useFileDialog\\index.md",
+      "packages\\core\\useFileSystemAccess\\index.md",
+      "packages\\core\\useFocus\\index.md",
+      "packages\\core\\useFocusWithin\\index.md",
+      "packages\\core\\useFps\\index.md",
+      "packages\\core\\useFullscreen\\index.md",
+      "packages\\core\\useGamepad\\index.md",
+      "packages\\core\\useGeolocation\\index.md",
+      "packages\\core\\useIdle\\index.md",
+      "packages\\core\\useImage\\index.md",
+      "packages\\core\\useInfiniteScroll\\index.md",
+      "packages\\core\\useIntersectionObserver\\index.md",
+      "packages\\core\\useKeyModifier\\index.md",
+      "packages\\core\\useLocalStorage\\index.md",
+      "packages\\core\\useMagicKeys\\index.md",
+      "packages\\core\\useManualRefHistory\\index.md",
+      "packages\\core\\useMediaControls\\index.md",
+      "packages\\core\\useMediaQuery\\index.md",
+      "packages\\core\\useMemoize\\index.md",
+      "packages\\core\\useMemory\\index.md",
+      "packages\\core\\useMounted\\index.md",
+      "packages\\core\\useMouse\\index.md",
+      "packages\\core\\useMouseInElement\\index.md",
+      "packages\\core\\useMousePressed\\index.md",
+      "packages\\core\\useMutationObserver\\index.md",
+      "packages\\core\\useNavigatorLanguage\\index.md",
+      "packages\\core\\useNetwork\\index.md",
+      "packages\\core\\useNow\\index.md",
+      "packages\\core\\useObjectUrl\\index.md",
+      "packages\\core\\useOffsetPagination\\index.md",
+      "packages\\core\\useOnline\\index.md",
+      "packages\\core\\usePageLeave\\index.md",
+      "packages\\core\\useParallax\\index.md",
+      "packages\\core\\useParentElement\\index.md",
+      "packages\\core\\usePerformanceObserver\\index.md",
+      "packages\\core\\usePermission\\index.md",
+      "packages\\core\\usePointer\\index.md",
+      "packages\\core\\usePointerLock\\index.md",
+      "packages\\core\\usePointerSwipe\\index.md",
+      "packages\\core\\usePreferredColorScheme\\index.md",
+      "packages\\core\\usePreferredContrast\\index.md",
+      "packages\\core\\usePreferredDark\\index.md",
+      "packages\\core\\usePreferredLanguages\\index.md",
+      "packages\\core\\usePreferredReducedMotion\\index.md",
+      "packages\\core\\usePreferredReducedTransparency\\index.md",
+      "packages\\core\\usePrevious\\index.md",
+      "packages\\core\\useRafFn\\index.md",
+      "packages\\core\\useRefHistory\\index.md",
+      "packages\\core\\useResizeObserver\\index.md",
+      "packages\\core\\useScreenOrientation\\index.md",
+      "packages\\core\\useScreenSafeArea\\index.md",
+      "packages\\core\\useScriptTag\\index.md",
+      "packages\\core\\useScroll\\index.md",
+      "packages\\core\\useScrollLock\\index.md",
+      "packages\\core\\useSessionStorage\\index.md",
+      "packages\\core\\useShare\\index.md",
+      "packages\\core\\useSorted\\index.md",
+      "packages\\core\\useSpeechRecognition\\index.md",
+      "packages\\core\\useSpeechSynthesis\\index.md",
+      "packages\\core\\useSSRWidth\\index.md",
+      "packages\\core\\useStepper\\index.md",
+      "packages\\core\\useStorage\\index.md",
+      "packages\\core\\useStorageAsync\\index.md",
+      "packages\\core\\useStyleTag\\index.md",
+      "packages\\core\\useSupported\\index.md",
+      "packages\\core\\useSwipe\\index.md",
+      "packages\\core\\useTextareaAutosize\\index.md",
+      "packages\\core\\useTextDirection\\index.md",
+      "packages\\core\\useTextSelection\\index.md",
+      "packages\\core\\useThrottledRefHistory\\index.md",
+      "packages\\core\\useTimeAgo\\index.md",
+      "packages\\core\\useTimeAgoIntl\\index.md",
+      "packages\\core\\useTimeoutPoll\\index.md",
+      "packages\\core\\useTimestamp\\index.md",
+      "packages\\core\\useTitle\\index.md",
+      "packages\\core\\useTransition\\index.md",
+      "packages\\core\\useUserMedia\\index.md",
+      "packages\\core\\useVibrate\\index.md",
+      "packages\\core\\useVirtualList\\index.md",
+      "packages\\core\\useVModel\\index.md",
+      "packages\\core\\useVModels\\index.md",
+      "packages\\core\\useWakeLock\\index.md",
+      "packages\\core\\useWebNotification\\index.md",
+      "packages\\core\\useWebSocket\\index.md",
+      "packages\\core\\useWebWorker\\index.md",
+      "packages\\core\\useWebWorkerFn\\index.md",
+      "packages\\core\\useWindowFocus\\index.md",
+      "packages\\core\\useWindowScroll\\index.md",
+      "packages\\core\\useWindowSize\\index.md",
+      "packages\\ecosystem.md",
+      "packages\\electron\\README.md",
+      "packages\\electron\\useIpcRenderer\\index.md",
+      "packages\\electron\\useIpcRendererInvoke\\index.md",
+      "packages\\electron\\useIpcRendererOn\\index.md",
+      "packages\\electron\\useZoomFactor\\index.md",
+      "packages\\electron\\useZoomLevel\\index.md",
+      "packages\\export-size.md",
+      "packages\\firebase\\README.md",
+      "packages\\firebase\\useAuth\\index.md",
+      "packages\\firebase\\useFirestore\\index.md",
+      "packages\\firebase\\useRTDB\\index.md",
+      "packages\\functions.md",
+      "packages\\guidelines.md",
+      "packages\\index.md",
+      "packages\\integrations\\README.md",
+      "packages\\integrations\\useAsyncValidator\\index.md",
+      "packages\\integrations\\useAxios\\index.md",
+      "packages\\integrations\\useChangeCase\\index.md",
+      "packages\\integrations\\useCookies\\index.md",
+      "packages\\integrations\\useDrauu\\index.md",
+      "packages\\integrations\\useFocusTrap\\index.md",
+      "packages\\integrations\\useFuse\\index.md",
+      "packages\\integrations\\useIDBKeyval\\index.md",
+      "packages\\integrations\\useJwt\\index.md",
+      "packages\\integrations\\useNProgress\\index.md",
+      "packages\\integrations\\useQRCode\\index.md",
+      "packages\\integrations\\useSortable\\index.md",
+      "packages\\math\\createGenericProjection\\index.md",
+      "packages\\math\\createProjection\\index.md",
+      "packages\\math\\logicAnd\\index.md",
+      "packages\\math\\logicNot\\index.md",
+      "packages\\math\\logicOr\\index.md",
+      "packages\\math\\README.md",
+      "packages\\math\\useAbs\\index.md",
+      "packages\\math\\useAverage\\index.md",
+      "packages\\math\\useCeil\\index.md",
+      "packages\\math\\useClamp\\index.md",
+      "packages\\math\\useFloor\\index.md",
+      "packages\\math\\useMath\\index.md",
+      "packages\\math\\useMax\\index.md",
+      "packages\\math\\useMin\\index.md",
+      "packages\\math\\usePrecision\\index.md",
+      "packages\\math\\useProjection\\index.md",
+      "packages\\math\\useRound\\index.md",
+      "packages\\math\\useSum\\index.md",
+      "packages\\math\\useTrunc\\index.md",
+      "packages\\nuxt\\README.md",
+      "packages\\router\\README.md",
+      "packages\\router\\useRouteHash\\index.md",
+      "packages\\router\\useRouteParams\\index.md",
+      "packages\\router\\useRouteQuery\\index.md",
+      "packages\\rxjs\\from\\index.md",
+      "packages\\rxjs\\README.md",
+      "packages\\rxjs\\toObserver\\index.md",
+      "packages\\rxjs\\useExtractedObservable\\index.md",
+      "packages\\rxjs\\useObservable\\index.md",
+      "packages\\rxjs\\useSubject\\index.md",
+      "packages\\rxjs\\useSubscription\\index.md",
+      "packages\\rxjs\\watchExtractedObservable\\index.md",
+      "packages\\shared\\computedEager\\index.md",
+      "packages\\shared\\computedWithControl\\index.md",
+      "packages\\shared\\createDisposableDirective\\index.md",
+      "packages\\shared\\createEventHook\\index.md",
+      "packages\\shared\\createGlobalState\\index.md",
+      "packages\\shared\\createInjectionState\\index.md",
+      "packages\\shared\\createRef\\index.md",
+      "packages\\shared\\createSharedComposable\\index.md",
+      "packages\\shared\\extendRef\\index.md",
+      "packages\\shared\\get\\index.md",
+      "packages\\shared\\injectLocal\\index.md",
+      "packages\\shared\\isDefined\\index.md",
+      "packages\\shared\\makeDestructurable\\index.md",
+      "packages\\shared\\provideLocal\\index.md",
+      "packages\\shared\\reactify\\index.md",
+      "packages\\shared\\reactifyObject\\index.md",
+      "packages\\shared\\reactiveComputed\\index.md",
+      "packages\\shared\\reactiveOmit\\index.md",
+      "packages\\shared\\reactivePick\\index.md",
+      "packages\\shared\\refAutoReset\\index.md",
+      "packages\\shared\\refDebounced\\index.md",
+      "packages\\shared\\refDefault\\index.md",
+      "packages\\shared\\refManualReset\\index.md",
+      "packages\\shared\\refThrottled\\index.md",
+      "packages\\shared\\refWithControl\\index.md",
+      "packages\\shared\\set\\index.md",
+      "packages\\shared\\syncRef\\index.md",
+      "packages\\shared\\syncRefs\\index.md",
+      "packages\\shared\\toReactive\\index.md",
+      "packages\\shared\\toRef\\index.md",
+      "packages\\shared\\toRefs\\index.md",
+      "packages\\shared\\tryOnBeforeMount\\index.md",
+      "packages\\shared\\tryOnBeforeUnmount\\index.md",
+      "packages\\shared\\tryOnMounted\\index.md",
+      "packages\\shared\\tryOnScopeDispose\\index.md",
+      "packages\\shared\\tryOnUnmounted\\index.md",
+      "packages\\shared\\until\\index.md",
+      "packages\\shared\\useArrayDifference\\index.md",
+      "packages\\shared\\useArrayEvery\\index.md",
+      "packages\\shared\\useArrayFilter\\index.md",
+      "packages\\shared\\useArrayFind\\index.md",
+      "packages\\shared\\useArrayFindIndex\\index.md",
+      "packages\\shared\\useArrayFindLast\\index.md",
+      "packages\\shared\\useArrayIncludes\\index.md",
+      "packages\\shared\\useArrayJoin\\index.md",
+      "packages\\shared\\useArrayMap\\index.md",
+      "packages\\shared\\useArrayReduce\\index.md",
+      "packages\\shared\\useArraySome\\index.md",
+      "packages\\shared\\useArrayUnique\\index.md",
+      "packages\\shared\\useCounter\\index.md",
+      "packages\\shared\\useDateFormat\\index.md",
+      "packages\\shared\\useDebounceFn\\index.md",
+      "packages\\shared\\useInterval\\index.md",
+      "packages\\shared\\useIntervalFn\\index.md",
+      "packages\\shared\\useLastChanged\\index.md",
+      "packages\\shared\\useThrottleFn\\index.md",
+      "packages\\shared\\useTimeout\\index.md",
+      "packages\\shared\\useTimeoutFn\\index.md",
+      "packages\\shared\\useToggle\\index.md",
+      "packages\\shared\\useToNumber\\index.md",
+      "packages\\shared\\useToString\\index.md",
+      "packages\\shared\\watchArray\\index.md",
+      "packages\\shared\\watchAtMost\\index.md",
+      "packages\\shared\\watchDebounced\\index.md",
+      "packages\\shared\\watchDeep\\index.md",
+      "packages\\shared\\watchIgnorable\\index.md",
+      "packages\\shared\\watchImmediate\\index.md",
+      "packages\\shared\\watchOnce\\index.md",
+      "packages\\shared\\watchPausable\\index.md",
+      "packages\\shared\\watchThrottled\\index.md",
+      "packages\\shared\\watchTriggerable\\index.md",
+      "packages\\shared\\watchWithFilter\\index.md",
+      "packages\\shared\\whenever\\index.md",
+      "packages\\skills\\README.md",
+      "packages\\team.md",
+      "packages\\why-no-translations.md",
+      "skills\\README.md",
+      "skills\\vueuse-functions\\SKILL.md"
+    ],
+    "community": [
+      "CODE_OF_CONDUCT.md"
+    ],
+    "contributing": [
+      "CONTRIBUTING.md"
+    ],
+    "templates": [
+      "packages\\core\\_template\\index.md",
+      "packages\\core\\createReusableTemplate\\index.md",
+      "packages\\core\\createTemplatePromise\\index.md",
+      "packages\\core\\templateRef\\index.md",
+      "packages\\core\\useTemplateRefsList\\index.md",
+      "packages\\skills\\templates\\vueuse-functions-skills.md"
+    ],
+    "architecture": [
+      "packages\\core\\useUrlSearchParams\\index.md"
+    ],
+    "guides": [
+      "packages\\guide\\best-practice.md",
+      "packages\\guide\\components.md",
+      "packages\\guide\\config.md",
+      "packages\\guide\\index.md",
+      "packages\\guide\\work-with-ai.md"
+    ],
+    "overview": [
+      "README.md"
+    ],
+    "api": [
+      "skills\\vueuse-functions\\references\\computedAsync.md",
+      "skills\\vueuse-functions\\references\\computedEager.md",
+      "skills\\vueuse-functions\\references\\computedInject.md",
+      "skills\\vueuse-functions\\references\\computedWithControl.md",
+      "skills\\vueuse-functions\\references\\createDisposableDirective.md",
+      "skills\\vueuse-functions\\references\\createEventHook.md",
+      "skills\\vueuse-functions\\references\\createGenericProjection.md",
+      "skills\\vueuse-functions\\references\\createGlobalState.md",
+      "skills\\vueuse-functions\\references\\createInjectionState.md",
+      "skills\\vueuse-functions\\references\\createProjection.md",
+      "skills\\vueuse-functions\\references\\createRef.md",
+      "skills\\vueuse-functions\\references\\createReusableTemplate.md",
+      "skills\\vueuse-functions\\references\\createSharedComposable.md",
+      "skills\\vueuse-functions\\references\\createTemplatePromise.md",
+      "skills\\vueuse-functions\\references\\createUnrefFn.md",
+      "skills\\vueuse-functions\\references\\extendRef.md",
+      "skills\\vueuse-functions\\references\\from.md",
+      "skills\\vueuse-functions\\references\\get.md",
+      "skills\\vueuse-functions\\references\\injectLocal.md",
+      "skills\\vueuse-functions\\references\\isDefined.md",
+      "skills\\vueuse-functions\\references\\logicAnd.md",
+      "skills\\vueuse-functions\\references\\logicNot.md",
+      "skills\\vueuse-functions\\references\\logicOr.md",
+      "skills\\vueuse-functions\\references\\makeDestructurable.md",
+      "skills\\vueuse-functions\\references\\onClickOutside.md",
+      "skills\\vueuse-functions\\references\\onElementRemoval.md",
+      "skills\\vueuse-functions\\references\\onKeyStroke.md",
+      "skills\\vueuse-functions\\references\\onLongPress.md",
+      "skills\\vueuse-functions\\references\\onStartTyping.md",
+      "skills\\vueuse-functions\\references\\provideLocal.md",
+      "skills\\vueuse-functions\\references\\reactify.md",
+      "skills\\vueuse-functions\\references\\reactifyObject.md",
+      "skills\\vueuse-functions\\references\\reactiveComputed.md",
+      "skills\\vueuse-functions\\references\\reactiveOmit.md",
+      "skills\\vueuse-functions\\references\\reactivePick.md",
+      "skills\\vueuse-functions\\references\\refAutoReset.md",
+      "skills\\vueuse-functions\\references\\refDebounced.md",
+      "skills\\vueuse-functions\\references\\refDefault.md",
+      "skills\\vueuse-functions\\references\\refManualReset.md",
+      "skills\\vueuse-functions\\references\\refThrottled.md",
+      "skills\\vueuse-functions\\references\\refWithControl.md",
+      "skills\\vueuse-functions\\references\\set.md",
+      "skills\\vueuse-functions\\references\\syncRef.md",
+      "skills\\vueuse-functions\\references\\syncRefs.md",
+      "skills\\vueuse-functions\\references\\templateRef.md",
+      "skills\\vueuse-functions\\references\\toObserver.md",
+      "skills\\vueuse-functions\\references\\toReactive.md",
+      "skills\\vueuse-functions\\references\\toRef.md",
+      "skills\\vueuse-functions\\references\\toRefs.md",
+      "skills\\vueuse-functions\\references\\tryOnBeforeMount.md",
+      "skills\\vueuse-functions\\references\\tryOnBeforeUnmount.md",
+      "skills\\vueuse-functions\\references\\tryOnMounted.md",
+      "skills\\vueuse-functions\\references\\tryOnScopeDispose.md",
+      "skills\\vueuse-functions\\references\\tryOnUnmounted.md",
+      "skills\\vueuse-functions\\references\\unrefElement.md",
+      "skills\\vueuse-functions\\references\\until.md",
+      "skills\\vueuse-functions\\references\\useAbs.md",
+      "skills\\vueuse-functions\\references\\useActiveElement.md",
+      "skills\\vueuse-functions\\references\\useAnimate.md",
+      "skills\\vueuse-functions\\references\\useArrayDifference.md",
+      "skills\\vueuse-functions\\references\\useArrayEvery.md",
+      "skills\\vueuse-functions\\references\\useArrayFilter.md",
+      "skills\\vueuse-functions\\references\\useArrayFind.md",
+      "skills\\vueuse-functions\\references\\useArrayFindIndex.md",
+      "skills\\vueuse-functions\\references\\useArrayFindLast.md",
+      "skills\\vueuse-functions\\references\\useArrayIncludes.md",
+      "skills\\vueuse-functions\\references\\useArrayJoin.md",
+      "skills\\vueuse-functions\\references\\useArrayMap.md",
+      "skills\\vueuse-functions\\references\\useArrayReduce.md",
+      "skills\\vueuse-functions\\references\\useArraySome.md",
+      "skills\\vueuse-functions\\references\\useArrayUnique.md",
+      "skills\\vueuse-functions\\references\\useAsyncQueue.md",
+      "skills\\vueuse-functions\\references\\useAsyncState.md",
+      "skills\\vueuse-functions\\references\\useAsyncValidator.md",
+      "skills\\vueuse-functions\\references\\useAuth.md",
+      "skills\\vueuse-functions\\references\\useAverage.md",
+      "skills\\vueuse-functions\\references\\useAxios.md",
+      "skills\\vueuse-functions\\references\\useBase64.md",
+      "skills\\vueuse-functions\\references\\useBattery.md",
+      "skills\\vueuse-functions\\references\\useBluetooth.md",
+      "skills\\vueuse-functions\\references\\useBreakpoints.md",
+      "skills\\vueuse-functions\\references\\useBroadcastChannel.md",
+      "skills\\vueuse-functions\\references\\useBrowserLocation.md",
+      "skills\\vueuse-functions\\references\\useCached.md",
+      "skills\\vueuse-functions\\references\\useCeil.md",
+      "skills\\vueuse-functions\\references\\useChangeCase.md",
+      "skills\\vueuse-functions\\references\\useClamp.md",
+      "skills\\vueuse-functions\\references\\useClipboard.md",
+      "skills\\vueuse-functions\\references\\useClipboardItems.md",
+      "skills\\vueuse-functions\\references\\useCloned.md",
+      "skills\\vueuse-functions\\references\\useColorMode.md",
+      "skills\\vueuse-functions\\references\\useConfirmDialog.md",
+      "skills\\vueuse-functions\\references\\useCookies.md",
+      "skills\\vueuse-functions\\references\\useCountdown.md",
+      "skills\\vueuse-functions\\references\\useCounter.md",
+      "skills\\vueuse-functions\\references\\useCssSupports.md",
+      "skills\\vueuse-functions\\references\\useCssVar.md",
+      "skills\\vueuse-functions\\references\\useCurrentElement.md",
+      "skills\\vueuse-functions\\references\\useCycleList.md",
+      "skills\\vueuse-functions\\references\\useDark.md",
+      "skills\\vueuse-functions\\references\\useDateFormat.md",
+      "skills\\vueuse-functions\\references\\useDebouncedRefHistory.md",
+      "skills\\vueuse-functions\\references\\useDebounceFn.md",
+      "skills\\vueuse-functions\\references\\useDeviceMotion.md",
+      "skills\\vueuse-functions\\references\\useDeviceOrientation.md",
+      "skills\\vueuse-functions\\references\\useDevicePixelRatio.md",
+      "skills\\vueuse-functions\\references\\useDevicesList.md",
+      "skills\\vueuse-functions\\references\\useDisplayMedia.md",
+      "skills\\vueuse-functions\\references\\useDocumentVisibility.md",
+      "skills\\vueuse-functions\\references\\useDraggable.md",
+      "skills\\vueuse-functions\\references\\useDrauu.md",
+      "skills\\vueuse-functions\\references\\useDropZone.md",
+      "skills\\vueuse-functions\\references\\useElementBounding.md",
+      "skills\\vueuse-functions\\references\\useElementByPoint.md",
+      "skills\\vueuse-functions\\references\\useElementHover.md",
+      "skills\\vueuse-functions\\references\\useElementSize.md",
+      "skills\\vueuse-functions\\references\\useElementVisibility.md",
+      "skills\\vueuse-functions\\references\\useEventBus.md",
+      "skills\\vueuse-functions\\references\\useEventListener.md",
+      "skills\\vueuse-functions\\references\\useEventSource.md",
+      "skills\\vueuse-functions\\references\\useExtractedObservable.md",
+      "skills\\vueuse-functions\\references\\useEyeDropper.md",
+      "skills\\vueuse-functions\\references\\useFavicon.md",
+      "skills\\vueuse-functions\\references\\useFetch.md",
+      "skills\\vueuse-functions\\references\\useFileDialog.md",
+      "skills\\vueuse-functions\\references\\useFileSystemAccess.md",
+      "skills\\vueuse-functions\\references\\useFirestore.md",
+      "skills\\vueuse-functions\\references\\useFloor.md",
+      "skills\\vueuse-functions\\references\\useFocus.md",
+      "skills\\vueuse-functions\\references\\useFocusTrap.md",
+      "skills\\vueuse-functions\\references\\useFocusWithin.md",
+      "skills\\vueuse-functions\\references\\useFps.md",
+      "skills\\vueuse-functions\\references\\useFullscreen.md",
+      "skills\\vueuse-functions\\references\\useFuse.md",
+      "skills\\vueuse-functions\\references\\useGamepad.md",
+      "skills\\vueuse-functions\\references\\useGeolocation.md",
+      "skills\\vueuse-functions\\references\\useIDBKeyval.md",
+      "skills\\vueuse-functions\\references\\useIdle.md",
+      "skills\\vueuse-functions\\references\\useImage.md",
+      "skills\\vueuse-functions\\references\\useInfiniteScroll.md",
+      "skills\\vueuse-functions\\references\\useIntersectionObserver.md",
+      "skills\\vueuse-functions\\references\\useInterval.md",
+      "skills\\vueuse-functions\\references\\useIntervalFn.md",
+      "skills\\vueuse-functions\\references\\useIpcRenderer.md",
+      "skills\\vueuse-functions\\references\\useIpcRendererInvoke.md",
+      "skills\\vueuse-functions\\references\\useIpcRendererOn.md",
+      "skills\\vueuse-functions\\references\\useJwt.md",
+      "skills\\vueuse-functions\\references\\useKeyModifier.md",
+      "skills\\vueuse-functions\\references\\useLastChanged.md",
+      "skills\\vueuse-functions\\references\\useLocalStorage.md",
+      "skills\\vueuse-functions\\references\\useMagicKeys.md",
+      "skills\\vueuse-functions\\references\\useManualRefHistory.md",
+      "skills\\vueuse-functions\\references\\useMath.md",
+      "skills\\vueuse-functions\\references\\useMax.md",
+      "skills\\vueuse-functions\\references\\useMediaControls.md",
+      "skills\\vueuse-functions\\references\\useMediaQuery.md",
+      "skills\\vueuse-functions\\references\\useMemoize.md",
+      "skills\\vueuse-functions\\references\\useMemory.md",
+      "skills\\vueuse-functions\\references\\useMin.md",
+      "skills\\vueuse-functions\\references\\useMounted.md",
+      "skills\\vueuse-functions\\references\\useMouse.md",
+      "skills\\vueuse-functions\\references\\useMouseInElement.md",
+      "skills\\vueuse-functions\\references\\useMousePressed.md",
+      "skills\\vueuse-functions\\references\\useMutationObserver.md",
+      "skills\\vueuse-functions\\references\\useNavigatorLanguage.md",
+      "skills\\vueuse-functions\\references\\useNetwork.md",
+      "skills\\vueuse-functions\\references\\useNow.md",
+      "skills\\vueuse-functions\\references\\useNProgress.md",
+      "skills\\vueuse-functions\\references\\useObjectUrl.md",
+      "skills\\vueuse-functions\\references\\useObservable.md",
+      "skills\\vueuse-functions\\references\\useOffsetPagination.md",
+      "skills\\vueuse-functions\\references\\useOnline.md",
+      "skills\\vueuse-functions\\references\\usePageLeave.md",
+      "skills\\vueuse-functions\\references\\useParallax.md",
+      "skills\\vueuse-functions\\references\\useParentElement.md",
+      "skills\\vueuse-functions\\references\\usePerformanceObserver.md",
+      "skills\\vueuse-functions\\references\\usePermission.md",
+      "skills\\vueuse-functions\\references\\usePointer.md",
+      "skills\\vueuse-functions\\references\\usePointerLock.md",
+      "skills\\vueuse-functions\\references\\usePointerSwipe.md",
+      "skills\\vueuse-functions\\references\\usePrecision.md",
+      "skills\\vueuse-functions\\references\\usePreferredColorScheme.md",
+      "skills\\vueuse-functions\\references\\usePreferredContrast.md",
+      "skills\\vueuse-functions\\references\\usePreferredDark.md",
+      "skills\\vueuse-functions\\references\\usePreferredLanguages.md",
+      "skills\\vueuse-functions\\references\\usePreferredReducedMotion.md",
+      "skills\\vueuse-functions\\references\\usePreferredReducedTransparency.md",
+      "skills\\vueuse-functions\\references\\usePrevious.md",
+      "skills\\vueuse-functions\\references\\useProjection.md",
+      "skills\\vueuse-functions\\references\\useQRCode.md",
+      "skills\\vueuse-functions\\references\\useRafFn.md",
+      "skills\\vueuse-functions\\references\\useRefHistory.md",
+      "skills\\vueuse-functions\\references\\useResizeObserver.md",
+      "skills\\vueuse-functions\\references\\useRound.md",
+      "skills\\vueuse-functions\\references\\useRouteHash.md",
+      "skills\\vueuse-functions\\references\\useRouteParams.md",
+      "skills\\vueuse-functions\\references\\useRouteQuery.md",
+      "skills\\vueuse-functions\\references\\useRTDB.md",
+      "skills\\vueuse-functions\\references\\useScreenOrientation.md",
+      "skills\\vueuse-functions\\references\\useScreenSafeArea.md",
+      "skills\\vueuse-functions\\references\\useScriptTag.md",
+      "skills\\vueuse-functions\\references\\useScroll.md",
+      "skills\\vueuse-functions\\references\\useScrollLock.md",
+      "skills\\vueuse-functions\\references\\useSessionStorage.md",
+      "skills\\vueuse-functions\\references\\useShare.md",
+      "skills\\vueuse-functions\\references\\useSortable.md",
+      "skills\\vueuse-functions\\references\\useSorted.md",
+      "skills\\vueuse-functions\\references\\useSpeechRecognition.md",
+      "skills\\vueuse-functions\\references\\useSpeechSynthesis.md",
+      "skills\\vueuse-functions\\references\\useSSRWidth.md",
+      "skills\\vueuse-functions\\references\\useStepper.md",
+      "skills\\vueuse-functions\\references\\useStorage.md",
+      "skills\\vueuse-functions\\references\\useStorageAsync.md",
+      "skills\\vueuse-functions\\references\\useStyleTag.md",
+      "skills\\vueuse-functions\\references\\useSubject.md",
+      "skills\\vueuse-functions\\references\\useSubscription.md",
+      "skills\\vueuse-functions\\references\\useSum.md",
+      "skills\\vueuse-functions\\references\\useSupported.md",
+      "skills\\vueuse-functions\\references\\useSwipe.md",
+      "skills\\vueuse-functions\\references\\useTemplateRefsList.md",
+      "skills\\vueuse-functions\\references\\useTextareaAutosize.md",
+      "skills\\vueuse-functions\\references\\useTextDirection.md",
+      "skills\\vueuse-functions\\references\\useTextSelection.md",
+      "skills\\vueuse-functions\\references\\useThrottledRefHistory.md",
+      "skills\\vueuse-functions\\references\\useThrottleFn.md",
+      "skills\\vueuse-functions\\references\\useTimeAgo.md",
+      "skills\\vueuse-functions\\references\\useTimeAgoIntl.md",
+      "skills\\vueuse-functions\\references\\useTimeout.md",
+      "skills\\vueuse-functions\\references\\useTimeoutFn.md",
+      "skills\\vueuse-functions\\references\\useTimeoutPoll.md",
+      "skills\\vueuse-functions\\references\\useTimestamp.md",
+      "skills\\vueuse-functions\\references\\useTitle.md",
+      "skills\\vueuse-functions\\references\\useToggle.md",
+      "skills\\vueuse-functions\\references\\useToNumber.md",
+      "skills\\vueuse-functions\\references\\useToString.md",
+      "skills\\vueuse-functions\\references\\useTransition.md",
+      "skills\\vueuse-functions\\references\\useTrunc.md",
+      "skills\\vueuse-functions\\references\\useUrlSearchParams.md",
+      "skills\\vueuse-functions\\references\\useUserMedia.md",
+      "skills\\vueuse-functions\\references\\useVibrate.md",
+      "skills\\vueuse-functions\\references\\useVirtualList.md",
+      "skills\\vueuse-functions\\references\\useVModel.md",
+      "skills\\vueuse-functions\\references\\useVModels.md",
+      "skills\\vueuse-functions\\references\\useWakeLock.md",
+      "skills\\vueuse-functions\\references\\useWebNotification.md",
+      "skills\\vueuse-functions\\references\\useWebSocket.md",
+      "skills\\vueuse-functions\\references\\useWebWorker.md",
+      "skills\\vueuse-functions\\references\\useWebWorkerFn.md",
+      "skills\\vueuse-functions\\references\\useWindowFocus.md",
+      "skills\\vueuse-functions\\references\\useWindowScroll.md",
+      "skills\\vueuse-functions\\references\\useWindowSize.md",
+      "skills\\vueuse-functions\\references\\useZoomFactor.md",
+      "skills\\vueuse-functions\\references\\useZoomLevel.md",
+      "skills\\vueuse-functions\\references\\watchArray.md",
+      "skills\\vueuse-functions\\references\\watchAtMost.md",
+      "skills\\vueuse-functions\\references\\watchDebounced.md",
+      "skills\\vueuse-functions\\references\\watchDeep.md",
+      "skills\\vueuse-functions\\references\\watchExtractedObservable.md",
+      "skills\\vueuse-functions\\references\\watchIgnorable.md",
+      "skills\\vueuse-functions\\references\\watchImmediate.md",
+      "skills\\vueuse-functions\\references\\watchOnce.md",
+      "skills\\vueuse-functions\\references\\watchPausable.md",
+      "skills\\vueuse-functions\\references\\watchThrottled.md",
+      "skills\\vueuse-functions\\references\\watchTriggerable.md",
+      "skills\\vueuse-functions\\references\\watchWithFilter.md",
+      "skills\\vueuse-functions\\references\\whenever.md"
+    ]
+  },
+  "files": [
+    {
+      "path": ".github\\PULL_REQUEST_TEMPLATE.md",
+      "filename": "PULL_REQUEST_TEMPLATE.md",
+      "category": "other",
+      "size_bytes": 2109
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "filename": "CODE_OF_CONDUCT.md",
+      "category": "community",
+      "size_bytes": 3359
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "filename": "CONTRIBUTING.md",
+      "category": "contributing",
+      "size_bytes": 4092
+    },
+    {
+      "path": "packages\\add-ons.md",
+      "filename": "add-ons.md",
+      "category": "other",
+      "size_bytes": 8340
+    },
+    {
+      "path": "packages\\components\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 563
+    },
+    {
+      "path": "packages\\core\\_template\\index.md",
+      "filename": "index.md",
+      "category": "templates",
+      "size_bytes": 169
+    },
+    {
+      "path": "packages\\core\\computedAsync\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3248
+    },
+    {
+      "path": "packages\\core\\computedInject\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1975
+    },
+    {
+      "path": "packages\\core\\createReusableTemplate\\index.md",
+      "filename": "index.md",
+      "category": "templates",
+      "size_bytes": 7148
+    },
+    {
+      "path": "packages\\core\\createTemplatePromise\\index.md",
+      "filename": "index.md",
+      "category": "templates",
+      "size_bytes": 6652
+    },
+    {
+      "path": "packages\\core\\createUnrefFn\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 852
+    },
+    {
+      "path": "packages\\core\\onClickOutside\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3189
+    },
+    {
+      "path": "packages\\core\\onElementRemoval\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1196
+    },
+    {
+      "path": "packages\\core\\onKeyStroke\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2797
+    },
+    {
+      "path": "packages\\core\\onLongPress\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 4100
+    },
+    {
+      "path": "packages\\core\\onStartTyping\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1626
+    },
+    {
+      "path": "packages\\core\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 16
+    },
+    {
+      "path": "packages\\core\\templateRef\\index.md",
+      "filename": "index.md",
+      "category": "templates",
+      "size_bytes": 1215
+    },
+    {
+      "path": "packages\\core\\unrefElement\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 656
+    },
+    {
+      "path": "packages\\core\\useActiveElement\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1216
+    },
+    {
+      "path": "packages\\core\\useAnimate\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2499
+    },
+    {
+      "path": "packages\\core\\useAsyncQueue\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1557
+    },
+    {
+      "path": "packages\\core\\useAsyncState\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2618
+    },
+    {
+      "path": "packages\\core\\useBase64\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1798
+    },
+    {
+      "path": "packages\\core\\useBattery\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2295
+    },
+    {
+      "path": "packages\\core\\useBluetooth\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 4445
+    },
+    {
+      "path": "packages\\core\\useBreakpoints\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 4080
+    },
+    {
+      "path": "packages\\core\\useBroadcastChannel\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 992
+    },
+    {
+      "path": "packages\\core\\useBrowserLocation\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 461
+    },
+    {
+      "path": "packages\\core\\useCached\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 786
+    },
+    {
+      "path": "packages\\core\\useClipboard\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3314
+    },
+    {
+      "path": "packages\\core\\useClipboardItems\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1597
+    },
+    {
+      "path": "packages\\core\\useCloned\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1244
+    },
+    {
+      "path": "packages\\core\\useColorMode\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1823
+    },
+    {
+      "path": "packages\\core\\useConfirmDialog\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1937
+    },
+    {
+      "path": "packages\\core\\useCountdown\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 840
+    },
+    {
+      "path": "packages\\core\\useCssSupports\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 296
+    },
+    {
+      "path": "packages\\core\\useCssVar\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 447
+    },
+    {
+      "path": "packages\\core\\useCurrentElement\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1213
+    },
+    {
+      "path": "packages\\core\\useCycleList\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 621
+    },
+    {
+      "path": "packages\\core\\useDark\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2353
+    },
+    {
+      "path": "packages\\core\\useDebouncedRefHistory\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 493
+    },
+    {
+      "path": "packages\\core\\useDeviceMotion\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2406
+    },
+    {
+      "path": "packages\\core\\useDeviceOrientation\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1686
+    },
+    {
+      "path": "packages\\core\\useDevicePixelRatio\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 873
+    },
+    {
+      "path": "packages\\core\\useDevicesList\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 912
+    },
+    {
+      "path": "packages\\core\\useDisplayMedia\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 601
+    },
+    {
+      "path": "packages\\core\\useDocumentVisibility\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 502
+    },
+    {
+      "path": "packages\\core\\useDraggable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3666
+    },
+    {
+      "path": "packages\\core\\useDropZone\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 988
+    },
+    {
+      "path": "packages\\core\\useElementBounding\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1342
+    },
+    {
+      "path": "packages\\core\\useElementByPoint\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 250
+    },
+    {
+      "path": "packages\\core\\useElementHover\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1232
+    },
+    {
+      "path": "packages\\core\\useElementSize\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1055
+    },
+    {
+      "path": "packages\\core\\useElementVisibility\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2651
+    },
+    {
+      "path": "packages\\core\\useEventBus\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1080
+    },
+    {
+      "path": "packages\\core\\useEventListener\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2539
+    },
+    {
+      "path": "packages\\core\\useEventSource\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2079
+    },
+    {
+      "path": "packages\\core\\useEyeDropper\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 492
+    },
+    {
+      "path": "packages\\core\\useFavicon\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 824
+    },
+    {
+      "path": "packages\\core\\useFetch\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 9062
+    },
+    {
+      "path": "packages\\core\\useFileDialog\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 573
+    },
+    {
+      "path": "packages\\core\\useFileSystemAccess\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 431
+    },
+    {
+      "path": "packages\\core\\useFocus\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1559
+    },
+    {
+      "path": "packages\\core\\useFocusWithin\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 917
+    },
+    {
+      "path": "packages\\core\\useFps\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 152
+    },
+    {
+      "path": "packages\\core\\useFullscreen\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1208
+    },
+    {
+      "path": "packages\\core\\useGamepad\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3469
+    },
+    {
+      "path": "packages\\core\\useGeolocation\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1990
+    },
+    {
+      "path": "packages\\core\\useIdle\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 805
+    },
+    {
+      "path": "packages\\core\\useImage\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 649
+    },
+    {
+      "path": "packages\\core\\useInfiniteScroll\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2411
+    },
+    {
+      "path": "packages\\core\\useIntersectionObserver\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1452
+    },
+    {
+      "path": "packages\\core\\useKeyModifier\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1526
+    },
+    {
+      "path": "packages\\core\\useLocalStorage\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 180
+    },
+    {
+      "path": "packages\\core\\useMagicKeys\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 4557
+    },
+    {
+      "path": "packages\\core\\useManualRefHistory\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3056
+    },
+    {
+      "path": "packages\\core\\useMediaControls\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1659
+    },
+    {
+      "path": "packages\\core\\useMediaQuery\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1227
+    },
+    {
+      "path": "packages\\core\\useMemoize\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2848
+    },
+    {
+      "path": "packages\\core\\useMemory\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 169
+    },
+    {
+      "path": "packages\\core\\useMounted\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 285
+    },
+    {
+      "path": "packages\\core\\useMouse\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1082
+    },
+    {
+      "path": "packages\\core\\useMouseInElement\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1557
+    },
+    {
+      "path": "packages\\core\\useMousePressed\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1152
+    },
+    {
+      "path": "packages\\core\\useMutationObserver\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 604
+    },
+    {
+      "path": "packages\\core\\useNavigatorLanguage\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 331
+    },
+    {
+      "path": "packages\\core\\useNetwork\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1121
+    },
+    {
+      "path": "packages\\core\\useNow\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 515
+    },
+    {
+      "path": "packages\\core\\useObjectUrl\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 947
+    },
+    {
+      "path": "packages\\core\\useOffsetPagination\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2667
+    },
+    {
+      "path": "packages\\core\\useOnline\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 316
+    },
+    {
+      "path": "packages\\core\\usePageLeave\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 339
+    },
+    {
+      "path": "packages\\core\\useParallax\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 397
+    },
+    {
+      "path": "packages\\core\\useParentElement\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 770
+    },
+    {
+      "path": "packages\\core\\usePerformanceObserver\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 304
+    },
+    {
+      "path": "packages\\core\\usePermission\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 392
+    },
+    {
+      "path": "packages\\core\\usePointer\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 637
+    },
+    {
+      "path": "packages\\core\\usePointerLock\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 498
+    },
+    {
+      "path": "packages\\core\\usePointerSwipe\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 452
+    },
+    {
+      "path": "packages\\core\\usePreferredColorScheme\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 486
+    },
+    {
+      "path": "packages\\core\\usePreferredContrast\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 456
+    },
+    {
+      "path": "packages\\core\\usePreferredDark\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 342
+    },
+    {
+      "path": "packages\\core\\usePreferredLanguages\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 689
+    },
+    {
+      "path": "packages\\core\\usePreferredReducedMotion\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 493
+    },
+    {
+      "path": "packages\\core\\usePreferredReducedTransparency\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 559
+    },
+    {
+      "path": "packages\\core\\usePrevious\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 356
+    },
+    {
+      "path": "packages\\core\\useRafFn\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 341
+    },
+    {
+      "path": "packages\\core\\useRefHistory\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 5985
+    },
+    {
+      "path": "packages\\core\\useResizeObserver\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1044
+    },
+    {
+      "path": "packages\\core\\useScreenOrientation\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1305
+    },
+    {
+      "path": "packages\\core\\useScreenSafeArea\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 930
+    },
+    {
+      "path": "packages\\core\\useScriptTag\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1101
+    },
+    {
+      "path": "packages\\core\\useScroll\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3205
+    },
+    {
+      "path": "packages\\core\\useScrollLock\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 814
+    },
+    {
+      "path": "packages\\core\\useSessionStorage\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 186
+    },
+    {
+      "path": "packages\\core\\useShare\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 921
+    },
+    {
+      "path": "packages\\core\\useSorted\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 805
+    },
+    {
+      "path": "packages\\core\\useSpeechRecognition\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 946
+    },
+    {
+      "path": "packages\\core\\useSpeechSynthesis\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 750
+    },
+    {
+      "path": "packages\\core\\useSSRWidth\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 708
+    },
+    {
+      "path": "packages\\core\\useStepper\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1130
+    },
+    {
+      "path": "packages\\core\\useStorage\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 5307
+    },
+    {
+      "path": "packages\\core\\useStorageAsync\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2044
+    },
+    {
+      "path": "packages\\core\\useStyleTag\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1232
+    },
+    {
+      "path": "packages\\core\\useSupported\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 291
+    },
+    {
+      "path": "packages\\core\\useSwipe\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 429
+    },
+    {
+      "path": "packages\\core\\useTemplateRefsList\\index.md",
+      "filename": "index.md",
+      "category": "templates",
+      "size_bytes": 439
+    },
+    {
+      "path": "packages\\core\\useTextareaAutosize\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1923
+    },
+    {
+      "path": "packages\\core\\useTextDirection\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 633
+    },
+    {
+      "path": "packages\\core\\useTextSelection\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 377
+    },
+    {
+      "path": "packages\\core\\useThrottledRefHistory\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 509
+    },
+    {
+      "path": "packages\\core\\useTimeAgo\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 669
+    },
+    {
+      "path": "packages\\core\\useTimeAgoIntl\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 591
+    },
+    {
+      "path": "packages\\core\\useTimeoutPoll\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 433
+    },
+    {
+      "path": "packages\\core\\useTimestamp\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 598
+    },
+    {
+      "path": "packages\\core\\useTitle\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1177
+    },
+    {
+      "path": "packages\\core\\useTransition\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 4220
+    },
+    {
+      "path": "packages\\core\\useUrlSearchParams\\index.md",
+      "filename": "index.md",
+      "category": "architecture",
+      "size_bytes": 1566
+    },
+    {
+      "path": "packages\\core\\useUserMedia\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1125
+    },
+    {
+      "path": "packages\\core\\useVibrate\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1083
+    },
+    {
+      "path": "packages\\core\\useVirtualList\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3603
+    },
+    {
+      "path": "packages\\core\\useVModel\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2207
+    },
+    {
+      "path": "packages\\core\\useVModels\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 705
+    },
+    {
+      "path": "packages\\core\\useWakeLock\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 950
+    },
+    {
+      "path": "packages\\core\\useWebNotification\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1391
+    },
+    {
+      "path": "packages\\core\\useWebSocket\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 4131
+    },
+    {
+      "path": "packages\\core\\useWebWorker\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1657
+    },
+    {
+      "path": "packages\\core\\useWebWorkerFn\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1371
+    },
+    {
+      "path": "packages\\core\\useWindowFocus\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 463
+    },
+    {
+      "path": "packages\\core\\useWindowScroll\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 418
+    },
+    {
+      "path": "packages\\core\\useWindowSize\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 467
+    },
+    {
+      "path": "packages\\ecosystem.md",
+      "filename": "ecosystem.md",
+      "category": "other",
+      "size_bytes": 795
+    },
+    {
+      "path": "packages\\electron\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 1670
+    },
+    {
+      "path": "packages\\electron\\useIpcRenderer\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2219
+    },
+    {
+      "path": "packages\\electron\\useIpcRendererInvoke\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 622
+    },
+    {
+      "path": "packages\\electron\\useIpcRendererOn\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 655
+    },
+    {
+      "path": "packages\\electron\\useZoomFactor\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 939
+    },
+    {
+      "path": "packages\\electron\\useZoomLevel\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 918
+    },
+    {
+      "path": "packages\\export-size.md",
+      "filename": "export-size.md",
+      "category": "other",
+      "size_bytes": 27619
+    },
+    {
+      "path": "packages\\firebase\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 1324
+    },
+    {
+      "path": "packages\\firebase\\useAuth\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1442
+    },
+    {
+      "path": "packages\\firebase\\useFirestore\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3275
+    },
+    {
+      "path": "packages\\firebase\\useRTDB\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1769
+    },
+    {
+      "path": "packages\\functions.md",
+      "filename": "functions.md",
+      "category": "other",
+      "size_bytes": 31
+    },
+    {
+      "path": "packages\\guide\\best-practice.md",
+      "filename": "best-practice.md",
+      "category": "guides",
+      "size_bytes": 3698
+    },
+    {
+      "path": "packages\\guide\\components.md",
+      "filename": "components.md",
+      "category": "guides",
+      "size_bytes": 1352
+    },
+    {
+      "path": "packages\\guide\\config.md",
+      "filename": "config.md",
+      "category": "guides",
+      "size_bytes": 3891
+    },
+    {
+      "path": "packages\\guide\\index.md",
+      "filename": "index.md",
+      "category": "guides",
+      "size_bytes": 2302
+    },
+    {
+      "path": "packages\\guide\\work-with-ai.md",
+      "filename": "work-with-ai.md",
+      "category": "guides",
+      "size_bytes": 13674
+    },
+    {
+      "path": "packages\\guidelines.md",
+      "filename": "guidelines.md",
+      "category": "other",
+      "size_bytes": 7693
+    },
+    {
+      "path": "packages\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1468
+    },
+    {
+      "path": "packages\\integrations\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 2474
+    },
+    {
+      "path": "packages\\integrations\\useAsyncValidator\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 280
+    },
+    {
+      "path": "packages\\integrations\\useAxios\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3409
+    },
+    {
+      "path": "packages\\integrations\\useChangeCase\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1250
+    },
+    {
+      "path": "packages\\integrations\\useCookies\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2440
+    },
+    {
+      "path": "packages\\integrations\\useDrauu\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 530
+    },
+    {
+      "path": "packages\\integrations\\useFocusTrap\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3970
+    },
+    {
+      "path": "packages\\integrations\\useFuse\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 950
+    },
+    {
+      "path": "packages\\integrations\\useIDBKeyval\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 787
+    },
+    {
+      "path": "packages\\integrations\\useJwt\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 479
+    },
+    {
+      "path": "packages\\integrations\\useNProgress\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1174
+    },
+    {
+      "path": "packages\\integrations\\useQRCode\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 680
+    },
+    {
+      "path": "packages\\integrations\\useSortable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 5102
+    },
+    {
+      "path": "packages\\math\\createGenericProjection\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 212
+    },
+    {
+      "path": "packages\\math\\createProjection\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 449
+    },
+    {
+      "path": "packages\\math\\logicAnd\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 329
+    },
+    {
+      "path": "packages\\math\\logicNot\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 264
+    },
+    {
+      "path": "packages\\math\\logicOr\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 322
+    },
+    {
+      "path": "packages\\math\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 442
+    },
+    {
+      "path": "packages\\math\\useAbs\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 183
+    },
+    {
+      "path": "packages\\math\\useAverage\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 358
+    },
+    {
+      "path": "packages\\math\\useCeil\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 179
+    },
+    {
+      "path": "packages\\math\\useClamp\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1176
+    },
+    {
+      "path": "packages\\math\\useFloor\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 186
+    },
+    {
+      "path": "packages\\math\\useMath\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 349
+    },
+    {
+      "path": "packages\\math\\useMax\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 309
+    },
+    {
+      "path": "packages\\math\\useMin\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 309
+    },
+    {
+      "path": "packages\\math\\usePrecision\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 368
+    },
+    {
+      "path": "packages\\math\\useProjection\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 366
+    },
+    {
+      "path": "packages\\math\\useRound\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 186
+    },
+    {
+      "path": "packages\\math\\useSum\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 324
+    },
+    {
+      "path": "packages\\math\\useTrunc\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 252
+    },
+    {
+      "path": "packages\\nuxt\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 1037
+    },
+    {
+      "path": "packages\\router\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 872
+    },
+    {
+      "path": "packages\\router\\useRouteHash\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 285
+    },
+    {
+      "path": "packages\\router\\useRouteParams\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 484
+    },
+    {
+      "path": "packages\\router\\useRouteQuery\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1473
+    },
+    {
+      "path": "packages\\rxjs\\from\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2180
+    },
+    {
+      "path": "packages\\rxjs\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 2701
+    },
+    {
+      "path": "packages\\rxjs\\toObserver\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 829
+    },
+    {
+      "path": "packages\\rxjs\\useExtractedObservable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3669
+    },
+    {
+      "path": "packages\\rxjs\\useObservable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2006
+    },
+    {
+      "path": "packages\\rxjs\\useSubject\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1642
+    },
+    {
+      "path": "packages\\rxjs\\useSubscription\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 555
+    },
+    {
+      "path": "packages\\rxjs\\watchExtractedObservable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3377
+    },
+    {
+      "path": "packages\\shared\\computedEager\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1201
+    },
+    {
+      "path": "packages\\shared\\computedWithControl\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1258
+    },
+    {
+      "path": "packages\\shared\\createDisposableDirective\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 737
+    },
+    {
+      "path": "packages\\shared\\createEventHook\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 816
+    },
+    {
+      "path": "packages\\shared\\createGlobalState\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1374
+    },
+    {
+      "path": "packages\\shared\\createInjectionState\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3896
+    },
+    {
+      "path": "packages\\shared\\createRef\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 383
+    },
+    {
+      "path": "packages\\shared\\createSharedComposable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 768
+    },
+    {
+      "path": "packages\\shared\\extendRef\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 772
+    },
+    {
+      "path": "packages\\shared\\get\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 174
+    },
+    {
+      "path": "packages\\shared\\injectLocal\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 352
+    },
+    {
+      "path": "packages\\shared\\isDefined\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 282
+    },
+    {
+      "path": "packages\\shared\\makeDestructurable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 561
+    },
+    {
+      "path": "packages\\shared\\provideLocal\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 352
+    },
+    {
+      "path": "packages\\shared\\reactify\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2062
+    },
+    {
+      "path": "packages\\shared\\reactifyObject\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 270
+    },
+    {
+      "path": "packages\\shared\\reactiveComputed\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 350
+    },
+    {
+      "path": "packages\\shared\\reactiveOmit\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1036
+    },
+    {
+      "path": "packages\\shared\\reactivePick\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1532
+    },
+    {
+      "path": "packages\\shared\\refAutoReset\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 627
+    },
+    {
+      "path": "packages\\shared\\refDebounced\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1189
+    },
+    {
+      "path": "packages\\shared\\refDefault\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 335
+    },
+    {
+      "path": "packages\\shared\\refManualReset\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 520
+    },
+    {
+      "path": "packages\\shared\\refThrottled\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1893
+    },
+    {
+      "path": "packages\\shared\\refWithControl\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 2518
+    },
+    {
+      "path": "packages\\shared\\set\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 178
+    },
+    {
+      "path": "packages\\shared\\syncRef\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 780
+    },
+    {
+      "path": "packages\\shared\\syncRefs\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1947
+    },
+    {
+      "path": "packages\\shared\\toReactive\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 488
+    },
+    {
+      "path": "packages\\shared\\toRef\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1636
+    },
+    {
+      "path": "packages\\shared\\toRefs\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 992
+    },
+    {
+      "path": "packages\\shared\\tryOnBeforeMount\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 262
+    },
+    {
+      "path": "packages\\shared\\tryOnBeforeUnmount\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 260
+    },
+    {
+      "path": "packages\\shared\\tryOnMounted\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 242
+    },
+    {
+      "path": "packages\\shared\\tryOnScopeDispose\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 259
+    },
+    {
+      "path": "packages\\shared\\tryOnUnmounted\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 240
+    },
+    {
+      "path": "packages\\shared\\until\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1391
+    },
+    {
+      "path": "packages\\shared\\useArrayDifference\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1662
+    },
+    {
+      "path": "packages\\shared\\useArrayEvery\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 674
+    },
+    {
+      "path": "packages\\shared\\useArrayFilter\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 731
+    },
+    {
+      "path": "packages\\shared\\useArrayFind\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 474
+    },
+    {
+      "path": "packages\\shared\\useArrayFindIndex\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 688
+    },
+    {
+      "path": "packages\\shared\\useArrayFindLast\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 534
+    },
+    {
+      "path": "packages\\shared\\useArrayIncludes\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 351
+    },
+    {
+      "path": "packages\\shared\\useArrayJoin\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1203
+    },
+    {
+      "path": "packages\\shared\\useArrayMap\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 691
+    },
+    {
+      "path": "packages\\shared\\useArrayReduce\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 649
+    },
+    {
+      "path": "packages\\shared\\useArraySome\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 660
+    },
+    {
+      "path": "packages\\shared\\useArrayUnique\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1082
+    },
+    {
+      "path": "packages\\shared\\useCounter\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 356
+    },
+    {
+      "path": "packages\\shared\\useDateFormat\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 4467
+    },
+    {
+      "path": "packages\\shared\\useDebounceFn\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 3480
+    },
+    {
+      "path": "packages\\shared\\useInterval\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1473
+    },
+    {
+      "path": "packages\\shared\\useIntervalFn\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 242
+    },
+    {
+      "path": "packages\\shared\\useLastChanged\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 689
+    },
+    {
+      "path": "packages\\shared\\useThrottleFn\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 736
+    },
+    {
+      "path": "packages\\shared\\useTimeout\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1442
+    },
+    {
+      "path": "packages\\shared\\useTimeoutFn\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 228
+    },
+    {
+      "path": "packages\\shared\\useToggle\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1597
+    },
+    {
+      "path": "packages\\shared\\useToNumber\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 268
+    },
+    {
+      "path": "packages\\shared\\useToString\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 263
+    },
+    {
+      "path": "packages\\shared\\watchArray\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 601
+    },
+    {
+      "path": "packages\\shared\\watchAtMost\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 486
+    },
+    {
+      "path": "packages\\shared\\watchDebounced\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1547
+    },
+    {
+      "path": "packages\\shared\\watchDeep\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 380
+    },
+    {
+      "path": "packages\\shared\\watchIgnorable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1936
+    },
+    {
+      "path": "packages\\shared\\watchImmediate\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 423
+    },
+    {
+      "path": "packages\\shared\\watchOnce\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 444
+    },
+    {
+      "path": "packages\\shared\\watchPausable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 914
+    },
+    {
+      "path": "packages\\shared\\watchThrottled\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1694
+    },
+    {
+      "path": "packages\\shared\\watchTriggerable\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1398
+    },
+    {
+      "path": "packages\\shared\\watchWithFilter\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 505
+    },
+    {
+      "path": "packages\\shared\\whenever\\index.md",
+      "filename": "index.md",
+      "category": "other",
+      "size_bytes": 1329
+    },
+    {
+      "path": "packages\\skills\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 14195
+    },
+    {
+      "path": "packages\\skills\\templates\\vueuse-functions-skills.md",
+      "filename": "vueuse-functions-skills.md",
+      "category": "templates",
+      "size_bytes": 1903
+    },
+    {
+      "path": "packages\\team.md",
+      "filename": "team.md",
+      "category": "other",
+      "size_bytes": 119
+    },
+    {
+      "path": "packages\\why-no-translations.md",
+      "filename": "why-no-translations.md",
+      "category": "other",
+      "size_bytes": 2321
+    },
+    {
+      "path": "README.md",
+      "filename": "README.md",
+      "category": "overview",
+      "size_bytes": 4420
+    },
+    {
+      "path": "skills\\README.md",
+      "filename": "README.md",
+      "category": "other",
+      "size_bytes": 142
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\computedAsync.md",
+      "filename": "computedAsync.md",
+      "category": "api",
+      "size_bytes": 5330
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\computedEager.md",
+      "filename": "computedEager.md",
+      "category": "api",
+      "size_bytes": 2023
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\computedInject.md",
+      "filename": "computedInject.md",
+      "category": "api",
+      "size_bytes": 3254
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\computedWithControl.md",
+      "filename": "computedWithControl.md",
+      "category": "api",
+      "size_bytes": 2222
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createDisposableDirective.md",
+      "filename": "createDisposableDirective.md",
+      "category": "api",
+      "size_bytes": 1301
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createEventHook.md",
+      "filename": "createEventHook.md",
+      "category": "api",
+      "size_bytes": 1901
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createGenericProjection.md",
+      "filename": "createGenericProjection.md",
+      "category": "api",
+      "size_bytes": 663
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createGlobalState.md",
+      "filename": "createGlobalState.md",
+      "category": "api",
+      "size_bytes": 1803
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createInjectionState.md",
+      "filename": "createInjectionState.md",
+      "category": "api",
+      "size_bytes": 5481
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createProjection.md",
+      "filename": "createProjection.md",
+      "category": "api",
+      "size_bytes": 722
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createRef.md",
+      "filename": "createRef.md",
+      "category": "api",
+      "size_bytes": 1189
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createReusableTemplate.md",
+      "filename": "createReusableTemplate.md",
+      "category": "api",
+      "size_bytes": 9333
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createSharedComposable.md",
+      "filename": "createSharedComposable.md",
+      "category": "api",
+      "size_bytes": 1133
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createTemplatePromise.md",
+      "filename": "createTemplatePromise.md",
+      "category": "api",
+      "size_bytes": 8184
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\createUnrefFn.md",
+      "filename": "createUnrefFn.md",
+      "category": "api",
+      "size_bytes": 1301
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\extendRef.md",
+      "filename": "extendRef.md",
+      "category": "api",
+      "size_bytes": 1579
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\from.md",
+      "filename": "from.md",
+      "category": "api",
+      "size_bytes": 2457
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\get.md",
+      "filename": "get.md",
+      "category": "api",
+      "size_bytes": 395
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\injectLocal.md",
+      "filename": "injectLocal.md",
+      "category": "api",
+      "size_bytes": 742
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\isDefined.md",
+      "filename": "isDefined.md",
+      "category": "api",
+      "size_bytes": 633
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\logicAnd.md",
+      "filename": "logicAnd.md",
+      "category": "api",
+      "size_bytes": 643
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\logicNot.md",
+      "filename": "logicNot.md",
+      "category": "api",
+      "size_bytes": 566
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\logicOr.md",
+      "filename": "logicOr.md",
+      "category": "api",
+      "size_bytes": 630
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\makeDestructurable.md",
+      "filename": "makeDestructurable.md",
+      "category": "api",
+      "size_bytes": 728
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\onClickOutside.md",
+      "filename": "onClickOutside.md",
+      "category": "api",
+      "size_bytes": 4815
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\onElementRemoval.md",
+      "filename": "onElementRemoval.md",
+      "category": "api",
+      "size_bytes": 1667
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\onKeyStroke.md",
+      "filename": "onKeyStroke.md",
+      "category": "api",
+      "size_bytes": 4611
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\onLongPress.md",
+      "filename": "onLongPress.md",
+      "category": "api",
+      "size_bytes": 5443
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\onStartTyping.md",
+      "filename": "onStartTyping.md",
+      "category": "api",
+      "size_bytes": 2274
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\provideLocal.md",
+      "filename": "provideLocal.md",
+      "category": "api",
+      "size_bytes": 855
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\reactify.md",
+      "filename": "reactify.md",
+      "category": "api",
+      "size_bytes": 3131
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\reactifyObject.md",
+      "filename": "reactifyObject.md",
+      "category": "api",
+      "size_bytes": 1203
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\reactiveComputed.md",
+      "filename": "reactiveComputed.md",
+      "category": "api",
+      "size_bytes": 609
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\reactiveOmit.md",
+      "filename": "reactiveOmit.md",
+      "category": "api",
+      "size_bytes": 1595
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\reactivePick.md",
+      "filename": "reactivePick.md",
+      "category": "api",
+      "size_bytes": 2033
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\refAutoReset.md",
+      "filename": "refAutoReset.md",
+      "category": "api",
+      "size_bytes": 1192
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\refDebounced.md",
+      "filename": "refDebounced.md",
+      "category": "api",
+      "size_bytes": 1706
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\refDefault.md",
+      "filename": "refDefault.md",
+      "category": "api",
+      "size_bytes": 541
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\refManualReset.md",
+      "filename": "refManualReset.md",
+      "category": "api",
+      "size_bytes": 1134
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\refThrottled.md",
+      "filename": "refThrottled.md",
+      "category": "api",
+      "size_bytes": 2829
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\refWithControl.md",
+      "filename": "refWithControl.md",
+      "category": "api",
+      "size_bytes": 3426
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\set.md",
+      "filename": "set.md",
+      "category": "api",
+      "size_bytes": 383
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\syncRef.md",
+      "filename": "syncRef.md",
+      "category": "api",
+      "size_bytes": 4021
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\syncRefs.md",
+      "filename": "syncRefs.md",
+      "category": "api",
+      "size_bytes": 2450
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\templateRef.md",
+      "filename": "templateRef.md",
+      "category": "api",
+      "size_bytes": 1657
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\toObserver.md",
+      "filename": "toObserver.md",
+      "category": "api",
+      "size_bytes": 932
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\toReactive.md",
+      "filename": "toReactive.md",
+      "category": "api",
+      "size_bytes": 738
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\toRef.md",
+      "filename": "toRef.md",
+      "category": "api",
+      "size_bytes": 2228
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\toRefs.md",
+      "filename": "toRefs.md",
+      "category": "api",
+      "size_bytes": 1497
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\tryOnBeforeMount.md",
+      "filename": "tryOnBeforeMount.md",
+      "category": "api",
+      "size_bytes": 621
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\tryOnBeforeUnmount.md",
+      "filename": "tryOnBeforeUnmount.md",
+      "category": "api",
+      "size_bytes": 524
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\tryOnMounted.md",
+      "filename": "tryOnMounted.md",
+      "category": "api",
+      "size_bytes": 593
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\tryOnScopeDispose.md",
+      "filename": "tryOnScopeDispose.md",
+      "category": "api",
+      "size_bytes": 492
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\tryOnUnmounted.md",
+      "filename": "tryOnUnmounted.md",
+      "category": "api",
+      "size_bytes": 496
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\unrefElement.md",
+      "filename": "unrefElement.md",
+      "category": "api",
+      "size_bytes": 1385
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\until.md",
+      "filename": "until.md",
+      "category": "api",
+      "size_bytes": 3845
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useAbs.md",
+      "filename": "useAbs.md",
+      "category": "api",
+      "size_bytes": 402
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useActiveElement.md",
+      "filename": "useActiveElement.md",
+      "category": "api",
+      "size_bytes": 2002
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useAnimate.md",
+      "filename": "useAnimate.md",
+      "category": "api",
+      "size_bytes": 4177
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayDifference.md",
+      "filename": "useArrayDifference.md",
+      "category": "api",
+      "size_bytes": 2389
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayEvery.md",
+      "filename": "useArrayEvery.md",
+      "category": "api",
+      "size_bytes": 1277
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayFilter.md",
+      "filename": "useArrayFilter.md",
+      "category": "api",
+      "size_bytes": 1738
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayFind.md",
+      "filename": "useArrayFind.md",
+      "category": "api",
+      "size_bytes": 1088
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayFindIndex.md",
+      "filename": "useArrayFindIndex.md",
+      "category": "api",
+      "size_bytes": 1280
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayFindLast.md",
+      "filename": "useArrayFindLast.md",
+      "category": "api",
+      "size_bytes": 1167
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayIncludes.md",
+      "filename": "useArrayIncludes.md",
+      "category": "api",
+      "size_bytes": 1495
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayJoin.md",
+      "filename": "useArrayJoin.md",
+      "category": "api",
+      "size_bytes": 1846
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayMap.md",
+      "filename": "useArrayMap.md",
+      "category": "api",
+      "size_bytes": 1338
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayReduce.md",
+      "filename": "useArrayReduce.md",
+      "category": "api",
+      "size_bytes": 1929
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArraySome.md",
+      "filename": "useArraySome.md",
+      "category": "api",
+      "size_bytes": 1256
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useArrayUnique.md",
+      "filename": "useArrayUnique.md",
+      "category": "api",
+      "size_bytes": 1577
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useAsyncQueue.md",
+      "filename": "useAsyncQueue.md",
+      "category": "api",
+      "size_bytes": 2698
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useAsyncState.md",
+      "filename": "useAsyncState.md",
+      "category": "api",
+      "size_bytes": 5050
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useAsyncValidator.md",
+      "filename": "useAsyncValidator.md",
+      "category": "api",
+      "size_bytes": 1799
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useAuth.md",
+      "filename": "useAuth.md",
+      "category": "api",
+      "size_bytes": 3935
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useAverage.md",
+      "filename": "useAverage.md",
+      "category": "api",
+      "size_bytes": 602
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useAxios.md",
+      "filename": "useAxios.md",
+      "category": "api",
+      "size_bytes": 8265
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useBase64.md",
+      "filename": "useBase64.md",
+      "category": "api",
+      "size_bytes": 3657
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useBattery.md",
+      "filename": "useBattery.md",
+      "category": "api",
+      "size_bytes": 2923
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useBluetooth.md",
+      "filename": "useBluetooth.md",
+      "category": "api",
+      "size_bytes": 5827
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useBreakpoints.md",
+      "filename": "useBreakpoints.md",
+      "category": "api",
+      "size_bytes": 5796
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useBroadcastChannel.md",
+      "filename": "useBroadcastChannel.md",
+      "category": "api",
+      "size_bytes": 1723
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useBrowserLocation.md",
+      "filename": "useBrowserLocation.md",
+      "category": "api",
+      "size_bytes": 1145
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCached.md",
+      "filename": "useCached.md",
+      "category": "api",
+      "size_bytes": 1230
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCeil.md",
+      "filename": "useCeil.md",
+      "category": "api",
+      "size_bytes": 401
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useChangeCase.md",
+      "filename": "useChangeCase.md",
+      "category": "api",
+      "size_bytes": 1934
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useClamp.md",
+      "filename": "useClamp.md",
+      "category": "api",
+      "size_bytes": 1699
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useClipboard.md",
+      "filename": "useClipboard.md",
+      "category": "api",
+      "size_bytes": 4548
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useClipboardItems.md",
+      "filename": "useClipboardItems.md",
+      "category": "api",
+      "size_bytes": 2666
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCloned.md",
+      "filename": "useCloned.md",
+      "category": "api",
+      "size_bytes": 2041
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useColorMode.md",
+      "filename": "useColorMode.md",
+      "category": "api",
+      "size_bytes": 4301
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useConfirmDialog.md",
+      "filename": "useConfirmDialog.md",
+      "category": "api",
+      "size_bytes": 3859
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCookies.md",
+      "filename": "useCookies.md",
+      "category": "api",
+      "size_bytes": 5037
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCountdown.md",
+      "filename": "useCountdown.md",
+      "category": "api",
+      "size_bytes": 2202
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCounter.md",
+      "filename": "useCounter.md",
+      "category": "api",
+      "size_bytes": 1666
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCssSupports.md",
+      "filename": "useCssSupports.md",
+      "category": "api",
+      "size_bytes": 795
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCssVar.md",
+      "filename": "useCssVar.md",
+      "category": "api",
+      "size_bytes": 1002
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCurrentElement.md",
+      "filename": "useCurrentElement.md",
+      "category": "api",
+      "size_bytes": 1556
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useCycleList.md",
+      "filename": "useCycleList.md",
+      "category": "api",
+      "size_bytes": 1432
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDark.md",
+      "filename": "useDark.md",
+      "category": "api",
+      "size_bytes": 3261
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDateFormat.md",
+      "filename": "useDateFormat.md",
+      "category": "api",
+      "size_bytes": 5803
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDebouncedRefHistory.md",
+      "filename": "useDebouncedRefHistory.md",
+      "category": "api",
+      "size_bytes": 962
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDebounceFn.md",
+      "filename": "useDebounceFn.md",
+      "category": "api",
+      "size_bytes": 4200
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDeviceMotion.md",
+      "filename": "useDeviceMotion.md",
+      "category": "api",
+      "size_bytes": 3450
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDeviceOrientation.md",
+      "filename": "useDeviceOrientation.md",
+      "category": "api",
+      "size_bytes": 2290
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDevicePixelRatio.md",
+      "filename": "useDevicePixelRatio.md",
+      "category": "api",
+      "size_bytes": 1340
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDevicesList.md",
+      "filename": "useDevicesList.md",
+      "category": "api",
+      "size_bytes": 1988
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDisplayMedia.md",
+      "filename": "useDisplayMedia.md",
+      "category": "api",
+      "size_bytes": 1452
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDocumentVisibility.md",
+      "filename": "useDocumentVisibility.md",
+      "category": "api",
+      "size_bytes": 946
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDraggable.md",
+      "filename": "useDraggable.md",
+      "category": "api",
+      "size_bytes": 7554
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDrauu.md",
+      "filename": "useDrauu.md",
+      "category": "api",
+      "size_bytes": 1318
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useDropZone.md",
+      "filename": "useDropZone.md",
+      "category": "api",
+      "size_bytes": 2268
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useElementBounding.md",
+      "filename": "useElementBounding.md",
+      "category": "api",
+      "size_bytes": 2732
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useElementByPoint.md",
+      "filename": "useElementByPoint.md",
+      "category": "api",
+      "size_bytes": 1175
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useElementHover.md",
+      "filename": "useElementHover.md",
+      "category": "api",
+      "size_bytes": 1565
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useElementSize.md",
+      "filename": "useElementSize.md",
+      "category": "api",
+      "size_bytes": 1600
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useElementVisibility.md",
+      "filename": "useElementVisibility.md",
+      "category": "api",
+      "size_bytes": 4066
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useEventBus.md",
+      "filename": "useEventBus.md",
+      "category": "api",
+      "size_bytes": 2339
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useEventListener.md",
+      "filename": "useEventListener.md",
+      "category": "api",
+      "size_bytes": 6683
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useEventSource.md",
+      "filename": "useEventSource.md",
+      "category": "api",
+      "size_bytes": 4695
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useExtractedObservable.md",
+      "filename": "useExtractedObservable.md",
+      "category": "api",
+      "size_bytes": 5324
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useEyeDropper.md",
+      "filename": "useEyeDropper.md",
+      "category": "api",
+      "size_bytes": 1444
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFavicon.md",
+      "filename": "useFavicon.md",
+      "category": "api",
+      "size_bytes": 1492
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFetch.md",
+      "filename": "useFetch.md",
+      "category": "api",
+      "size_bytes": 14879
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFileDialog.md",
+      "filename": "useFileDialog.md",
+      "category": "api",
+      "size_bytes": 1987
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFileSystemAccess.md",
+      "filename": "useFileSystemAccess.md",
+      "category": "api",
+      "size_bytes": 4737
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFirestore.md",
+      "filename": "useFirestore.md",
+      "category": "api",
+      "size_bytes": 4290
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFloor.md",
+      "filename": "useFloor.md",
+      "category": "api",
+      "size_bytes": 410
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFocus.md",
+      "filename": "useFocus.md",
+      "category": "api",
+      "size_bytes": 2605
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFocusTrap.md",
+      "filename": "useFocusTrap.md",
+      "category": "api",
+      "size_bytes": 5310
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFocusWithin.md",
+      "filename": "useFocusWithin.md",
+      "category": "api",
+      "size_bytes": 1416
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFps.md",
+      "filename": "useFps.md",
+      "category": "api",
+      "size_bytes": 384
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFullscreen.md",
+      "filename": "useFullscreen.md",
+      "category": "api",
+      "size_bytes": 1856
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useFuse.md",
+      "filename": "useFuse.md",
+      "category": "api",
+      "size_bytes": 1477
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useGamepad.md",
+      "filename": "useGamepad.md",
+      "category": "api",
+      "size_bytes": 4628
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useGeolocation.md",
+      "filename": "useGeolocation.md",
+      "category": "api",
+      "size_bytes": 2608
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useIDBKeyval.md",
+      "filename": "useIDBKeyval.md",
+      "category": "api",
+      "size_bytes": 1818
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useIdle.md",
+      "filename": "useIdle.md",
+      "category": "api",
+      "size_bytes": 1724
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useImage.md",
+      "filename": "useImage.md",
+      "category": "api",
+      "size_bytes": 2420
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useInfiniteScroll.md",
+      "filename": "useInfiniteScroll.md",
+      "category": "api",
+      "size_bytes": 3784
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useIntersectionObserver.md",
+      "filename": "useIntersectionObserver.md",
+      "category": "api",
+      "size_bytes": 2684
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useInterval.md",
+      "filename": "useInterval.md",
+      "category": "api",
+      "size_bytes": 2482
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useIntervalFn.md",
+      "filename": "useIntervalFn.md",
+      "category": "api",
+      "size_bytes": 869
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useIpcRenderer.md",
+      "filename": "useIpcRenderer.md",
+      "category": "api",
+      "size_bytes": 5897
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useIpcRendererInvoke.md",
+      "filename": "useIpcRendererInvoke.md",
+      "category": "api",
+      "size_bytes": 1845
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useIpcRendererOn.md",
+      "filename": "useIpcRendererOn.md",
+      "category": "api",
+      "size_bytes": 1842
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useJwt.md",
+      "filename": "useJwt.md",
+      "category": "api",
+      "size_bytes": 1226
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useKeyModifier.md",
+      "filename": "useKeyModifier.md",
+      "category": "api",
+      "size_bytes": 2365
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useLastChanged.md",
+      "filename": "useLastChanged.md",
+      "category": "api",
+      "size_bytes": 1446
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useLocalStorage.md",
+      "filename": "useLocalStorage.md",
+      "category": "api",
+      "size_bytes": 1100
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMagicKeys.md",
+      "filename": "useMagicKeys.md",
+      "category": "api",
+      "size_bytes": 6133
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useManualRefHistory.md",
+      "filename": "useManualRefHistory.md",
+      "category": "api",
+      "size_bytes": 5258
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMath.md",
+      "filename": "useMath.md",
+      "category": "api",
+      "size_bytes": 838
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMax.md",
+      "filename": "useMax.md",
+      "category": "api",
+      "size_bytes": 545
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMediaControls.md",
+      "filename": "useMediaControls.md",
+      "category": "api",
+      "size_bytes": 5212
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMediaQuery.md",
+      "filename": "useMediaQuery.md",
+      "category": "api",
+      "size_bytes": 1531
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMemoize.md",
+      "filename": "useMemoize.md",
+      "category": "api",
+      "size_bytes": 4350
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMemory.md",
+      "filename": "useMemory.md",
+      "category": "api",
+      "size_bytes": 1477
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMin.md",
+      "filename": "useMin.md",
+      "category": "api",
+      "size_bytes": 545
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMounted.md",
+      "filename": "useMounted.md",
+      "category": "api",
+      "size_bytes": 486
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMouse.md",
+      "filename": "useMouse.md",
+      "category": "api",
+      "size_bytes": 2468
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMouseInElement.md",
+      "filename": "useMouseInElement.md",
+      "category": "api",
+      "size_bytes": 3092
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMousePressed.md",
+      "filename": "useMousePressed.md",
+      "category": "api",
+      "size_bytes": 2621
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useMutationObserver.md",
+      "filename": "useMutationObserver.md",
+      "category": "api",
+      "size_bytes": 1383
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useNavigatorLanguage.md",
+      "filename": "useNavigatorLanguage.md",
+      "category": "api",
+      "size_bytes": 1525
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useNetwork.md",
+      "filename": "useNetwork.md",
+      "category": "api",
+      "size_bytes": 2754
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useNow.md",
+      "filename": "useNow.md",
+      "category": "api",
+      "size_bytes": 1550
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useNProgress.md",
+      "filename": "useNProgress.md",
+      "category": "api",
+      "size_bytes": 1721
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useObjectUrl.md",
+      "filename": "useObjectUrl.md",
+      "category": "api",
+      "size_bytes": 1257
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useObservable.md",
+      "filename": "useObservable.md",
+      "category": "api",
+      "size_bytes": 2386
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useOffsetPagination.md",
+      "filename": "useOffsetPagination.md",
+      "category": "api",
+      "size_bytes": 4080
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useOnline.md",
+      "filename": "useOnline.md",
+      "category": "api",
+      "size_bytes": 568
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePageLeave.md",
+      "filename": "usePageLeave.md",
+      "category": "api",
+      "size_bytes": 738
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useParallax.md",
+      "filename": "useParallax.md",
+      "category": "api",
+      "size_bytes": 1302
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useParentElement.md",
+      "filename": "useParentElement.md",
+      "category": "api",
+      "size_bytes": 989
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePerformanceObserver.md",
+      "filename": "usePerformanceObserver.md",
+      "category": "api",
+      "size_bytes": 863
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePermission.md",
+      "filename": "usePermission.md",
+      "category": "api",
+      "size_bytes": 1828
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePointer.md",
+      "filename": "usePointer.md",
+      "category": "api",
+      "size_bytes": 1735
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePointerLock.md",
+      "filename": "usePointerLock.md",
+      "category": "api",
+      "size_bytes": 1106
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePointerSwipe.md",
+      "filename": "usePointerSwipe.md",
+      "category": "api",
+      "size_bytes": 1712
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePrecision.md",
+      "filename": "usePrecision.md",
+      "category": "api",
+      "size_bytes": 855
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePreferredColorScheme.md",
+      "filename": "usePreferredColorScheme.md",
+      "category": "api",
+      "size_bytes": 852
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePreferredContrast.md",
+      "filename": "usePreferredContrast.md",
+      "category": "api",
+      "size_bytes": 816
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePreferredDark.md",
+      "filename": "usePreferredDark.md",
+      "category": "api",
+      "size_bytes": 610
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePreferredLanguages.md",
+      "filename": "usePreferredLanguages.md",
+      "category": "api",
+      "size_bytes": 972
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePreferredReducedMotion.md",
+      "filename": "usePreferredReducedMotion.md",
+      "category": "api",
+      "size_bytes": 861
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePreferredReducedTransparency.md",
+      "filename": "usePreferredReducedTransparency.md",
+      "category": "api",
+      "size_bytes": 957
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\usePrevious.md",
+      "filename": "usePrevious.md",
+      "category": "api",
+      "size_bytes": 712
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useProjection.md",
+      "filename": "useProjection.md",
+      "category": "api",
+      "size_bytes": 799
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useQRCode.md",
+      "filename": "useQRCode.md",
+      "category": "api",
+      "size_bytes": 959
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useRafFn.md",
+      "filename": "useRafFn.md",
+      "category": "api",
+      "size_bytes": 1515
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useRefHistory.md",
+      "filename": "useRefHistory.md",
+      "category": "api",
+      "size_bytes": 8014
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useResizeObserver.md",
+      "filename": "useResizeObserver.md",
+      "category": "api",
+      "size_bytes": 2651
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useRound.md",
+      "filename": "useRound.md",
+      "category": "api",
+      "size_bytes": 411
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useRouteHash.md",
+      "filename": "useRouteHash.md",
+      "category": "api",
+      "size_bytes": 505
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useRouteParams.md",
+      "filename": "useRouteParams.md",
+      "category": "api",
+      "size_bytes": 828
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useRouteQuery.md",
+      "filename": "useRouteQuery.md",
+      "category": "api",
+      "size_bytes": 1827
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useRTDB.md",
+      "filename": "useRTDB.md",
+      "category": "api",
+      "size_bytes": 2130
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useScreenOrientation.md",
+      "filename": "useScreenOrientation.md",
+      "category": "api",
+      "size_bytes": 2533
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useScreenSafeArea.md",
+      "filename": "useScreenSafeArea.md",
+      "category": "api",
+      "size_bytes": 1301
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useScriptTag.md",
+      "filename": "useScriptTag.md",
+      "category": "api",
+      "size_bytes": 2589
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useScroll.md",
+      "filename": "useScroll.md",
+      "category": "api",
+      "size_bytes": 5372
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useScrollLock.md",
+      "filename": "useScrollLock.md",
+      "category": "api",
+      "size_bytes": 1159
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSessionStorage.md",
+      "filename": "useSessionStorage.md",
+      "category": "api",
+      "size_bytes": 1116
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useShare.md",
+      "filename": "useShare.md",
+      "category": "api",
+      "size_bytes": 1473
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSortable.md",
+      "filename": "useSortable.md",
+      "category": "api",
+      "size_bytes": 7216
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSorted.md",
+      "filename": "useSorted.md",
+      "category": "api",
+      "size_bytes": 1761
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSpeechRecognition.md",
+      "filename": "useSpeechRecognition.md",
+      "category": "api",
+      "size_bytes": 2659
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSpeechSynthesis.md",
+      "filename": "useSpeechSynthesis.md",
+      "category": "api",
+      "size_bytes": 2448
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSSRWidth.md",
+      "filename": "useSSRWidth.md",
+      "category": "api",
+      "size_bytes": 894
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useStepper.md",
+      "filename": "useStepper.md",
+      "category": "api",
+      "size_bytes": 3236
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useStorage.md",
+      "filename": "useStorage.md",
+      "category": "api",
+      "size_bytes": 8121
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useStorageAsync.md",
+      "filename": "useStorageAsync.md",
+      "category": "api",
+      "size_bytes": 3455
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useStyleTag.md",
+      "filename": "useStyleTag.md",
+      "category": "api",
+      "size_bytes": 2222
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSubject.md",
+      "filename": "useSubject.md",
+      "category": "api",
+      "size_bytes": 2014
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSubscription.md",
+      "filename": "useSubscription.md",
+      "category": "api",
+      "size_bytes": 664
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSum.md",
+      "filename": "useSum.md",
+      "category": "api",
+      "size_bytes": 560
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSupported.md",
+      "filename": "useSupported.md",
+      "category": "api",
+      "size_bytes": 465
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useSwipe.md",
+      "filename": "useSwipe.md",
+      "category": "api",
+      "size_bytes": 1518
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTemplateRefsList.md",
+      "filename": "useTemplateRefsList.md",
+      "category": "api",
+      "size_bytes": 660
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTextareaAutosize.md",
+      "filename": "useTextareaAutosize.md",
+      "category": "api",
+      "size_bytes": 3045
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTextDirection.md",
+      "filename": "useTextDirection.md",
+      "category": "api",
+      "size_bytes": 1409
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTextSelection.md",
+      "filename": "useTextSelection.md",
+      "category": "api",
+      "size_bytes": 989
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useThrottledRefHistory.md",
+      "filename": "useThrottledRefHistory.md",
+      "category": "api",
+      "size_bytes": 1227
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useThrottleFn.md",
+      "filename": "useThrottleFn.md",
+      "category": "api",
+      "size_bytes": 1913
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTimeAgo.md",
+      "filename": "useTimeAgo.md",
+      "category": "api",
+      "size_bytes": 3511
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTimeAgoIntl.md",
+      "filename": "useTimeAgoIntl.md",
+      "category": "api",
+      "size_bytes": 3154
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTimeout.md",
+      "filename": "useTimeout.md",
+      "category": "api",
+      "size_bytes": 2377
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTimeoutFn.md",
+      "filename": "useTimeoutFn.md",
+      "category": "api",
+      "size_bytes": 913
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTimeoutPoll.md",
+      "filename": "useTimeoutPoll.md",
+      "category": "api",
+      "size_bytes": 880
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTimestamp.md",
+      "filename": "useTimestamp.md",
+      "category": "api",
+      "size_bytes": 1829
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTitle.md",
+      "filename": "useTitle.md",
+      "category": "api",
+      "size_bytes": 2693
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useToggle.md",
+      "filename": "useToggle.md",
+      "category": "api",
+      "size_bytes": 2240
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useToNumber.md",
+      "filename": "useToNumber.md",
+      "category": "api",
+      "size_bytes": 1007
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useToString.md",
+      "filename": "useToString.md",
+      "category": "api",
+      "size_bytes": 508
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTransition.md",
+      "filename": "useTransition.md",
+      "category": "api",
+      "size_bytes": 8280
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useTrunc.md",
+      "filename": "useTrunc.md",
+      "category": "api",
+      "size_bytes": 477
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useUrlSearchParams.md",
+      "filename": "useUrlSearchParams.md",
+      "category": "api",
+      "size_bytes": 2888
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useUserMedia.md",
+      "filename": "useUserMedia.md",
+      "category": "api",
+      "size_bytes": 2231
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useVibrate.md",
+      "filename": "useVibrate.md",
+      "category": "api",
+      "size_bytes": 2319
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useVirtualList.md",
+      "filename": "useVirtualList.md",
+      "category": "api",
+      "size_bytes": 5454
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useVModel.md",
+      "filename": "useVModel.md",
+      "category": "api",
+      "size_bytes": 4119
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useVModels.md",
+      "filename": "useVModels.md",
+      "category": "api",
+      "size_bytes": 1339
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useWakeLock.md",
+      "filename": "useWakeLock.md",
+      "category": "api",
+      "size_bytes": 1713
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useWebNotification.md",
+      "filename": "useWebNotification.md",
+      "category": "api",
+      "size_bytes": 4308
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useWebSocket.md",
+      "filename": "useWebSocket.md",
+      "category": "api",
+      "size_bytes": 7750
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useWebWorker.md",
+      "filename": "useWebWorker.md",
+      "category": "api",
+      "size_bytes": 2478
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useWebWorkerFn.md",
+      "filename": "useWebWorkerFn.md",
+      "category": "api",
+      "size_bytes": 2502
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useWindowFocus.md",
+      "filename": "useWindowFocus.md",
+      "category": "api",
+      "size_bytes": 747
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useWindowScroll.md",
+      "filename": "useWindowScroll.md",
+      "category": "api",
+      "size_bytes": 808
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useWindowSize.md",
+      "filename": "useWindowSize.md",
+      "category": "api",
+      "size_bytes": 1487
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useZoomFactor.md",
+      "filename": "useZoomFactor.md",
+      "category": "api",
+      "size_bytes": 1277
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\useZoomLevel.md",
+      "filename": "useZoomLevel.md",
+      "category": "api",
+      "size_bytes": 1250
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchArray.md",
+      "filename": "watchArray.md",
+      "category": "api",
+      "size_bytes": 1162
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchAtMost.md",
+      "filename": "watchAtMost.md",
+      "category": "api",
+      "size_bytes": 1557
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchDebounced.md",
+      "filename": "watchDebounced.md",
+      "category": "api",
+      "size_bytes": 2614
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchDeep.md",
+      "filename": "watchDeep.md",
+      "category": "api",
+      "size_bytes": 1190
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchExtractedObservable.md",
+      "filename": "watchExtractedObservable.md",
+      "category": "api",
+      "size_bytes": 5414
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchIgnorable.md",
+      "filename": "watchIgnorable.md",
+      "category": "api",
+      "size_bytes": 3140
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchImmediate.md",
+      "filename": "watchImmediate.md",
+      "category": "api",
+      "size_bytes": 1029
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchOnce.md",
+      "filename": "watchOnce.md",
+      "category": "api",
+      "size_bytes": 1020
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchPausable.md",
+      "filename": "watchPausable.md",
+      "category": "api",
+      "size_bytes": 2404
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchThrottled.md",
+      "filename": "watchThrottled.md",
+      "category": "api",
+      "size_bytes": 2782
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchTriggerable.md",
+      "filename": "watchTriggerable.md",
+      "category": "api",
+      "size_bytes": 2527
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\watchWithFilter.md",
+      "filename": "watchWithFilter.md",
+      "category": "api",
+      "size_bytes": 1435
+    },
+    {
+      "path": "skills\\vueuse-functions\\references\\whenever.md",
+      "filename": "whenever.md",
+      "category": "api",
+      "size_bytes": 2080
+    },
+    {
+      "path": "skills\\vueuse-functions\\SKILL.md",
+      "filename": "SKILL.md",
+      "category": "other",
+      "size_bytes": 37286
+    }
+  ]
+}

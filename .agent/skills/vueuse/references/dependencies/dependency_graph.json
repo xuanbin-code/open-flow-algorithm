@@ -1,0 +1,2789 @@
+{
+  "nodes": [
+    {
+      "file": "eslint.config.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "meta\\ecosystem-functions.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "meta\\packages.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "meta\\versions.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.test\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.test\\keyboardEvent.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.test\\mockServer.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.test\\mount.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.test\\nextTick.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.test\\polyfillPointerEvents.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.test\\setup.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\plugins\\changelog.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\plugins\\contributors.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\plugins\\markdownTransform.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\plugins\\pwa-virtual.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\shims.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\sw.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\theme\\composables\\dark.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\theme\\composables\\versions.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\theme\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\theme\\redirects.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\theme\\sponsors.data.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\theme\\utils.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\transformHead.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\twoslash.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\.vitepress\\vite.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\components\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\components\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\contributors.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\_configurable.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\_resolve-element.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\_template\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\_template\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\computedAsync\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\computedAsync\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\computedInject\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\computedInject\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\createReusableTemplate\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\createReusableTemplate\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\createTemplatePromise\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\createTemplatePromise\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\createUnrefFn\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\createUnrefFn\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onClickOutside\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onClickOutside\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onClickOutside\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onClickOutside\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onClickOutside\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onElementRemoval\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onElementRemoval\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onKeyStroke\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onKeyStroke\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onKeyStroke\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onKeyStroke\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onLongPress\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onLongPress\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onLongPress\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onLongPress\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onLongPress\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onStartTyping\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\onStartTyping\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\ssr-handlers.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\templateRef\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\templateRef\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\types.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\unrefElement\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\unrefElement\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useActiveElement\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useActiveElement\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useActiveElement\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useAnimate\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useAnimate\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useAnimate\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useAsyncQueue\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useAsyncQueue\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useAsyncState\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useAsyncState\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBase64\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBase64\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBase64\\serialization.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBattery\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBattery\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBluetooth\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBluetooth\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBreakpoints\\breakpoints.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBreakpoints\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBreakpoints\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBroadcastChannel\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBrowserLocation\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBrowserLocation\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useBrowserLocation\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCached\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCached\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useClipboard\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useClipboard\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useClipboard\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useClipboard\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useClipboardItems\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCloned\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCloned\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useColorMode\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useColorMode\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useColorMode\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useConfirmDialog\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useConfirmDialog\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCountdown\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCountdown\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCssSupports\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCssSupports\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCssVar\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCssVar\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCurrentElement\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCurrentElement\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCycleList\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useCycleList\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDark\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDark\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDark\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDebouncedRefHistory\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDebouncedRefHistory\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDeviceMotion\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDeviceMotion\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDeviceOrientation\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDeviceOrientation\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDevicePixelRatio\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDevicePixelRatio\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDevicesList\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDevicesList\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDisplayMedia\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDocumentVisibility\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDocumentVisibility\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDraggable\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDraggable\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDraggable\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDraggable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useDropZone\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementBounding\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementBounding\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementBounding\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementBounding\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementBounding\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementBounding\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementByPoint\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementHover\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementHover\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementHover\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementSize\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementSize\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementSize\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementSize\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementVisibility\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementVisibility\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementVisibility\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementVisibility\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useElementVisibility\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useEventBus\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useEventBus\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useEventBus\\internal.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useEventListener\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useEventListener\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useEventSource\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useEventSource\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useEyeDropper\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useEyeDropper\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFavicon\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFavicon\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFetch\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFetch\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFileDialog\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFileDialog\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFileSystemAccess\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFocus\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFocus\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFocusWithin\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFocusWithin\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFps\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFullscreen\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useFullscreen\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useGamepad\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useGeolocation\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useGeolocation\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useIdle\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useIdle\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useIdle\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useImage\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useImage\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useInfiniteScroll\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useInfiniteScroll\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useInfiniteScroll\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useInfiniteScroll\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useIntersectionObserver\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useIntersectionObserver\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useIntersectionObserver\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useIntersectionObserver\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useKeyModifier\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useKeyModifier\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useLocalStorage\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMagicKeys\\aliasMap.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMagicKeys\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMagicKeys\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useManualRefHistory\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useManualRefHistory\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMediaControls\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMediaQuery\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMediaQuery\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMemoize\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMemoize\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMemory\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMounted\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMouse\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMouse\\demo.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMouse\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMouseInElement\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMouseInElement\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMouseInElement\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMouseInElement\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMouseInElement\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMousePressed\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMousePressed\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMousePressed\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMutationObserver\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useMutationObserver\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useNavigatorLanguage\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useNavigatorLanguage\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useNetwork\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useNetwork\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useNow\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useNow\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useNow\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useObjectUrl\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useObjectUrl\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useOffsetPagination\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useOffsetPagination\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useOffsetPagination\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useOnline\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useOnline\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePageLeave\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePageLeave\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useParallax\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useParentElement\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useParentElement\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePerformanceObserver\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePermission\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePointer\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePointer\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePointerLock\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePointerLock\\demo.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePointerLock\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePointerSwipe\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePointerSwipe\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredColorScheme\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredColorScheme\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredContrast\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredContrast\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredDark\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredDark\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredLanguages\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredLanguages\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredReducedMotion\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredReducedMotion\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredReducedTransparency\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePreferredReducedTransparency\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePrevious\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\usePrevious\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useRafFn\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useRafFn\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useRefHistory\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useRefHistory\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useResizeObserver\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useResizeObserver\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useResizeObserver\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScreenOrientation\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScreenOrientation\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScreenSafeArea\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScreenSafeArea\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScriptTag\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScriptTag\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScroll\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScroll\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScroll\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScroll\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScroll\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScrollLock\\directive.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScrollLock\\directive.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScrollLock\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useScrollLock\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSessionStorage\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useShare\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSorted\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSorted\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSpeechRecognition\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSpeechRecognition\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSpeechRecognition\\types.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSpeechSynthesis\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSSRWidth\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSSRWidth\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useStepper\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useStepper\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useStorage\\guess.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useStorage\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useStorage\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useStorageAsync\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useStorageAsync\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useStyleTag\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useStyleTag\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSupported\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSwipe\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useSwipe\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTemplateRefsList\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTemplateRefsList\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTextareaAutosize\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTextareaAutosize\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTextDirection\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTextDirection\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTextSelection\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTextSelection\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useThrottledRefHistory\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useThrottledRefHistory\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimeAgo\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimeAgo\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimeAgo\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimeAgoIntl\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimeAgoIntl\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimeoutPoll\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimeoutPoll\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimestamp\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimestamp\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTimestamp\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTitle\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTitle\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTransition\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useTransition\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useUrlSearchParams\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useUrlSearchParams\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useUserMedia\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useVibrate\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useVibrate\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useVirtualList\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useVirtualList\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useVirtualList\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useVModel\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useVModel\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useVModels\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useVModels\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWakeLock\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWakeLock\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWakeLock\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWebNotification\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWebSocket\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWebSocket\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWebSocket\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWebWorker\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWebWorkerFn\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWebWorkerFn\\lib\\createWorkerBlobUrl.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWebWorkerFn\\lib\\depsParser.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWebWorkerFn\\lib\\jobRunner.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWindowFocus\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWindowFocus\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWindowScroll\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWindowScroll\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWindowSize\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWindowSize\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\core\\useWindowSize\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\electron\\_types.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\electron\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\electron\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\electron\\useIpcRenderer\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\electron\\useIpcRendererInvoke\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\electron\\useIpcRendererOn\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\electron\\useZoomFactor\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\electron\\useZoomLevel\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\firebase\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\firebase\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\firebase\\useAuth\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\firebase\\useFirestore\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\firebase\\useFirestore\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\firebase\\useRTDB\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useAsyncValidator\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useAsyncValidator\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useAsyncValidator\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useAxios\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useAxios\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useChangeCase\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useChangeCase\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useCookies\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useCookies\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useDrauu\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useFocusTrap\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useFocusTrap\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useFuse\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useIDBKeyval\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useIDBKeyval\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useJwt\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useJwt\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useNProgress\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useQRCode\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useSortable\\component.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useSortable\\index.browser.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\integrations\\useSortable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\createGenericProjection\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\createProjection\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\createProjection\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\logicAnd\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\logicAnd\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\logicNot\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\logicNot\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\logicOr\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\logicOr\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useAbs\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useAbs\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useAverage\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useAverage\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useCeil\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useCeil\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useClamp\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useClamp\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useFloor\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useFloor\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useMath\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useMath\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useMax\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useMax\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useMin\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useMin\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\usePrecision\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\usePrecision\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useProjection\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useProjection\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useRound\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useRound\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useSum\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useSum\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useTrunc\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\useTrunc\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\math\\utils.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\metadata\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\metadata\\metadata.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\metadata\\scripts\\update.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\metadata\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\metadata\\types.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\metadata\\utils.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\nuxt\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\nuxt\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\router\\_types.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\router\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\router\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\router\\useRouteHash\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\router\\useRouteHash\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\router\\useRouteParams\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\router\\useRouteParams\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\router\\useRouteQuery\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\router\\useRouteQuery\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\from\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\toObserver\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\useExtractedObservable\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\useExtractedObservable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\useObservable\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\useObservable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\useSubject\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\useSubject\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\useSubscription\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\watchExtractedObservable\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\rxjs\\watchExtractedObservable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\computedEager\\demo\\state.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\computedEager\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\computedEager\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\computedWithControl\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\computedWithControl\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createDisposableDirective\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createDisposableDirective\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createEventHook\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createEventHook\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createGlobalState\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createGlobalState\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createInjectionState\\demo\\useCounterStore.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createInjectionState\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createInjectionState\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createRef\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createRef\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createSharedComposable\\index.server.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createSharedComposable\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\createSharedComposable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\extendRef\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\get\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\get\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\injectLocal\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\injectLocal\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\isDefined\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\isDefined\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\makeDestructurable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\provideLocal\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\provideLocal\\map.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactify\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactify\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactifyObject\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactifyObject\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactiveComputed\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactiveComputed\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactiveOmit\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactiveOmit\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactivePick\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\reactivePick\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\refAutoReset\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\refAutoReset\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\refDebounced\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\refDefault\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\refManualReset\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\refManualReset\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\refThrottled\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\refWithControl\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\refWithControl\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\set\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\set\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\syncRef\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\syncRef\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\syncRefs\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\syncRefs\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\toReactive\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\toReactive\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\toRef\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\toRefs\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\toRefs\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\tryOnBeforeMount\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\tryOnBeforeUnmount\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\tryOnMounted\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\tryOnScopeDispose\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\tryOnUnmounted\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\until\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\until\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayDifference\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayDifference\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayEvery\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayEvery\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayFilter\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayFilter\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayFind\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayFind\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayFindIndex\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayFindIndex\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayFindLast\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayFindLast\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayIncludes\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayIncludes\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayJoin\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayJoin\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayMap\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayMap\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayReduce\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayReduce\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArraySome\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArraySome\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayUnique\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useArrayUnique\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useCounter\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useCounter\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useDateFormat\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useDateFormat\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useDebounceFn\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useInterval\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useIntervalFn\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useIntervalFn\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useLastChanged\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useThrottleFn\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useThrottleFn\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useTimeout\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useTimeout\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useTimeoutFn\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useTimeoutFn\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useToggle\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useToggle\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useToNumber\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useToNumber\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useToString\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\useToString\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\utils\\filters.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\utils\\general.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\utils\\index.server.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\utils\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\utils\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\utils\\is.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\utils\\port.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\utils\\types.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\utils\\vue.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchArray\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchArray\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchAtMost\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchAtMost\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchDebounced\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchDebounced\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchDeep\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchDeep\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchIgnorable\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchIgnorable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchImmediate\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchImmediate\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchOnce\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchOnce\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchPausable\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchPausable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchThrottled\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchThrottled\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchTriggerable\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchTriggerable\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\watchWithFilter\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\whenever\\index.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\shared\\whenever\\index.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "packages\\skills\\build.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "playgrounds\\nuxt\\nuxt.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "playgrounds\\vite\\src\\main.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "playgrounds\\vite\\src\\vite.env.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "playgrounds\\vite\\vite.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "scripts\\changelog.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "scripts\\clean.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "scripts\\export-size.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "scripts\\publish.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "scripts\\redirects.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "scripts\\release.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "scripts\\update.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "scripts\\utils.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "taze.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\components\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\components\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\core\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\core\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\core\\metadata.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\core\\metadata.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\electron\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\electron\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\firebase\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\firebase\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\firebase\\useAuth.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\firebase\\useAuth.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\firebase\\useFirestore.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\firebase\\useFirestore.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\firebase\\useRTDB.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\firebase\\useRTDB.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useAsyncValidator\\component.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useAsyncValidator\\component.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useAsyncValidator.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useAsyncValidator.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useAxios.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useAxios.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useChangeCase.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useChangeCase.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useCookies.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useCookies.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useDrauu.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useDrauu.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useFocusTrap\\component.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useFocusTrap\\component.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useFocusTrap.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useFocusTrap.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useFuse.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useFuse.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useIDBKeyval.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useIDBKeyval.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useJwt.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useJwt.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useNProgress.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useNProgress.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useQRCode.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useQRCode.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useSortable\\component.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useSortable\\component.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useSortable.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\integrations\\useSortable.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\math\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\math\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\metadata\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\metadata\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\nuxt\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\nuxt\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\router\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\router\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\rxjs\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\rxjs\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\shared\\index.snapshot.d.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\__snapshots__\\tsnapi\\@vueuse\\shared\\index.snapshot.js",
+      "language": "JavaScript"
+    },
+    {
+      "file": "test\\exports.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "test\\package-json-export.test.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "tsdown.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "unocss.config.ts",
+      "language": "TypeScript"
+    },
+    {
+      "file": "vitest.config.ts",
+      "language": "TypeScript"
+    }
+  ],
+  "edges": []
+}
