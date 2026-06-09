@@ -18,9 +18,9 @@ import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
-import { parseFprgToAst, type Program } from './fprg-ast'
-import { open } from '@tauri-apps/plugin-dialog'
-import { readTextFile } from '@tauri-apps/plugin-fs'
+import { parseFprgToAst, astToFprgXml, type Program, type Statement } from './fprg-ast'
+import { open, save } from '@tauri-apps/plugin-dialog'
+import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs'
 import defaultFprgXml from './fprg/compareTwoNumbers.fprg?raw'
 import {
   FlowchartEngine,
@@ -44,13 +44,17 @@ let program: Program = parseFprgToAst(defaultFprgXml)
 let engine = new FlowchartEngine(program, LP)
 console.log('Default program:', program.attributes.name)
 
+/** 当前打开的文件路径（null 表示尚未关联文件） */
+const currentFilePath = ref<string | null>(null)
+
 /** 加载 fprg XML → 重建 engine + 更新 VueFlow 响应式数据 */
-function loadProgram(xml: string) {
+function loadProgram(xml: string, filePath?: string) {
   program = parseFprgToAst(xml)
   engine = new FlowchartEngine(program, LP)
   nodes.value = [...engine.nodes]
   edges.value = [...engine.edges]
-  console.log('Loaded program:', program.attributes.name)
+  if (filePath) currentFilePath.value = filePath
+  console.log('Loaded program:', program.attributes.name, filePath ? `(${filePath})` : '')
 }
 
 // 绑定到 VueFlow
@@ -93,7 +97,7 @@ function onEdgeClick(data: any) {
 
 function onInsertNode(type: string) {
   if (clickedEdgeId.value) {
-    engine.insertNodeAtEdge(clickedEdgeId.value, type)
+    engine.insertNodeAtEdge(clickedEdgeId.value, type as Statement['kind'])
     nodes.value = [...engine.nodes]
     edges.value = [...engine.edges]
     console.log(`Inserted "${type}" at edge ${clickedEdgeId.value}, nodes: ${nodes.value.length}`)
@@ -114,12 +118,49 @@ async function onMenuAction(actionId: string) {
       })
       if (selected) {
         const xml = await readTextFile(selected as string)
-        loadProgram(xml)
+        loadProgram(xml, selected as string)
       }
+      break
+    }
+    case 'save': {
+      await handleSave()
+      break
+    }
+    case 'saveAs': {
+      await handleSaveAs()
       break
     }
     default:
       console.log(`Menu action: ${actionId} (未实现)`)
+  }
+}
+
+/** 保存到当前文件（无路径则走另存为） */
+async function handleSave() {
+  if (!currentFilePath.value) {
+    await handleSaveAs()
+    return
+  }
+  const xml = astToFprgXml(program)
+  await writeTextFile(currentFilePath.value, xml)
+  // 重新读取验证
+  const verifyXml = await readTextFile(currentFilePath.value)
+  loadProgram(verifyXml, currentFilePath.value)
+  console.log('Saved to:', currentFilePath.value)
+}
+
+/** 另存为新文件 */
+async function handleSaveAs() {
+  const savePath = await save({
+    filters: [{ name: 'Flowgorithm 文件', extensions: ['fprg'] }],
+  })
+  if (savePath) {
+    const xml = astToFprgXml(program)
+    await writeTextFile(savePath as string, xml)
+    currentFilePath.value = savePath as string
+    const verifyXml = await readTextFile(savePath as string)
+    loadProgram(verifyXml, currentFilePath.value)
+    console.log('Saved as:', savePath)
   }
 }
 </script>

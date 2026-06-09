@@ -359,3 +359,203 @@ const TYPE_NAME_CN: Record<string, string> = {
 export function typeNameToCN(en: string): string {
   return TYPE_NAME_CN[en] ?? en
 }
+
+// ============================================================
+// AST Mutation: create default Statement
+// ============================================================
+
+/**
+ * 根据语句类型创建带默认值的 Statement 对象
+ */
+export function createDefaultStatement(kind: Statement['kind']): Statement {
+  switch (kind) {
+    case 'declare':
+      return { kind: 'declare', name: '变量', type: 'Integer', array: false, size: '' }
+    case 'assign':
+      return { kind: 'assign', variable: '变量', expression: '0' }
+    case 'input':
+      return { kind: 'input', variable: '变量' }
+    case 'output':
+      return { kind: 'output', expression: '"输出"', newline: true }
+    case 'call':
+      return { kind: 'call', expression: '函数()' }
+    case 'if':
+      return { kind: 'if', expression: 'true', thenBranch: [], elseBranch: [] }
+    case 'while':
+      return { kind: 'while', expression: 'true', body: [] }
+    case 'for':
+      return { kind: 'for', variable: 'i', start: '0', end: '10', step: '1', body: [] }
+    case 'do':
+      return { kind: 'do', expression: 'true', body: [] }
+    case 'more':
+      return { kind: 'more' }
+  }
+}
+
+// ============================================================
+// AST Search: find statement location
+// ============================================================
+
+/** 语句在 AST 中的位置 */
+export interface StmtLocation {
+  /** 包含该语句的数组引用 */
+  body: Statement[]
+  /** 在该数组中的索引 */
+  index: number
+  /** 所属函数 */
+  parentFunc: FunctionDef
+}
+
+/**
+ * 在 AST 中递归搜索指定 Statement 的位置
+ */
+export function findStatementLocation(program: Program, stmt: Statement): StmtLocation | null {
+  for (const func of program.functions) {
+    const loc = searchInBody(func.body, stmt, func)
+    if (loc) return loc
+  }
+  return null
+}
+
+function searchInBody(body: Statement[], target: Statement, parentFunc: FunctionDef): StmtLocation | null {
+  for (let i = 0; i < body.length; i++) {
+    if (body[i] === target) {
+      return { body, index: i, parentFunc }
+    }
+    // 递归搜索嵌套结构
+    const s = body[i]
+    if (s.kind === 'if') {
+      const thenLoc = searchInBody(s.thenBranch, target, parentFunc)
+      if (thenLoc) return thenLoc
+      const elseLoc = searchInBody(s.elseBranch, target, parentFunc)
+      if (elseLoc) return elseLoc
+    } else if (s.kind === 'for' || s.kind === 'while' || s.kind === 'do') {
+      const bodyLoc = searchInBody(s.body, target, parentFunc)
+      if (bodyLoc) return bodyLoc
+    }
+  }
+  return null
+}
+
+// ============================================================
+// AST Serialization: Program → .fprg XML
+// ============================================================
+
+function escapeAttr(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function statementsToXml(statements: Statement[], indent: string): string {
+  return statements.map(s => stmtToXml(s, indent)).join('\n')
+}
+
+function stmtToXml(stmt: Statement, indent: string): string {
+  const i2 = indent + '    '
+
+  switch (stmt.kind) {
+    case 'declare':
+      return `${indent}<declare name="${escapeAttr(stmt.name)}" type="${escapeAttr(stmt.type)}" array="${stmt.array ? 'True' : 'False'}" size="${escapeAttr(stmt.size)}"/>`
+
+    case 'assign':
+      return `${indent}<assign variable="${escapeAttr(stmt.variable)}" expression="${escapeAttr(stmt.expression)}"/>`
+
+    case 'input':
+      return `${indent}<input variable="${escapeAttr(stmt.variable)}"/>`
+
+    case 'output':
+      return `${indent}<output expression="${escapeAttr(stmt.expression)}" newline="${stmt.newline ? 'True' : 'False'}"/>`
+
+    case 'call':
+      return `${indent}<call expression="${escapeAttr(stmt.expression)}"/>`
+
+    case 'if': {
+      const thenXml = stmt.thenBranch.length > 0
+        ? `\n${statementsToXml(stmt.thenBranch, i2 + '    ')}\n${i2}`
+        : ''
+      const elseXml = stmt.elseBranch.length > 0
+        ? `\n${statementsToXml(stmt.elseBranch, i2 + '    ')}\n${i2}`
+        : ''
+      return `${indent}<if expression="${escapeAttr(stmt.expression)}">\n`
+        + `${i2}<then>${thenXml}</then>\n`
+        + `${i2}<else>${elseXml}</else>\n`
+        + `${indent}</if>`
+    }
+
+    case 'while':
+      if (stmt.body.length === 0) {
+        return `${indent}<while expression="${escapeAttr(stmt.expression)}"/>`
+      }
+      return `${indent}<while expression="${escapeAttr(stmt.expression)}">\n`
+        + `${statementsToXml(stmt.body, i2)}\n`
+        + `${indent}</while>`
+
+    case 'for':
+      if (stmt.body.length === 0) {
+        return `${indent}<for variable="${escapeAttr(stmt.variable)}" start="${escapeAttr(stmt.start)}" end="${escapeAttr(stmt.end)}" step="${escapeAttr(stmt.step)}"/>`
+      }
+      return `${indent}<for variable="${escapeAttr(stmt.variable)}" start="${escapeAttr(stmt.start)}" end="${escapeAttr(stmt.end)}" step="${escapeAttr(stmt.step)}">\n`
+        + `${statementsToXml(stmt.body, i2)}\n`
+        + `${indent}</for>`
+
+    case 'do':
+      if (stmt.body.length === 0) {
+        return `${indent}<do expression="${escapeAttr(stmt.expression)}"/>`
+      }
+      return `${indent}<do expression="${escapeAttr(stmt.expression)}">\n`
+        + `${statementsToXml(stmt.body, i2)}\n`
+        + `${indent}</do>`
+
+    case 'more':
+      return `${indent}<more/>`
+  }
+}
+
+/**
+ * 将 AST Program 序列化为 .fprg XML 字符串
+ */
+export function astToFprgXml(program: Program): string {
+  const today = new Date().toISOString().split('T')[0]
+
+  let xml = '<?xml version="1.0"?>\n'
+  xml += '<flowgorithm fileversion="4.2">\n'
+
+  // Attributes
+  xml += '    <attributes>\n'
+  xml += `        <attribute name="name" value="${escapeAttr(program.attributes.name)}"/>\n`
+  xml += `        <attribute name="authors" value="${escapeAttr(program.attributes.authors)}"/>\n`
+  xml += `        <attribute name="about" value="${escapeAttr(program.attributes.about)}"/>\n`
+  xml += `        <attribute name="saved" value="${escapeAttr(program.attributes.saved || today)}"/>\n`
+  xml += '    </attributes>\n'
+
+  // Functions
+  for (const func of program.functions) {
+    xml += `    <function name="${escapeAttr(func.name)}" type="${escapeAttr(func.type)}" variable="${escapeAttr(func.variable)}">\n`
+
+    // Parameters
+    if (func.parameters.length > 0) {
+      xml += '        <parameters>\n'
+      for (const p of func.parameters) {
+        xml += `            <parameter name="${escapeAttr(p.name)}" type="${escapeAttr(p.type)}" array="${p.array ? 'True' : 'False'}"/>\n`
+      }
+      xml += '        </parameters>\n'
+    } else {
+      xml += '        <parameters/>\n'
+    }
+
+    // Body
+    xml += '        <body>\n'
+    for (const stmt of func.body) {
+      xml += stmtToXml(stmt, '            ') + '\n'
+    }
+    xml += '        </body>\n'
+
+    xml += '    </function>\n'
+  }
+
+  xml += '</flowgorithm>\n'
+  return xml
+}

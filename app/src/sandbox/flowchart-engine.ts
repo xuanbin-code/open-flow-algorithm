@@ -15,6 +15,8 @@ import {
   type IfStatement,
   type ForStatement,
   statementToLabel,
+  createDefaultStatement,
+  findStatementLocation,
 } from './fprg-ast'
 import type { EdgeMarkerType } from '@vue-flow/core'
 import { measureTextWidth } from './text-measure'
@@ -285,41 +287,70 @@ export class FlowchartEngine {
   }
 
   /**
-   * 在指定 edge 处插入一个新节点，拆分原有连接
+   * 在指定 edge 处插入一个新节点：先修改 AST → 再重建 engine
    */
-  insertNodeAtEdge(edgeId: string, statementKind: string): void {
-    const edgeIndex = this.edges.findIndex(e => e.id === edgeId)
-    if (edgeIndex === -1) return
+  insertNodeAtEdge(edgeId: string, statementKind: Statement['kind']): void {
+    const edge = this.edges.find(e => e.id === edgeId)
+    if (!edge) return
 
-    const edge = this.edges[edgeIndex]
     const sourceNode = this.nodesMap.get(edge.source)
     const targetNode = this.nodesMap.get(edge.target)
     if (!sourceNode || !targetNode) return
 
-    // 移除原有 edge
-    this.edges.splice(edgeIndex, 1)
+    const newStmt = createDefaultStatement(statementKind)
+    const mainFunc = this.program.functions.find(f => f.name === 'Main')
+    if (!mainFunc) return
 
-    // 新节点的中文标签
-    const labelMap: Record<string, string> = {
-      input: '输入',
-      output: '输出',
-      declare: '声明',
-      assign: '赋值',
-      if: '判断',
-      for: 'for 循环',
-      while: 'while 循环',
-      do: 'do 循环'
+    // ---- 判断 AST 插入位置 ----
+
+    if (sourceNode.type === 'start') {
+      // Start → 第一个节点：插入到 Main body 开头
+      mainFunc.body.unshift(newStmt)
+    } else if (targetNode.type === 'end') {
+      // 最后一个节点 → End：插入到 Main body 末尾
+      mainFunc.body.push(newStmt)
+    } else if (sourceNode.type === 'fg-if') {
+      // if 节点 → 空分支：插入到对应分支开头
+      const ifStmt = sourceNode.data.statement as IfStatement | undefined
+      if (ifStmt) {
+        if (edge.sourceHandle === 'then') {
+          ifStmt.thenBranch.unshift(newStmt)
+        } else if (edge.sourceHandle === 'else') {
+          ifStmt.elseBranch.unshift(newStmt)
+        } else {
+          mainFunc.body.push(newStmt) // 兜底
+        }
+      }
+    } else if (sourceNode.type === 'fg-for' && edge.sourceHandle === 'loop-body') {
+      // for 节点 → 循环体：插入到 body 开头
+      const forStmt = sourceNode.data.statement as ForStatement | undefined
+      if (forStmt) {
+        forStmt.body.unshift(newStmt)
+      }
+    } else if (sourceNode.data.statement) {
+      // 普通顺序边：在 source 语句之后插入
+      const loc = findStatementLocation(this.program, sourceNode.data.statement)
+      if (loc) {
+        loc.body.splice(loc.index + 1, 0, newStmt)
+      } else {
+        mainFunc.body.push(newStmt) // 兜底
+      }
+    } else {
+      // 兜底：插入到 Main body 末尾
+      mainFunc.body.push(newStmt)
     }
 
-    const nodeType = KIND_TO_NODE_TYPE[statementKind as Statement['kind']] ?? 'default'
-    const label = labelMap[statementKind] ?? statementKind
-    const newNode = this.createNode(nodeType, label)
+    // 重建整个 nodes/edges 图并重新排版
+    this.rebuild()
+  }
 
-    // 插入新边：source → newNode → target
-    this.connect(sourceNode, newNode, { sourceHandle: edge.sourceHandle })
-    this.connect(newNode, targetNode, { targetHandle: edge.targetHandle })
-
-    // 重新排版
+  /** 清除旧数据并重新从 AST 构建 nodes/edges */
+  private rebuild(): void {
+    this.nodes.length = 0
+    this.edges.length = 0
+    this.nodesMap.clear()
+    this.idCounter = 0
+    this.initGraph()
     this.layoutFlowchart()
   }
 
