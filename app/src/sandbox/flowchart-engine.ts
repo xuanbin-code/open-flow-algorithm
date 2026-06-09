@@ -14,9 +14,10 @@ import {
   type Statement,
   type IfStatement,
   type ForStatement,
-  statementToLabel
+  statementToLabel,
 } from './fprg-ast'
 import type { EdgeMarkerType } from '@vue-flow/core'
+import { measureTextWidth } from './text-measure'
 
 // ============================================================
 // Types
@@ -88,7 +89,7 @@ export const DEFAULT_PARAMS: LayoutParams = {
   SPACING: 60,
   START_Y: 50,
   NODE_H: 50,
-  MIN_W: 100,
+  MIN_W: 80,
   IF_NODE_H: 80,
   IF_NODE_MIN_W: 160,
   FOR_NODE_H: 80,
@@ -136,6 +137,15 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
   do: 'default',
   more: 'default'
 }
+
+/** clip-path 形状的文本可视区小于 CSS 宽度，需要放大系数 */
+const SHAPE_WIDTH_FACTOR: Partial<Record<FlowNodeType, number>> = {
+  'fg-if': 1.9,   // 菱形可视区约 55%
+  'fg-for': 1.7,  // 六边形可视区约 60%
+}
+
+const NODE_MAX_W = 400   // 节点最大宽度
+const NODE_PAD_X = 28    // 左右 padding 总和
 
 interface LayoutResult {
   endY: number
@@ -222,9 +232,24 @@ export class FlowchartEngine {
     width?: number,
     statement?: Statement
   ): FlowNode {
-    const textWidth = label.length * 8
-    const nodeWidth =
-      type === 'fg-merge' ? 20 : Math.max(width ?? textWidth + 40, this.params.MIN_W)
+    let nodeWidth: number
+
+    if (type === 'fg-merge') {
+      nodeWidth = 20
+    } else {
+      // 精确测量文本渲染宽度（替代 label.length * 8）
+      const fontSize = 13
+      const fontWeight = (type === 'start' || type === 'end') ? '600' : 'normal'
+      const textW = measureTextWidth(label, fontSize, fontWeight)
+
+      // clip-path 形状（菱形/六边形）需要放大宽度
+      const factor = SHAPE_WIDTH_FACTOR[type] ?? 1.0
+      const rawW = textW * factor + NODE_PAD_X
+
+      // 夹紧到 [MIN_W, MAX_W]，允许调用方显式传入 width
+      nodeWidth = width ?? Math.min(Math.max(rawW, this.params.MIN_W), NODE_MAX_W)
+    }
+
     const node: FlowNode = {
       id: this.newId(),
       type,
@@ -233,8 +258,8 @@ export class FlowchartEngine {
         label,
         width: nodeWidth,
         height: this.params.NODE_H,
-        statement
-      }
+        statement,
+      },
     }
     this.nodes.push(node)
     this.nodesMap.set(node.id, node)

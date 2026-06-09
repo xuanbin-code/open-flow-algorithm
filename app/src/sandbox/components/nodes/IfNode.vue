@@ -57,9 +57,11 @@ const label = computed(() => props.data?.label ?? '')
 }
 
 .if-label {
-  max-width: 60%;
+  max-width: 55%;
   text-align: center;
-  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .if-node.selected {

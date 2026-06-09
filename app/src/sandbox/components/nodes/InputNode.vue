@@ -33,7 +33,7 @@ const label = computed(() => props.data?.label ?? '')
     }"
   >
     <Handle type="target" :position="Position.Top" />
-    {{ label }}
+    <span class="node-label">{{ label }}</span>
     <Handle type="source" :position="Position.Bottom" />
   </div>
 </template>
@@ -53,6 +53,14 @@ const label = computed(() => props.data?.label ?? '')
 .fg-input-node {
   background: #e67e22;
   border-color: #d35400;
+}
+
+.node-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8px;
+  transform: skewX(10deg);
 }
 
 .fg-input-node.selected {

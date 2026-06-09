@@ -66,9 +66,11 @@ const label = computed(() => props.data?.label ?? '')
 }
 
 .for-label {
-  max-width: 50%;
+  max-width: 60%;
   text-align: center;
-  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .for-node.selected {

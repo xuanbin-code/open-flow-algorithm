@@ -32,7 +32,7 @@ const label = computed(() => props.data?.label ?? '开始')
       height: nodeHeight + 'px',
     }"
   >
-    {{ label }}
+    <span class="node-label">{{ label }}</span>
     <Handle type="source" :position="Position.Bottom" />
   </div>
 </template>
@@ -53,6 +53,13 @@ const label = computed(() => props.data?.label ?? '开始')
   background: #2ecc71;
   border-radius: 25px;
   border-color: #27ae60;
+}
+
+.node-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8px;
 }
 
 .start-node.selected {

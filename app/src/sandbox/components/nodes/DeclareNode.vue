@@ -33,7 +33,7 @@ const label = computed(() => props.data?.label ?? '')
     }"
   >
     <Handle type="target" :position="Position.Top" />
-    {{ label }}
+    <span class="node-label">{{ label }}</span>
     <Handle type="source" :position="Position.Bottom" />
   </div>
 </template>
@@ -53,6 +53,13 @@ const label = computed(() => props.data?.label ?? '')
   background: #3498db;
   border-radius: 4px;
   border-color: #2980b9;
+}
+
+.node-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8px;
 }
 
 .declare-node.selected {

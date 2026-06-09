@@ -32,7 +32,7 @@ const label = computed(() => props.data?.label ?? '结束')
       height: nodeHeight + 'px',
     }"
   >
-    {{ label }}
+    <span class="node-label">{{ label }}</span>
     <Handle type="target" :position="Position.Top" />
   </div>
 </template>
@@ -53,6 +53,13 @@ const label = computed(() => props.data?.label ?? '结束')
   background: #e74c3c;
   border-radius: 25px;
   border-color: #c0392b;
+}
+
+.node-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8px;
 }
 
 .end-node.selected {
