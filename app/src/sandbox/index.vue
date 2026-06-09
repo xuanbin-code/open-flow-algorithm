@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue'
+import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -77,9 +77,38 @@ console.log('VueFlow nodes:', engine.nodes)
 console.log('VueFlow edges:', engine.edges)
 
 const { fitView } = useVueFlow()
+
+// CTRL+S 快捷键
+function onKeydown(e: KeyboardEvent) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault()
+    handleSave()
+  }
+}
+
 onMounted(() => {
   setTimeout(() => fitView(), 100)
+  window.addEventListener('keydown', onKeydown)
 })
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+})
+
+// ============================================
+// Toast 消息
+// ============================================
+
+interface ToastState { message: string; type: 'success' | 'error'; visible: boolean }
+const toast = reactive<ToastState>({ message: '', type: 'success', visible: false })
+let toastTimer: ReturnType<typeof setTimeout> | null = null
+
+function showToast(message: string, type: 'success' | 'error' = 'success') {
+  toast.message = message
+  toast.type = type
+  toast.visible = true
+  if (toastTimer) clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { toast.visible = false }, 3000)
+}
 
 // ============================================
 // 节点插入面板
@@ -141,26 +170,38 @@ async function handleSave() {
     await handleSaveAs()
     return
   }
-  const xml = astToFprgXml(program)
-  await writeTextFile(currentFilePath.value, xml)
-  // 重新读取验证
-  const verifyXml = await readTextFile(currentFilePath.value)
-  loadProgram(verifyXml, currentFilePath.value)
-  console.log('Saved to:', currentFilePath.value)
+  try {
+    const xml = astToFprgXml(program)
+    await writeTextFile(currentFilePath.value, xml)
+    // 重新读取验证
+    const verifyXml = await readTextFile(currentFilePath.value)
+    loadProgram(verifyXml, currentFilePath.value)
+    showToast('保存成功', 'success')
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error('[保存失败]', e)
+    showToast(`保存失败: ${msg}`, 'error')
+  }
 }
 
 /** 另存为新文件 */
 async function handleSaveAs() {
-  const savePath = await save({
-    filters: [{ name: 'Flowgorithm 文件', extensions: ['fprg'] }],
-  })
-  if (savePath) {
-    const xml = astToFprgXml(program)
-    await writeTextFile(savePath as string, xml)
-    currentFilePath.value = savePath as string
-    const verifyXml = await readTextFile(savePath as string)
-    loadProgram(verifyXml, currentFilePath.value)
-    console.log('Saved as:', savePath)
+  try {
+    const savePath = await save({
+      filters: [{ name: 'Flowgorithm 文件', extensions: ['fprg'] }],
+    })
+    if (savePath) {
+      const xml = astToFprgXml(program)
+      await writeTextFile(savePath as string, xml)
+      currentFilePath.value = savePath as string
+      const verifyXml = await readTextFile(savePath as string)
+      loadProgram(verifyXml, currentFilePath.value)
+      showToast('另存成功', 'success')
+    }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error('[另存失败]', e)
+    showToast(`另存失败: ${msg}`, 'error')
   }
 }
 </script>
@@ -219,6 +260,10 @@ async function handleSaveAs() {
       @close="panelVisible = false"
       @insert="onInsertNode"
     />
+    <!-- Toast 消息 -->
+    <Transition name="toast-fade">
+      <div v-if="toast.visible" class="toast" :class="toast.type">{{ toast.message }}</div>
+    </Transition>
   </div>
 </template>
 
@@ -246,5 +291,36 @@ async function handleSaveAs() {
 /* hover 效果：仅改变 stroke 颜色，避免 CSS filter 触发 Chromium SVG 合成层闪烁 */
 .vue-flow__edge:hover .vue-flow__edge-path {
   stroke: #4fc3f7;
+}
+
+/* ---- Toast ---- */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+.toast.success {
+  background: #27ae60;
+}
+.toast.error {
+  background: #e74c3c;
+}
+
+.toast-fade-enter-active,
+.toast-fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
 }
 </style>

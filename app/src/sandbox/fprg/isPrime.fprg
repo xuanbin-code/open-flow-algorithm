@@ -10,6 +10,7 @@
         <parameters/>
         <body>
             <declare name="N, i, isPrime" type="Integer" array="False" size=""/>
+            <declare name="变量" type="Integer" array="False" size=""/>
             <output expression="&quot;请输入一个正整数：&quot;" newline="True"/>
             <input variable="N"/>
             <assign variable="isPrime" expression="1"/>
@@ -18,12 +19,12 @@
                     <assign variable="isPrime" expression="0"/>
                 </then>
                 <else>
-                    <for variable="i" start="2" end="N - 1" direction="inc" step="1">
+                    <for variable="i" start="2" end="N - 1" step="1">
                         <if expression="N % i = 0">
                             <then>
                                 <assign variable="isPrime" expression="0"/>
                             </then>
-                            <else/>
+                            <else></else>
                         </if>
                     </for>
                 </else>
