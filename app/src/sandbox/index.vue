@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, watch, computed, onMounted, onUnmounted } from 'vue'
 import { useRefHistory } from '@vueuse/core'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
@@ -16,6 +16,9 @@ import ForNode from './components/nodes/ForNode.vue'
 import WhileNode from './components/nodes/WhileNode.vue'
 import InsertNodePanel from './components/panels/InsertNodePanel.vue'
 import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
+import ExecutionPanel from './components/panels/ExecutionPanel.vue'
+import type { VariableEntry } from './components/panels/ExecutionPanel.vue'
+import InputDialog from './components/panels/InputDialog.vue'
 import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
@@ -32,6 +35,7 @@ import {
   type FlowNode,
   type FlowEdge,
 } from './flowchart-engine'
+import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './interpreter'
 
 // ============================================
 // 布局参数（可实时调试）
@@ -59,6 +63,46 @@ const isNewFile = ref(false)
 
 /** 最近打开的文件列表 */
 const recentFiles = ref<RecentEntry[]>([])
+
+// ============================================
+// 执行状态（流程图解释器）
+// ============================================
+
+type ExecutionStatus = 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
+const executionStatus = ref<ExecutionStatus>('idle')
+const executionOutput = ref<string[]>([])
+const executingNodeId = ref<string | null>(null)
+const executionSpeed = ref<'slow' | 'normal' | 'fast'>('normal')
+const SPEED_DELAYS: Record<string, number> = { slow: 1000, normal: 300, fast: 50 }
+
+/** 是否正在执行中（禁用编辑操作） */
+const isExecuting = computed(() => executionStatus.value !== 'idle')
+
+/** 变量列表（响应式，从 RuntimeState 同步） */
+const varEntries = ref<VariableEntry[]>([])
+
+// Interpreter 引用（非响应式）
+let interpreterRuntime: RuntimeState | null = null
+let interpreterGen: AsyncGenerator<InterpreterEvent> | null = null
+
+/** 当前输入变量名（用于 InputDialog 显示） */
+const inputVariableName = computed(() => {
+  const stmt = interpreterRuntime?.currentStatement
+  if (stmt?.kind === 'input') return stmt.variable
+  return ''
+})
+let stepResolve: (() => void) | null = null
+let inputResolve: ((value: string) => void) | null = null
+let stopped = false
+
+/** 从 RuntimeState 同步变量列表到响应式 ref */
+function syncVariables(state: RuntimeState) {
+  varEntries.value = Object.keys(state.variables).map((name) => ({
+    name,
+    type: state.variableTypes[name] || '',
+    value: state.variables[name],
+  }))
+}
 
 /** 加载 fprg XML → 重建 engine + 更新 VueFlow 响应式数据 */
 function loadProgram(xml: string, filePath?: string) {
@@ -131,6 +175,16 @@ async function refreshRecentFiles() {
 
 // CTRL+S / Ctrl+Z / Ctrl+Y / Delete 快捷键
 function onKeydown(e: KeyboardEvent) {
+  // 运行时不响应编辑快捷键（Ctrl+S 除外：运行中不允许保存）
+  if (isExecuting.value) {
+    // 仍允许 Ctrl+S 保存
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault()
+      return // 静默忽略
+    }
+    return
+  }
+
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault()
     handleSave()
@@ -175,6 +229,202 @@ function syncSelectionState() {
   }
 }
 
+/** 同步 executingNodeId → nodes 数组中对应节点的 executing 属性 */
+function syncExecutionHighlight() {
+  for (const node of nodes.value) {
+    node.data.executing = node.id === executingNodeId.value
+  }
+  // 触发 VueFlow 重渲染
+  nodes.value = [...nodes.value]
+}
+
+// ============================================
+// 执行控制函数
+// ============================================
+
+function resetExecution() {
+  executionStatus.value = 'idle'
+  executionOutput.value = []
+  varEntries.value = []
+  executingNodeId.value = null
+  interpreterRuntime = null
+  interpreterGen = null
+  stepResolve = null
+  inputResolve = null
+  stopped = false
+  syncExecutionHighlight()
+}
+
+async function startExecution() {
+  if (isExecuting.value) return
+
+  resetExecution()
+  executionStatus.value = 'running'
+
+  const { state, generator } = createInterpreter(program.value)
+  interpreterRuntime = state
+  interpreterGen = generator
+
+  await driveInterpreter('run')
+}
+
+async function stepExecution() {
+  if (executionStatus.value === 'idle') {
+    // 首次步进：初始化解释器
+    resetExecution()
+
+    const { state, generator } = createInterpreter(program.value)
+    interpreterRuntime = state
+    interpreterGen = generator
+
+    executionStatus.value = 'running'
+    await driveInterpreter('step')
+  } else if (executionStatus.value === 'paused') {
+    // 继续步进
+    executionStatus.value = 'running'
+    stepResolve?.()
+  }
+}
+
+function stopExecution() {
+  if (executionStatus.value === 'idle' || executionStatus.value === 'stopped') return
+  stopped = true
+
+  // 如果正在等待输入，取消等待
+  if (executionStatus.value === 'waiting-input' && inputResolve) {
+    inputResolve('')
+  }
+  // 如果已暂停，恢复以便 generator 能检测到 stopped
+  if (executionStatus.value === 'paused' && stepResolve) {
+    stepResolve()
+  }
+  // 终止解释器
+  if (interpreterRuntime) {
+    abortExecution(interpreterRuntime)
+  }
+
+  executionStatus.value = 'stopped'
+  showToast('执行已终止', 'error')
+}
+
+function setExecutionSpeed(speed: 'slow' | 'normal' | 'fast') {
+  executionSpeed.value = speed
+  const labels = { slow: '慢速', normal: '正常', fast: '快速' }
+  showToast(`运行速度：${labels[speed]}`, 'success')
+}
+
+/** 核心驱动循环：逐条消费 generator 事件 */
+async function driveInterpreter(mode: 'run' | 'step') {
+  const gen = interpreterGen
+  if (!gen || !interpreterRuntime) {
+    executionStatus.value = 'idle'
+    return
+  }
+
+  try {
+    while (true) {
+      if (stopped) {
+        executionStatus.value = 'stopped'
+        return
+      }
+
+      const result = await gen.next()
+      if (result.done) break
+
+      const event = result.value as InterpreterEvent
+
+      switch (event.type) {
+        case 'statement-enter': {
+          executingNodeId.value = event.nodeId
+          syncExecutionHighlight()
+          syncVariables(interpreterRuntime)
+          break
+        }
+        case 'statement-leave': {
+          // 离开循环节点时不清除高亮（body 执行期间保持高亮）
+          break
+        }
+        case 'output': {
+          executionOutput.value = [...executionOutput.value, event.text]
+          break
+        }
+        case 'input-request': {
+          executionStatus.value = 'waiting-input'
+          // 等待外部 resolve
+          const value = await new Promise<string>((resolve) => {
+            inputResolve = resolve
+          })
+          if (stopped) {
+            executionStatus.value = 'stopped'
+            return
+          }
+          resolveInput(interpreterRuntime, value)
+          inputResolve = null
+          executionStatus.value = mode === 'step' ? 'paused' : 'running'
+          break
+        }
+        case 'error': {
+          executionOutput.value = [...executionOutput.value, `[错误] ${event.message}`]
+          executionStatus.value = 'stopped'
+          showToast(`运行错误: ${event.message}`, 'error')
+          syncExecutionHighlight()
+          return
+        }
+        case 'done': {
+          executionOutput.value = [...executionOutput.value, '—— 程序执行完毕 ——']
+          executionStatus.value = 'idle'
+          showToast('程序执行完毕', 'success')
+          syncExecutionHighlight()
+          return
+        }
+      }
+
+      // Run 模式：语句间延迟
+      if (mode === 'run' && executionStatus.value === 'running') {
+        await new Promise<void>((resolve) => setTimeout(resolve, SPEED_DELAYS[executionSpeed.value]))
+      }
+
+      // Step 模式：暂停等待下一次步进
+      if (mode === 'step') {
+        executionStatus.value = 'paused'
+        syncVariables(interpreterRuntime)
+        await new Promise<void>((resolve) => {
+          stepResolve = resolve
+        })
+        stepResolve = null
+        if (stopped) {
+          executionStatus.value = 'stopped'
+          return
+        }
+        executionStatus.value = 'running'
+      }
+    }
+
+    // Generator 正常结束
+    syncVariables(interpreterRuntime)
+    executionStatus.value = 'idle'
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    executionOutput.value = [...executionOutput.value, `[异常] ${msg}`]
+    executionStatus.value = 'stopped'
+    showToast(`运行异常: ${msg}`, 'error')
+    syncExecutionHighlight()
+  }
+}
+
+function onInputSubmit(value: string) {
+  inputResolve?.(value)
+}
+
+function onInputCancel() {
+  stopped = true
+  inputResolve?.('')
+}
+
+function clearOutput() {
+  executionOutput.value = []
+}
+
 onMounted(async () => {
   await initApp()
   setTimeout(() => fitView(), 100)
@@ -212,6 +462,7 @@ watch(selectedNodeId, () => syncSelectionState())
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onEdgeClick(data: any) {
+  if (isExecuting.value) return
   clickedEdgeId.value = data.edge.id
   panelPosition.value = { x: data.event.clientX + 24, y: data.event.clientY - 120 }
   panelVisible.value = true
@@ -219,12 +470,14 @@ function onEdgeClick(data: any) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onNodeClick(data: any) {
+  if (isExecuting.value) return
   // 单击 → 选中节点
   selectedNodeId.value = data.node?.id ?? null
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onNodeDblClick(data: any) {
+  if (isExecuting.value) return
   // 双击 → 打开属性编辑面板
   const stmt: Statement | undefined = data.node?.data?.statement
   if (!stmt) return  // Start/End/Merge 节点无 statement
@@ -239,11 +492,13 @@ function onNodeDblClick(data: any) {
 }
 
 function onPaneClick() {
+  if (isExecuting.value) return
   // 点击画布空白 → 取消选中
   selectedNodeId.value = null
 }
 
 function deleteSelectedNode() {
+  if (isExecuting.value) return
   const nodeId = selectedNodeId.value
   if (!nodeId) return
   const node = engine.nodesMap.get(nodeId)
@@ -273,7 +528,8 @@ function onInsertNode(type: string) {
   }
 }
 
-function onUpdateProperty(stmt: Statement) {
+function onUpdateProperty(_stmt: Statement) {
+  if (isExecuting.value) return
   // AST statement 已直接修改，重建引擎以更新节点标签和布局
   engine.rebuild()
   nodes.value = [...engine.nodes]
@@ -352,6 +608,30 @@ async function onMenuAction(actionId: string) {
       redo()
       break
     }
+    case 'run': {
+      startExecution()
+      break
+    }
+    case 'step': {
+      stepExecution()
+      break
+    }
+    case 'stop': {
+      stopExecution()
+      break
+    }
+    case 'speed-slow': {
+      setExecutionSpeed('slow')
+      break
+    }
+    case 'speed-normal': {
+      setExecutionSpeed('normal')
+      break
+    }
+    case 'speed-fast': {
+      setExecutionSpeed('fast')
+      break
+    }
     default:
       console.log(`Menu action: ${actionId} (未实现)`)
   }
@@ -406,7 +686,7 @@ async function handleSaveAs() {
 
 <template>
   <div class="flowchart-sandbox">
-    <MenuBar :recent-files="recentFiles" @action="onMenuAction" />
+    <MenuBar :recent-files="recentFiles" :execution-status="executionStatus" @action="onMenuAction" />
     <div class="flow-container">
       <VueFlow
         :nodes="nodes"
@@ -458,6 +738,13 @@ async function handleSaveAs() {
       </VueFlow>
     </div>
     <LayoutDebugPanel :params="LP" :definitions="PARAM_DEFS" />
+    <ExecutionPanel
+      :output="executionOutput"
+      :variables="varEntries"
+      :visible="true"
+      :execution-status="executionStatus"
+      @clear="clearOutput"
+    />
     <InsertNodePanel
       v-if="panelVisible"
       :position="panelPosition"
@@ -466,6 +753,12 @@ async function handleSaveAs() {
       @insert="onInsertNode"
       @update-property="onUpdateProperty"
       @close-editor="onCloseEditor"
+    />
+    <InputDialog
+      :visible="executionStatus === 'waiting-input'"
+      :variable-name="inputVariableName"
+      @submit="onInputSubmit"
+      @cancel="onInputCancel"
     />
     <!-- Toast 消息 -->
     <Transition name="toast-fade">

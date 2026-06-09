@@ -22,8 +22,6 @@ const props = withDefaults(defineProps<StartNodeProps>(), {
 const nodeWidth = computed(() => props.data?.width ?? 80)
 const nodeHeight = computed(() => props.data?.height ?? 50)
 const label = computed(() => props.data?.label ?? '开始')
-const isEmpty = computed(() => props.data?.isEmpty ?? false)
-
 // StartNode is never empty — it's always a fixed "开始" node
 </script>
 
@@ -68,6 +66,11 @@ const isEmpty = computed(() => props.data?.isEmpty ?? false)
 
 .start-node.selected {
   box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.5);
+}
+
+.start-node.executing {
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.8), 0 0 24px rgba(46, 204, 113, 0.4);
+  border-color: #2ecc71 !important;
 }
 
 .start-node.dragging {

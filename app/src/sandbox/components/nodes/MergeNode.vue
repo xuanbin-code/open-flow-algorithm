@@ -44,6 +44,11 @@ const props = withDefaults(defineProps<MergeNodeProps>(), {
   box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.5);
 }
 
+.merge-node.executing {
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.8), 0 0 24px rgba(46, 204, 113, 0.4);
+  border-color: #2ecc71 !important;
+}
+
 .merge-node.dragging {
   opacity: 0.8;
   cursor: grabbing;

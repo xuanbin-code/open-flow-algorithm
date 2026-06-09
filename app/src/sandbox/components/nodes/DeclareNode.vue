@@ -68,6 +68,11 @@ const isEmpty = computed(() => props.data?.isEmpty ?? false)
   box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.5);
 }
 
+.declare-node.executing {
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.8), 0 0 24px rgba(46, 204, 113, 0.4);
+  border-color: #2ecc71 !important;
+}
+
 .declare-node.dragging {
   opacity: 0.8;
   cursor: grabbing;

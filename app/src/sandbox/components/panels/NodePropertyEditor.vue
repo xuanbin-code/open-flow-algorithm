@@ -40,9 +40,10 @@ const kindLabel = computed(() =>
 // Helper: emit update after mutating a field
 // ============================================================
 
-function setField<K extends keyof Statement>(key: K, value: Statement[K]) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function setField(key: string, value: any) {
   if (!props.statement) return
-  ;(props.statement as Record<string, unknown>)[key as string] = value
+  ;(props.statement as unknown as Record<string, unknown>)[key] = value
   emit('update', props.statement)
 }
 </script>

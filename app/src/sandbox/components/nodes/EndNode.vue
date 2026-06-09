@@ -22,7 +22,6 @@ const props = withDefaults(defineProps<EndNodeProps>(), {
 const nodeWidth = computed(() => props.data?.width ?? 80)
 const nodeHeight = computed(() => props.data?.height ?? 50)
 const label = computed(() => props.data?.label ?? '结束')
-const isEmpty = computed(() => props.data?.isEmpty ?? false)
 </script>
 
 <template>
@@ -66,6 +65,11 @@ const isEmpty = computed(() => props.data?.isEmpty ?? false)
 
 .end-node.selected {
   box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.5);
+}
+
+.end-node.executing {
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.8), 0 0 24px rgba(46, 204, 113, 0.4);
+  border-color: #2ecc71 !important;
 }
 
 .end-node.dragging {

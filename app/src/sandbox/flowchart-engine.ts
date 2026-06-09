@@ -57,6 +57,8 @@ export interface FlowNode {
     isEmpty?: boolean
     /** merge 节点记录其所属 if 节点 ID，用于居中对齐 */
     ifNodeId?: string
+    /** 是否正在执行（运行时高亮） */
+    executing?: boolean
   }
 }
 

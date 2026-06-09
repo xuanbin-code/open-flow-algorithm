@@ -69,6 +69,11 @@ const isEmpty = computed(() => props.data?.isEmpty ?? false)
   box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.5);
 }
 
+.fg-output-node.executing {
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.8), 0 0 24px rgba(46, 204, 113, 0.4);
+  border-color: #2ecc71 !important;
+}
+
 .fg-output-node.dragging {
   opacity: 0.8;
   cursor: grabbing;

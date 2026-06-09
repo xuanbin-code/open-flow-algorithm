@@ -10,7 +10,8 @@
       "Bash(node -e \"try { require\\('@tauri-apps/api/path'\\); console.log\\('path module available'\\); } catch\\(e\\) { console.log\\('NOT found as CJS'\\); }\")",
       "Bash(ls node_modules/@tauri-apps/api/package.json)",
       "Bash(node -e \"const p = require\\('@tauri-apps/api/package.json'\\); console.log\\('version:', p.version\\)\")",
-      "Bash(pnpm add *)"
+      "Bash(pnpm add *)",
+      "Bash(pnpm build *)"
     ]
   }
 }

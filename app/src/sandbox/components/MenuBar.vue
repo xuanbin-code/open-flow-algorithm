@@ -33,6 +33,7 @@ interface RecentEntry {
 const props = defineProps<{
   selectedNodeId?: string | null
   recentFiles?: RecentEntry[]
+  executionStatus?: 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
 }>()
 
 const emit = defineEmits<{
@@ -65,7 +66,10 @@ const menuFileItems = computed<MenuItem[]>(() => {
   return base
 })
 
-const menus = computed<TopMenu[]>(() => [
+const menus = computed<TopMenu[]>(() => {
+  const es = props.executionStatus ?? 'idle'
+
+  return [
   {
     id: 'file',
     label: '文件',
@@ -84,9 +88,9 @@ const menus = computed<TopMenu[]>(() => [
     id: 'program',
     label: '程序',
     items: [
-      { id: 'run', label: '运行' },
-      { id: 'step', label: '步进' },
-      { id: 'stop', label: '终止' },
+      { id: 'run', label: '运行', disabled: es === 'running' || es === 'waiting-input' },
+      { id: 'step', label: '步进', disabled: es === 'running' || es === 'waiting-input' },
+      { id: 'stop', label: '终止', disabled: es === 'idle' || es === 'stopped' },
       { id: 'div3', label: '', divider: true },
       {
         id: 'speed',
@@ -99,7 +103,8 @@ const menus = computed<TopMenu[]>(() => [
       },
     ],
   },
-])
+  ]
+})
 
 // ============================================================
 // Dropdown state
