@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="判断素数"/>
+        <attribute name="authors" value="Open Flow Algorithm"/>
+        <attribute name="about" value="输入一个正整数，判断是否为素数"/>
+        <attribute name="saved" value="2026-06-09"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="N, i, isPrime" type="Integer" array="False" size=""/>
+            <output expression="&quot;请输入一个正整数：&quot;" newline="True"/>
+            <input variable="N"/>
+            <assign variable="isPrime" expression="1"/>
+            <if expression="N &lt;= 1">
+                <then>
+                    <assign variable="isPrime" expression="0"/>
+                </then>
+                <else>
+                    <for variable="i" start="2" end="N - 1" direction="inc" step="1">
+                        <if expression="N % i = 0">
+                            <then>
+                                <assign variable="isPrime" expression="0"/>
+                            </then>
+                            <else/>
+                        </if>
+                    </for>
+                </else>
+            </if>
+            <if expression="isPrime = 1">
+                <then>
+                    <output expression="N &amp; &quot; 是素数&quot;" newline="True"/>
+                </then>
+                <else>
+                    <output expression="N &amp; &quot; 不是素数&quot;" newline="True"/>
+                </else>
+            </if>
+        </body>
+    </function>
+</flowgorithm>

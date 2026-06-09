@@ -184,30 +184,30 @@ export class FlowchartEngine {
   // ==========================================
 
   private initGraph(): void {
-    const mainFunc = this.program.functions.find(f => f.name === 'Main')
-    if (!mainFunc) return
-
-    // START
+    // 始终创建 START 节点
     let prev: FlowNode = this.createNode('start', '开始', 80)
 
     // 遍历 Main 函数 body 中的每条语句（递归处理嵌套 if/for）
-    for (const stmt of mainFunc.body) {
-      if (stmt.kind === 'if') {
-        const [, mergeNode] = this.buildIfStatement(stmt, prev)
-        prev = mergeNode
-      } else if (stmt.kind === 'for') {
-        prev = this.buildForStatement(stmt, prev)
-      } else {
-        const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
-        const label = statementToLabel(stmt)
-        const node = this.createNode(nodeType, label, undefined, stmt)
-        stmt._nodeId = node.id
-        this.connect(prev, node)
-        prev = node
+    const mainFunc = this.program.functions.find(f => f.name === 'Main')
+    if (mainFunc) {
+      for (const stmt of mainFunc.body) {
+        if (stmt.kind === 'if') {
+          const [, mergeNode] = this.buildIfStatement(stmt, prev)
+          prev = mergeNode
+        } else if (stmt.kind === 'for') {
+          prev = this.buildForStatement(stmt, prev)
+        } else {
+          const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
+          const label = statementToLabel(stmt)
+          const node = this.createNode(nodeType, label, undefined, stmt)
+          stmt._nodeId = node.id
+          this.connect(prev, node)
+          prev = node
+        }
       }
     }
 
-    // END
+    // 始终创建 END 节点
     const endNode = this.createNode('end', '结束', 80)
     this.connect(prev, endNode)
   }
@@ -558,9 +558,6 @@ export class FlowchartEngine {
    * 流程入口排版：START → Main body → END
    */
   private layoutFlowchart(): void {
-    const mainFunc = this.program.functions.find(f => f.name === 'Main')
-    if (!mainFunc) return
-
     // 查找 START/END 节点
     let startNode: FlowNode | undefined
     let endNode: FlowNode | undefined
@@ -575,9 +572,12 @@ export class FlowchartEngine {
       startNode.position = { x: startX, y: this.params.START_Y }
     }
 
-    // 递归排版 Main body
+    // 递归排版 Main body（可能为空）
+    const mainFunc = this.program.functions.find(f => f.name === 'Main')
     const bodyStartY = this.params.START_Y + this.params.START_END_H + this.params.SPACING
-    const bodyResult = this.layoutBlock(mainFunc.body, this.params.FLOW_CENTER_X, bodyStartY)
+    const bodyResult = mainFunc
+      ? this.layoutBlock(mainFunc.body, this.params.FLOW_CENTER_X, bodyStartY)
+      : { endY: bodyStartY, width: 0 }
 
     // 放置 END
     if (endNode) {

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="乘法表"/>
+        <attribute name="authors" value="Open Flow Algorithm"/>
+        <attribute name="about" value="打印九九乘法表"/>
+        <attribute name="saved" value="2026-06-09"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="i, j" type="Integer" array="False" size=""/>
+            <for variable="i" start="1" end="9" direction="inc" step="1">
+                <for variable="j" start="1" end="i" direction="inc" step="1">
+                    <output expression="j &amp; &quot;×&quot; &amp; i &amp; &quot;=&quot; &amp; (i * j) &amp; &quot;  &quot;" newline="False"/>
+                </for>
+                <output expression="&quot;&quot;" newline="True"/>
+            </for>
+        </body>
+    </function>
+</flowgorithm>

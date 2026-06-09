@@ -18,9 +18,10 @@ import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
-// 从 fprg/next.fprg 中读取数据
-import fprgXml from './fprg/next.fprg?raw'
 import { parseFprgToAst, type Program } from './fprg-ast'
+import { open } from '@tauri-apps/plugin-dialog'
+import { readTextFile } from '@tauri-apps/plugin-fs'
+import defaultFprgXml from './fprg/compareTwoNumbers.fprg?raw'
 import {
   FlowchartEngine,
   DEFAULT_PARAMS,
@@ -36,12 +37,21 @@ import {
 const LP = reactive<LayoutParams>({ ...DEFAULT_PARAMS })
 
 // ============================================
-// 初始化引擎
+// Program & Engine
 // ============================================
-const program: Program = parseFprgToAst(fprgXml)
-console.log('AST Program:', program)
 
-const engine = new FlowchartEngine(program, LP)
+let program: Program = parseFprgToAst(defaultFprgXml)
+let engine = new FlowchartEngine(program, LP)
+console.log('Default program:', program.attributes.name)
+
+/** 加载 fprg XML → 重建 engine + 更新 VueFlow 响应式数据 */
+function loadProgram(xml: string) {
+  program = parseFprgToAst(xml)
+  engine = new FlowchartEngine(program, LP)
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
+  console.log('Loaded program:', program.attributes.name)
+}
 
 // 绑定到 VueFlow
 const nodes = ref<FlowNode[]>(engine.nodes)
@@ -90,11 +100,33 @@ function onInsertNode(type: string) {
   }
   panelVisible.value = false
 }
+
+// ============================================
+// 菜单栏事件
+// ============================================
+
+async function onMenuAction(actionId: string) {
+  switch (actionId) {
+    case 'open': {
+      const selected = await open({
+        filters: [{ name: 'Flowgorithm 文件', extensions: ['fprg'] }],
+        multiple: false,
+      })
+      if (selected) {
+        const xml = await readTextFile(selected as string)
+        loadProgram(xml)
+      }
+      break
+    }
+    default:
+      console.log(`Menu action: ${actionId} (未实现)`)
+  }
+}
 </script>
 
 <template>
   <div class="flowchart-sandbox">
-    <MenuBar />
+    <MenuBar @action="onMenuAction" />
     <div class="flow-container">
       <VueFlow
         :nodes="nodes"

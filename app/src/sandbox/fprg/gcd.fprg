@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="最大公约数"/>
+        <attribute name="authors" value="Open Flow Algorithm"/>
+        <attribute name="about" value="辗转相除法求两个正整数的最大公约数"/>
+        <attribute name="saved" value="2026-06-09"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="a, b, temp" type="Integer" array="False" size=""/>
+            <output expression="&quot;请输入两个正整数：&quot;" newline="True"/>
+            <input variable="a"/>
+            <input variable="b"/>
+            <while expression="b != 0">
+                <assign variable="temp" expression="b"/>
+                <assign variable="b" expression="a % b"/>
+                <assign variable="a" expression="temp"/>
+            </while>
+            <output expression="&quot;最大公约数为：&quot; &amp; a" newline="True"/>
+        </body>
+    </function>
+</flowgorithm>
