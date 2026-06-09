@@ -95,10 +95,6 @@ function onInsertNode(type: string) {
 <template>
   <div class="flowchart-sandbox">
     <MenuBar />
-    <div class="header">
-      <h1>Open Flow Algorithm</h1>
-      <p>流程图演示</p>
-    </div>
     <div class="flow-container">
       <VueFlow
         :nodes="nodes"
@@ -160,21 +156,6 @@ function onInsertNode(type: string) {
   display: flex;
   flex-direction: column;
   background: #1a1a2e;
-}
-.header {
-  padding: 10px 20px;
-  color: #eee;
-  text-align: center;
-}
-.header h1 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 300;
-}
-.header p {
-  margin: 4px 0 0;
-  color: #888;
-  font-size: 13px;
 }
 .flow-container {
   flex: 1;
