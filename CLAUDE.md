@@ -39,7 +39,7 @@ open-flow-algorithm/
 │   │       ├── flowchart-engine.ts  # Core engine: AST → VueFlow
 │   │       ├── fprg-ast.ts   # FPRG XML parser → AST
 │   │       ├── fprg/         # Sample .fprg files
-│   │       └── node-components/  # Custom VueFlow nodes
+│   │       └── components/       # Vue components (nodes/, panels/, MenuBar)
 │   └── src-tauri/            # Tauri Rust backend
 │       ├── Cargo.toml
 │       ├── tauri.conf.json
@@ -58,9 +58,10 @@ A Vue 3 + TypeScript app that parses `.fprg` XML and renders an interactive flow
 - `sandbox/index.vue` — Main flowchart UI (VueFlow canvas, edge-click insertion, layout debug panel)
 - `sandbox/flowchart-engine.ts` — Core engine: AST → VueFlow nodes/edges with layout algorithm
 - `sandbox/fprg-ast.ts` — FPRG XML parser → AST, with Chinese-localized labels
-- `sandbox/node-components/` — Custom VueFlow node components (Start, End, Declare, Assign, Input, Output, If, Merge, For)
-- `sandbox/node-components/InsertNodePanel.vue` — Draggable node insertion popup (categorized by 输入/输出, 变量, 控制, 循环)
-- `sandbox/node-components/LayoutDebugPanel.vue` — Real-time layout parameter tweaking
+- `sandbox/components/nodes/` — Custom VueFlow node components (Start, End, Declare, Assign, Input, Output, If, Merge, For)
+- `sandbox/components/panels/InsertNodePanel.vue` — Draggable node insertion popup (categorized by 输入/输出, 变量, 控制, 循环)
+- `sandbox/components/panels/LayoutDebugPanel.vue` — Real-time layout parameter tweaking
+- `sandbox/components/MenuBar.vue` — Application menu bar (文件/编辑/程序)
 
 ### Tauri Backend (`app/src-tauri/`)
 ```
