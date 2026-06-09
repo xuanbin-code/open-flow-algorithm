@@ -146,3 +146,16 @@ onMounted(() => {
   width: 100%;
 }
 </style>
+
+<style>
+/* 连接线基础样式 */
+.vue-flow__edge-path {
+  stroke-width: 2px;
+  transition: stroke 0.2s ease;
+}
+
+/* hover 效果：仅改变 stroke 颜色，避免 CSS filter 触发 Chromium SVG 合成层闪烁 */
+.vue-flow__edge:hover .vue-flow__edge-path {
+  stroke: #4fc3f7;
+}
+</style>

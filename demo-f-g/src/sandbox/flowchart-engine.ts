@@ -52,7 +52,7 @@ export interface FlowEdge {
   sourceHandle?: string
   targetHandle?: string
   type?: string
-  markerEnd?: string
+  markerEnd?: string | Record<string, unknown>
 }
 
 export interface LayoutParams {
@@ -249,7 +249,7 @@ export class FlowchartEngine {
       sourceHandle: sh,
       targetHandle: th,
       type: (sh || th) ? 'step' : 'default',
-      markerEnd: 'arrowclosed',
+      markerEnd: { type: 'arrowclosed', color: 'context-stroke' },
     })
   }
 
