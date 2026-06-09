@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, type Ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export interface ParamDef {
   key: string
@@ -42,12 +42,6 @@ const groups = computed(() => {
     ...(other.length ? [{ name: '其他', list: other }] : []),
   ].filter(g => g.list.length > 0)
 })
-
-function resetAll() {
-  for (const d of props.definitions) {
-    // 通过读取 dataset 上的默认值来重置
-  }
-}
 </script>
 
 <template>

@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    demo_f_g_lib::run()
+    open_flow_algorithm_lib::run()
 }

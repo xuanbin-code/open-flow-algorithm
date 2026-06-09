@@ -1,8 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/nicklaus-dev/tauri-docs/refs/heads/v2/src/content/docs/_schema/config.schema.json",
-  "productName": "FlowgorithmJS",
+  "productName": "Open Flow Algorithm",
   "version": "0.1.0",
-  "identifier": "com.flowgorithmjs.demo",
+  "identifier": "com.openflowalgorithm.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://127.0.0.1:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Flowgorithm JS - 流程图",
+        "title": "Open Flow Algorithm",
         "width": 1280,
         "height": 800,
         "resizable": true,

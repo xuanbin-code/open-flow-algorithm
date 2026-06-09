@@ -255,7 +255,7 @@ export class FlowchartEngine {
       sourceHandle: sh,
       targetHandle: th,
       type: sh || th ? 'step' : 'default',
-      markerEnd: { type: 'arrowclosed', color: 'context-stroke' }
+      markerEnd: { type: 'arrowclosed', color: 'context-stroke' } as EdgeMarkerType
     })
   }
 
@@ -286,7 +286,7 @@ export class FlowchartEngine {
       do: 'do 循环'
     }
 
-    const nodeType = KIND_TO_NODE_TYPE[statementKind] ?? 'default'
+    const nodeType = KIND_TO_NODE_TYPE[statementKind as Statement['kind']] ?? 'default'
     const label = labelMap[statementKind] ?? statementKind
     const newNode = this.createNode(nodeType, label)
 

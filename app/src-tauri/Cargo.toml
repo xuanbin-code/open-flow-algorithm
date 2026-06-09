@@ -1,10 +1,10 @@
 [package]
-name = "demo-f-g"
+name = "open-flow-algorithm"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "demo_f_g_lib"
+name = "open_flow_algorithm_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

@@ -94,7 +94,7 @@ function onInsertNode(type: string) {
 <template>
   <div class="flowchart-sandbox">
     <div class="header">
-      <h1>Flowgorithm JS - VueFlow 版</h1>
+      <h1>Open Flow Algorithm</h1>
       <p>流程图演示</p>
     </div>
     <div class="flow-container">
