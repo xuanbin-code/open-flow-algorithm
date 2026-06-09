@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(npx vue-tsc *)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(rustc --version)",
+      "Bash(cargo --version)",
+      "Bash(pnpm --version)"
     ]
   }
 }

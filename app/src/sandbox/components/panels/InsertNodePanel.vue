@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import NodePropertyEditor from './NodePropertyEditor.vue'
+import type { Statement } from '../../fprg-ast'
 
 // ============================================================
 // Types
@@ -25,12 +27,21 @@ interface Category {
 
 const props = defineProps<{
   position: { x: number; y: number }
+  editingStatement?: Statement | null
 }>()
 
 const emit = defineEmits<{
   close: []
   insert: [type: string]
+  'update-property': [stmt: Statement]
+  'close-editor': []
 }>()
+
+// ============================================================
+// Mode
+// ============================================================
+
+const isEditing = computed(() => !!props.editingStatement)
 
 // ============================================================
 // Draggable state
@@ -137,7 +148,7 @@ function labelStyle(n: InsertableNode): Record<string, string> {
 
 <template>
   <!-- 透明遮罩：点击关闭 -->
-  <div class="insert-mask" @mousedown.self="emit('close')">
+  <div class="insert-mask" @mousedown.self="isEditing ? emit('close-editor') : emit('close')">
     <div
       class="insert-panel"
       :style="{ left: offsetX + 'px', top: offsetY + 'px' }"
@@ -145,24 +156,38 @@ function labelStyle(n: InsertableNode): Record<string, string> {
       <!-- Header (drag handle) -->
       <div class="panel-header" @mousedown="onDragStart">
         <span class="drag-icon">⠿</span>
-        <span class="panel-title">插入节点</span>
-        <button class="close-btn" @click="emit('close')">✕</button>
+        <span class="panel-title">{{ isEditing ? '编辑属性' : '插入节点' }}</span>
+        <button class="close-btn" @click="isEditing ? emit('close-editor') : emit('close')">✕</button>
       </div>
 
-      <!-- Body: categorized grid -->
-      <div class="panel-body">
-        <div v-for="cat in categories" :key="cat.name" class="category-col">
-          <div class="category-name">{{ cat.name }}</div>
-          <button
-            v-for="node in cat.nodes"
-            :key="node.type"
-            class="node-btn"
-            :style="nodeStyle(node)"
-            @click="emit('insert', node.type)"
-          >
-            <span class="node-btn-label" :style="labelStyle(node)">{{ node.label }}</span>
-          </button>
-        </div>
+      <!-- Body -->
+      <div class="panel-body panel-body--relative">
+        <Transition name="panel-slide" mode="out-in">
+          <!-- 选择模式：分类网格 -->
+          <div v-if="!isEditing" key="select" class="select-view">
+            <div v-for="cat in categories" :key="cat.name" class="category-col">
+              <div class="category-name">{{ cat.name }}</div>
+              <button
+                v-for="node in cat.nodes"
+                :key="node.type"
+                class="node-btn"
+                :style="nodeStyle(node)"
+                @click="emit('insert', node.type)"
+              >
+                <span class="node-btn-label" :style="labelStyle(node)">{{ node.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 编辑模式：属性编辑器 -->
+          <div v-else key="edit" class="edit-view">
+            <NodePropertyEditor
+              :statement="editingStatement ?? null"
+              @update="(stmt: Statement) => emit('update-property', stmt)"
+              @close="emit('close-editor')"
+            />
+          </div>
+        </Transition>
       </div>
     </div>
   </div>
@@ -235,6 +260,21 @@ function labelStyle(n: InsertableNode): Record<string, string> {
   gap: 12px;
 }
 
+.panel-body--relative {
+  position: relative;
+  overflow: hidden;
+}
+
+.select-view,
+.edit-view {
+  width: 100%;
+}
+
+.select-view {
+  display: flex;
+  gap: 12px;
+}
+
 .category-col {
   display: flex;
   flex-direction: column;
@@ -278,5 +318,21 @@ function labelStyle(n: InsertableNode): Record<string, string> {
 .node-btn-label {
   white-space: nowrap;
   pointer-events: none;
+}
+
+/* ---- Panel slide transition ---- */
+.panel-slide-enter-active,
+.panel-slide-leave-active {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.panel-slide-enter-from {
+  transform: translateX(40px);
+  opacity: 0;
+}
+
+.panel-slide-leave-to {
+  transform: translateX(-40px);
+  opacity: 0;
 }
 </style>

@@ -289,17 +289,17 @@ export class FlowchartEngine {
   /**
    * 在指定 edge 处插入一个新节点：先修改 AST → 再重建 engine
    */
-  insertNodeAtEdge(edgeId: string, statementKind: Statement['kind']): void {
+  insertNodeAtEdge(edgeId: string, statementKind: Statement['kind']): Statement | null {
     const edge = this.edges.find(e => e.id === edgeId)
-    if (!edge) return
+    if (!edge) return null
 
     const sourceNode = this.nodesMap.get(edge.source)
     const targetNode = this.nodesMap.get(edge.target)
-    if (!sourceNode || !targetNode) return
+    if (!sourceNode || !targetNode) return null
 
     const newStmt = createDefaultStatement(statementKind)
     const mainFunc = this.program.functions.find(f => f.name === 'Main')
-    if (!mainFunc) return
+    if (!mainFunc) return null
 
     // ---- 判断 AST 插入位置 ----
 
@@ -342,10 +342,11 @@ export class FlowchartEngine {
 
     // 重建整个 nodes/edges 图并重新排版
     this.rebuild()
+    return newStmt
   }
 
   /** 清除旧数据并重新从 AST 构建 nodes/edges */
-  private rebuild(): void {
+  rebuild(): void {
     this.nodes.length = 0
     this.edges.length = 0
     this.nodesMap.clear()

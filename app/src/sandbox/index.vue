@@ -116,6 +116,7 @@ function showToast(message: string, type: 'success' | 'error' = 'success') {
 const panelVisible = ref(false)
 const panelPosition = ref({ x: 0, y: 0 })
 const clickedEdgeId = ref<string | null>(null)
+const editingStatement = ref<Statement | null>(null)
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onEdgeClick(data: any) {
@@ -126,12 +127,31 @@ function onEdgeClick(data: any) {
 
 function onInsertNode(type: string) {
   if (clickedEdgeId.value) {
-    engine.insertNodeAtEdge(clickedEdgeId.value, type as Statement['kind'])
+    const newStmt = engine.insertNodeAtEdge(clickedEdgeId.value, type as Statement['kind'])
     nodes.value = [...engine.nodes]
     edges.value = [...engine.edges]
+    if (newStmt) {
+      editingStatement.value = newStmt
+      // 保持 panel 打开，切换为编辑模式
+    }
     console.log(`Inserted "${type}" at edge ${clickedEdgeId.value}, nodes: ${nodes.value.length}`)
   }
+}
+
+function onUpdateProperty(stmt: Statement) {
+  // AST statement 已直接修改，重建引擎以更新节点标签和布局
+  engine.rebuild()
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
+}
+
+function onCloseEditor() {
+  editingStatement.value = null
   panelVisible.value = false
+  // 最后一次重建确保最终状态
+  engine.rebuild()
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
 }
 
 // ============================================
@@ -257,8 +277,11 @@ async function handleSaveAs() {
     <InsertNodePanel
       v-if="panelVisible"
       :position="panelPosition"
-      @close="panelVisible = false"
+      :editing-statement="editingStatement"
+      @close="panelVisible = false; editingStatement = null"
       @insert="onInsertNode"
+      @update-property="onUpdateProperty"
+      @close-editor="onCloseEditor"
     />
     <!-- Toast 消息 -->
     <Transition name="toast-fade">
