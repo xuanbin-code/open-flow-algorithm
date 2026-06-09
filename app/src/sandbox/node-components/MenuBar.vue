@@ -1,0 +1,314 @@
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+
+// ============================================================
+// Types
+// ============================================================
+
+interface MenuItem {
+  id: string
+  label: string
+  disabled?: boolean
+  divider?: boolean
+  sublabel?: string   // 灰色小标签 (如 "最近打开的文件")
+  submenu?: MenuItem[]
+}
+
+interface TopMenu {
+  id: string
+  label: string
+  items: MenuItem[]
+}
+
+// ============================================================
+// Props & Emits
+// ============================================================
+
+defineProps<{
+  selectedNodeId?: string | null
+}>()
+
+const emit = defineEmits<{
+  action: [menuId: string]
+}>()
+
+// ============================================================
+// Menu data
+// ============================================================
+
+const menus: TopMenu[] = [
+  {
+    id: 'file',
+    label: '文件',
+    items: [
+      { id: 'new', label: '新建' },
+      { id: 'open', label: '打开' },
+      { id: 'save', label: '保存' },
+      { id: 'saveAs', label: '另存为' },
+      { id: 'div1', label: '', divider: true },
+      { id: 'recent-label', label: '最近打开的文件', sublabel: '最近打开的文件', disabled: true },
+      { id: 'div2', label: '', divider: true },
+      { id: 'exit', label: '退出' },
+    ],
+  },
+  {
+    id: 'edit',
+    label: '编辑',
+    items: [
+      { id: 'delete', label: '删除', disabled: true },
+      { id: 'undo', label: '撤销' },
+      { id: 'redo', label: '重做' },
+    ],
+  },
+  {
+    id: 'program',
+    label: '程序',
+    items: [
+      { id: 'run', label: '运行' },
+      { id: 'step', label: '步进' },
+      { id: 'stop', label: '终止' },
+      { id: 'div3', label: '', divider: true },
+      {
+        id: 'speed',
+        label: '运行速度',
+        submenu: [
+          { id: 'speed-slow', label: '慢速' },
+          { id: 'speed-normal', label: '正常' },
+          { id: 'speed-fast', label: '快速' },
+        ],
+      },
+    ],
+  },
+]
+
+// ============================================================
+// Dropdown state
+// ============================================================
+
+const activeMenuId = ref<string | null>(null)
+const activeSubmenuId = ref<string | null>(null)
+
+function onMenuClick(menuId: string) {
+  if (activeMenuId.value === menuId) {
+    activeMenuId.value = null
+  } else {
+    activeMenuId.value = menuId
+    activeSubmenuId.value = null
+  }
+}
+
+function onItemClick(itemId: string) {
+  activeMenuId.value = null
+  activeSubmenuId.value = null
+  emit('action', itemId)
+}
+
+function onSubmenuEnter(itemId: string) {
+  activeSubmenuId.value = itemId
+}
+
+function onSubmenuLeave() {
+  activeSubmenuId.value = null
+}
+
+function onClose() {
+  activeMenuId.value = null
+  activeSubmenuId.value = null
+}
+
+// ============================================================
+// Click outside → close
+// ============================================================
+
+function onDocumentClick() {
+  onClose()
+}
+onMounted(() => document.addEventListener('click', onDocumentClick))
+onUnmounted(() => document.removeEventListener('click', onDocumentClick))
+</script>
+
+<template>
+  <div class="menu-bar" @click.stop>
+    <div
+      v-for="menu in menus"
+      :key="menu.id"
+      class="menu-top"
+      :class="{ active: activeMenuId === menu.id }"
+      @click.stop="onMenuClick(menu.id)"
+    >
+      <span class="menu-top-label">{{ menu.label }}</span>
+
+      <!-- Dropdown -->
+      <div v-if="activeMenuId === menu.id" class="menu-dropdown">
+        <template v-for="item in menu.items" :key="item.id">
+          <!-- 最近打开的文件 → 灰显标签 -->
+          <div
+            v-if="item.sublabel && item.disabled"
+            class="dropdown-sublabel"
+          >
+            {{ item.sublabel }}
+          </div>
+
+          <!-- 分隔线 -->
+          <div v-else-if="item.divider" class="dropdown-divider" />
+
+          <!-- 普通菜单项 -->
+          <div
+            v-else
+            class="dropdown-item"
+            :class="{
+              disabled: item.disabled,
+              'has-submenu': item.submenu,
+              'submenu-open': activeSubmenuId === item.id,
+            }"
+            @mouseenter="item.submenu && onSubmenuEnter(item.id)"
+            @mouseleave="item.submenu && onSubmenuLeave()"
+            @click.stop="!item.disabled && !item.submenu && onItemClick(item.id)"
+          >
+            <span class="dropdown-item-label">{{ item.label }}</span>
+            <span v-if="item.submenu" class="submenu-arrow">▶</span>
+
+            <!-- 子菜单 -->
+            <div
+              v-if="item.submenu && activeSubmenuId === item.id"
+              class="menu-subdropdown"
+            >
+              <div
+                v-for="sub in item.submenu"
+                :key="sub.id"
+                class="dropdown-item"
+                @click.stop="onItemClick(sub.id)"
+              >
+                {{ sub.label }}
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+/* ---- Menu bar ---- */
+.menu-bar {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 6px;
+  background: #16162a;
+  border-bottom: 1px solid #333;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+/* ---- Top-level menu items ---- */
+.menu-top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.menu-top-label {
+  padding: 4px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #ccc;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+
+.menu-top-label:hover,
+.menu-top.active .menu-top-label {
+  background: #333;
+  color: #fff;
+}
+
+/* ---- Dropdown ---- */
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  padding: 4px 0;
+  background: #1e1e32;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  z-index: 10000;
+}
+
+/* ---- Dropdown items ---- */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: #ccc;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  transition: background 0.1s;
+}
+
+.dropdown-item:hover:not(.disabled) {
+  background: #3a3a5c;
+  color: #fff;
+}
+
+.dropdown-item.disabled {
+  color: #555;
+  cursor: default;
+}
+
+.dropdown-item.has-submenu.submenu-open {
+  background: #3a3a5c;
+  color: #fff;
+}
+
+.dropdown-item-label {
+  flex: 1;
+}
+
+.submenu-arrow {
+  font-size: 9px;
+  color: #888;
+  margin-left: 16px;
+}
+
+.dropdown-item:hover .submenu-arrow {
+  color: #ccc;
+}
+
+/* ---- Divider ---- */
+.dropdown-divider {
+  height: 1px;
+  margin: 4px 12px;
+  background: #444;
+}
+
+/* ---- Sublabel ("最近打开的文件") ---- */
+.dropdown-sublabel {
+  padding: 4px 16px 2px;
+  font-size: 11px;
+  color: #666;
+  cursor: default;
+}
+
+/* ---- Sub-dropdown ---- */
+.menu-subdropdown {
+  position: absolute;
+  left: 100%;
+  top: -4px;
+  min-width: 120px;
+  padding: 4px 0;
+  background: #1e1e32;
+  border: 1px solid #444;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  z-index: 10001;
+}
+</style>

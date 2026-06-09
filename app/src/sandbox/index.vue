@@ -14,6 +14,7 @@ import MergeNode from './node-components/MergeNode.vue'
 import ForNode from './node-components/ForNode.vue'
 import InsertNodePanel from './node-components/InsertNodePanel.vue'
 import LayoutDebugPanel from './node-components/LayoutDebugPanel.vue'
+import MenuBar from './node-components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
@@ -93,6 +94,7 @@ function onInsertNode(type: string) {
 
 <template>
   <div class="flowchart-sandbox">
+    <MenuBar />
     <div class="header">
       <h1>Open Flow Algorithm</h1>
       <p>流程图演示</p>
@@ -160,18 +162,19 @@ function onInsertNode(type: string) {
   background: #1a1a2e;
 }
 .header {
-  padding: 20px;
+  padding: 10px 20px;
   color: #eee;
   text-align: center;
 }
 .header h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 300;
 }
 .header p {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   color: #888;
+  font-size: 13px;
 }
 .flow-container {
   flex: 1;
