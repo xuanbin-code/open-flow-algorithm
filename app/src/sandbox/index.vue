@@ -19,7 +19,7 @@ import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
-import { parseFprgToAst, astToFprgXml, createEmptyProgram, type Program, type Statement } from './fprg-ast'
+import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, type Program, type Statement } from './fprg-ast'
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs'
 import { addRecentFile, loadRecentFiles, getLastFile, type RecentEntry } from './recent-files'
@@ -123,11 +123,23 @@ async function refreshRecentFiles() {
   }
 }
 
-// CTRL+S 快捷键
+// CTRL+S / Delete 快捷键
 function onKeydown(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key === 's') {
     e.preventDefault()
     handleSave()
+  }
+  if (e.key === 'Delete' && selectedNodeId.value) {
+    e.preventDefault()
+    deleteSelectedNode()
+  }
+}
+
+/** 同步 selectedNodeId → nodes 数组中对应节点的 selected 属性 */
+function syncSelectionState() {
+  for (const node of nodes.value) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(node as any).selected = node.id === selectedNodeId.value
   }
 }
 
@@ -163,6 +175,8 @@ const panelVisible = ref(false)
 const panelPosition = ref({ x: 0, y: 0 })
 const clickedEdgeId = ref<string | null>(null)
 const editingStatement = ref<Statement | null>(null)
+const selectedNodeId = ref<string | null>(null)
+watch(selectedNodeId, () => syncSelectionState())
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onEdgeClick(data: any) {
@@ -173,8 +187,16 @@ function onEdgeClick(data: any) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onNodeClick(data: any) {
+  // 单击 → 选中节点
+  selectedNodeId.value = data.node?.id ?? null
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function onNodeDblClick(data: any) {
+  // 双击 → 打开属性编辑面板
   const stmt: Statement | undefined = data.node?.data?.statement
-  if (!stmt) return  // Start/End/Merge 节点无 statement，不弹出面板
+  if (!stmt) return  // Start/End/Merge 节点无 statement
+  selectedNodeId.value = data.node?.id ?? null
   clickedEdgeId.value = null
   editingStatement.value = stmt
   panelPosition.value = {
@@ -182,6 +204,28 @@ function onNodeClick(data: any) {
     y: data.event.clientY - 120,
   }
   panelVisible.value = true
+}
+
+function onPaneClick() {
+  // 点击画布空白 → 取消选中
+  selectedNodeId.value = null
+}
+
+function deleteSelectedNode() {
+  const nodeId = selectedNodeId.value
+  if (!nodeId) return
+  const node = engine.nodesMap.get(nodeId)
+  if (!node?.data?.statement) return  // Start/End/Merge 不可删除
+
+  const stmt = node.data.statement
+  const loc = findStatementLocation(program, stmt)
+  if (loc) {
+    loc.body.splice(loc.index, 1)
+  }
+  selectedNodeId.value = null
+  engine.rebuild()
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
 }
 
 function onInsertNode(type: string) {
@@ -202,11 +246,14 @@ function onUpdateProperty(stmt: Statement) {
   engine.rebuild()
   nodes.value = [...engine.nodes]
   edges.value = [...engine.edges]
+  // 重建后恢复选中状态
+  syncSelectionState()
 }
 
 function onCloseEditor() {
   editingStatement.value = null
   panelVisible.value = false
+  selectedNodeId.value = null
   // 最后一次重建确保最终状态
   engine.rebuild()
   nodes.value = [...engine.nodes]
@@ -330,6 +377,8 @@ async function handleSaveAs() {
         fit-view-on-init
         @edge-click="onEdgeClick"
         @node-click="onNodeClick"
+        @node-double-click="onNodeDblClick"
+        @pane-click="onPaneClick"
       >
         <Background pattern-color="#aaa" :gap="20" />
         <Controls />
