@@ -10,6 +10,7 @@
 // ============================================================
 
 import { type Program, type Statement, type IfStatement, type ForStatement, statementToLabel } from './fprg-ast'
+import type { EdgeMarkerType } from '@vue-flow/core'
 
 // ============================================================
 // Types
@@ -49,10 +50,10 @@ export interface FlowEdge {
   id: string
   source: string
   target: string
-  sourceHandle?: string
-  targetHandle?: string
+  sourceHandle?: string | null | undefined
+  targetHandle?: string | null | undefined
   type?: string
-  markerEnd?: string | Record<string, unknown>
+  markerEnd?: EdgeMarkerType
 }
 
 export interface LayoutParams {
@@ -238,7 +239,7 @@ export class FlowchartEngine {
   private connect(
     from: FlowNode,
     to: FlowNode,
-    opts?: { sourceHandle?: string; targetHandle?: string },
+    opts?: { sourceHandle?: string | null; targetHandle?: string | null },
   ): void {
     const sh = opts?.sourceHandle
     const th = opts?.targetHandle
