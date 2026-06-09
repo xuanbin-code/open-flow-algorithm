@@ -51,7 +51,7 @@ const label = computed(() => props.data?.label ?? '开始')
 
 .start-node {
   background: #2ecc71;
-  border-radius: 50%;
+  border-radius: 25px;
   border-color: #27ae60;
 }
 

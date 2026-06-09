@@ -51,7 +51,7 @@ const label = computed(() => props.data?.label ?? '结束')
 
 .end-node {
   background: #e74c3c;
-  border-radius: 50%;
+  border-radius: 25px;
   border-color: #c0392b;
 }
 
