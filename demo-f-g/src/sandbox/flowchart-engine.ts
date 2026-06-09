@@ -254,6 +254,45 @@ export class FlowchartEngine {
   }
 
   /**
+   * 在指定 edge 处插入一个新节点，拆分原有连接
+   */
+  insertNodeAtEdge(edgeId: string, statementKind: string): void {
+    const edgeIndex = this.edges.findIndex((e) => e.id === edgeId)
+    if (edgeIndex === -1) return
+
+    const edge = this.edges[edgeIndex]
+    const sourceNode = this.nodesMap.get(edge.source)
+    const targetNode = this.nodesMap.get(edge.target)
+    if (!sourceNode || !targetNode) return
+
+    // 移除原有 edge
+    this.edges.splice(edgeIndex, 1)
+
+    // 新节点的中文标签
+    const labelMap: Record<string, string> = {
+      'input':  '输入',
+      'output': '输出',
+      'declare':'声明',
+      'assign': '赋值',
+      'if':     '判断',
+      'for':    'for 循环',
+      'while':  'while 循环',
+      'do':     'do 循环',
+    }
+
+    const nodeType = KIND_TO_NODE_TYPE[statementKind] ?? 'default'
+    const label = labelMap[statementKind] ?? statementKind
+    const newNode = this.createNode(nodeType, label)
+
+    // 插入新边：source → newNode → target
+    this.connect(sourceNode, newNode, { sourceHandle: edge.sourceHandle })
+    this.connect(newNode, targetNode, { targetHandle: edge.targetHandle })
+
+    // 重新排版
+    this.layoutFlowchart()
+  }
+
+  /**
    * 递归处理一组语句，返回 [首节点, 尾节点]
    * 遇 if 语句则深度优先地构建子图（if-node → branches → merge-node）
    */

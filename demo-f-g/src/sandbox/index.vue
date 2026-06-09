@@ -12,6 +12,7 @@ import OutputNode from './node-components/OutputNode.vue'
 import IfNode from './node-components/IfNode.vue'
 import MergeNode from './node-components/MergeNode.vue'
 import ForNode from './node-components/ForNode.vue'
+import InsertNodePanel from './node-components/InsertNodePanel.vue'
 import LayoutDebugPanel from './node-components/LayoutDebugPanel.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
@@ -64,6 +65,30 @@ const { fitView } = useVueFlow()
 onMounted(() => {
   setTimeout(() => fitView(), 100)
 })
+
+// ============================================
+// 节点插入面板
+// ============================================
+const panelVisible = ref(false)
+const panelPosition = ref({ x: 0, y: 0 })
+const clickedEdgeId = ref<string | null>(null)
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function onEdgeClick(data: any) {
+  clickedEdgeId.value = data.edge.id
+  panelPosition.value = { x: data.event.clientX + 24, y: data.event.clientY - 120 }
+  panelVisible.value = true
+}
+
+function onInsertNode(type: string) {
+  if (clickedEdgeId.value) {
+    engine.insertNodeAtEdge(clickedEdgeId.value, type)
+    nodes.value = [...engine.nodes]
+    edges.value = [...engine.edges]
+    console.log(`Inserted "${type}" at edge ${clickedEdgeId.value}, nodes: ${nodes.value.length}`)
+  }
+  panelVisible.value = false
+}
 </script>
 
 <template>
@@ -80,6 +105,7 @@ onMounted(() => {
         :min-zoom="0.1"
         :max-zoom="4"
         fit-view-on-init
+        @edge-click="onEdgeClick"
       >
         <Background pattern-color="#aaa" :gap="20" />
         <Controls />
@@ -116,6 +142,12 @@ onMounted(() => {
       </VueFlow>
     </div>
     <LayoutDebugPanel :params="LP" :definitions="PARAM_DEFS" />
+    <InsertNodePanel
+      v-if="panelVisible"
+      :position="panelPosition"
+      @close="panelVisible = false"
+      @insert="onInsertNode"
+    />
   </div>
 </template>
 
