@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="180" fill="#1a1a2e"/>
+  <!-- 菱形 (if node shape) -->
+  <polygon points="512,180 820,512 512,844 204,512" fill="#f39c12" stroke="#e67e22" stroke-width="16"/>
+  <!-- 平行四边形 (output node shape) -->
+  <polygon points="280,540 680,540 740,780 340,780" fill="#1abc9c" stroke="#16a085" stroke-width="16" transform="skewX(-10)"/>
+  <!-- 矩形 (declare node shape) -->
+  <rect x="260" y="250" width="460" height="120" rx="24" fill="#3498db" stroke="#2980b9" stroke-width="14"/>
+</svg>

@@ -9,7 +9,13 @@
 // 独立于 Vue 组件层，可单独测试。
 // ============================================================
 
-import { type Program, type Statement, type IfStatement, type ForStatement, statementToLabel } from './fprg-ast'
+import {
+  type Program,
+  type Statement,
+  type IfStatement,
+  type ForStatement,
+  statementToLabel
+} from './fprg-ast'
 import type { EdgeMarkerType } from '@vue-flow/core'
 
 // ============================================================
@@ -93,25 +99,25 @@ export const DEFAULT_PARAMS: LayoutParams = {
   START_END_H: 40,
   BRANCH_H_GAP: 50,
   BRANCH_V_GAP: 30,
-  FLOW_CENTER_X: 400,
+  FLOW_CENTER_X: 400
 }
 
 export const PARAM_DEFS = [
-  { key: 'SPACING',        label: '垂直间距 SPACING',         min: 10, max: 300, step: 5 },
-  { key: 'START_Y',        label: '起始 Y START_Y',           min: 0,  max: 500, step: 10 },
-  { key: 'FLOW_CENTER_X',  label: '水平中心 FLOW_CENTER_X',   min: 100, max: 1500, step: 10 },
-  { key: 'BRANCH_H_GAP',   label: '水平分支间距 BRANCH_H_GAP', min: 10, max: 300, step: 5 },
-  { key: 'BRANCH_V_GAP',   label: '垂直分支间距 BRANCH_V_GAP', min: 5,  max: 200, step: 5 },
-  { key: 'NODE_H',         label: '普通节点高 NODE_H',        min: 30, max: 200, step: 5 },
-  { key: 'MIN_W',          label: '普通节点最小宽 MIN_W',      min: 40, max: 300, step: 10 },
-  { key: 'IF_NODE_H',      label: 'If 节点高 IF_NODE_H',     min: 40, max: 300, step: 5 },
-  { key: 'IF_NODE_MIN_W',  label: 'If 节点最小宽 IF_NODE_MIN_W', min: 80, max: 500, step: 10 },
-  { key: 'FOR_NODE_H',     label: 'For 节点高 FOR_NODE_H',    min: 40, max: 300, step: 5 },
+  { key: 'SPACING', label: '垂直间距 SPACING', min: 10, max: 300, step: 5 },
+  { key: 'START_Y', label: '起始 Y START_Y', min: 0, max: 500, step: 10 },
+  { key: 'FLOW_CENTER_X', label: '水平中心 FLOW_CENTER_X', min: 100, max: 1500, step: 10 },
+  { key: 'BRANCH_H_GAP', label: '水平分支间距 BRANCH_H_GAP', min: 10, max: 300, step: 5 },
+  { key: 'BRANCH_V_GAP', label: '垂直分支间距 BRANCH_V_GAP', min: 5, max: 200, step: 5 },
+  { key: 'NODE_H', label: '普通节点高 NODE_H', min: 30, max: 200, step: 5 },
+  { key: 'MIN_W', label: '普通节点最小宽 MIN_W', min: 40, max: 300, step: 10 },
+  { key: 'IF_NODE_H', label: 'If 节点高 IF_NODE_H', min: 40, max: 300, step: 5 },
+  { key: 'IF_NODE_MIN_W', label: 'If 节点最小宽 IF_NODE_MIN_W', min: 80, max: 500, step: 10 },
+  { key: 'FOR_NODE_H', label: 'For 节点高 FOR_NODE_H', min: 40, max: 300, step: 5 },
   { key: 'FOR_NODE_MIN_W', label: 'For 节点最小宽 FOR_NODE_MIN_W', min: 80, max: 500, step: 10 },
-  { key: 'MERGE_NODE_W',   label: 'Merge 节点宽 MERGE_NODE_W', min: 10, max: 80, step: 2 },
-  { key: 'MERGE_NODE_H',   label: 'Merge 节点高 MERGE_NODE_H', min: 10, max: 80, step: 2 },
-  { key: 'START_W',        label: 'Start 节点宽 START_W',     min: 40, max: 300, step: 5 },
-  { key: 'START_END_H',    label: 'Start/End 高 START_END_H', min: 20, max: 150, step: 5 },
+  { key: 'MERGE_NODE_W', label: 'Merge 节点宽 MERGE_NODE_W', min: 10, max: 80, step: 2 },
+  { key: 'MERGE_NODE_H', label: 'Merge 节点高 MERGE_NODE_H', min: 10, max: 80, step: 2 },
+  { key: 'START_W', label: 'Start 节点宽 START_W', min: 40, max: 300, step: 5 },
+  { key: 'START_END_H', label: 'Start/End 高 START_END_H', min: 20, max: 150, step: 5 }
 ]
 
 // ============================================================
@@ -119,16 +125,16 @@ export const PARAM_DEFS = [
 // ============================================================
 
 const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
-  'declare': 'declare',
-  'assign':  'assign',
-  'input':   'fg-input',
-  'output':  'fg-output',
-  'call':    'call',
-  'if':      'fg-if',
-  'while':   'default',
-  'for':     'fg-for',
-  'do':      'default',
-  'more':    'default',
+  declare: 'declare',
+  assign: 'assign',
+  input: 'fg-input',
+  output: 'fg-output',
+  call: 'call',
+  if: 'fg-if',
+  while: 'default',
+  for: 'fg-for',
+  do: 'default',
+  more: 'default'
 }
 
 interface LayoutResult {
@@ -178,7 +184,7 @@ export class FlowchartEngine {
   // ==========================================
 
   private initGraph(): void {
-    const mainFunc = this.program.functions.find((f) => f.name === 'Main')
+    const mainFunc = this.program.functions.find(f => f.name === 'Main')
     if (!mainFunc) return
 
     // START
@@ -214,12 +220,11 @@ export class FlowchartEngine {
     type: FlowNodeType,
     label: string,
     width?: number,
-    statement?: Statement,
+    statement?: Statement
   ): FlowNode {
     const textWidth = label.length * 8
-    const nodeWidth = type === 'fg-merge'
-      ? 20
-      : Math.max(width ?? textWidth + 40, this.params.MIN_W)
+    const nodeWidth =
+      type === 'fg-merge' ? 20 : Math.max(width ?? textWidth + 40, this.params.MIN_W)
     const node: FlowNode = {
       id: this.newId(),
       type,
@@ -228,8 +233,8 @@ export class FlowchartEngine {
         label,
         width: nodeWidth,
         height: this.params.NODE_H,
-        statement,
-      },
+        statement
+      }
     }
     this.nodes.push(node)
     this.nodesMap.set(node.id, node)
@@ -239,7 +244,7 @@ export class FlowchartEngine {
   private connect(
     from: FlowNode,
     to: FlowNode,
-    opts?: { sourceHandle?: string | null; targetHandle?: string | null },
+    opts?: { sourceHandle?: string | null; targetHandle?: string | null }
   ): void {
     const sh = opts?.sourceHandle
     const th = opts?.targetHandle
@@ -249,8 +254,8 @@ export class FlowchartEngine {
       target: to.id,
       sourceHandle: sh,
       targetHandle: th,
-      type: (sh || th) ? 'step' : 'default',
-      markerEnd: { type: 'arrowclosed', color: 'context-stroke' },
+      type: sh || th ? 'step' : 'default',
+      markerEnd: { type: 'arrowclosed', color: 'context-stroke' }
     })
   }
 
@@ -258,7 +263,7 @@ export class FlowchartEngine {
    * 在指定 edge 处插入一个新节点，拆分原有连接
    */
   insertNodeAtEdge(edgeId: string, statementKind: string): void {
-    const edgeIndex = this.edges.findIndex((e) => e.id === edgeId)
+    const edgeIndex = this.edges.findIndex(e => e.id === edgeId)
     if (edgeIndex === -1) return
 
     const edge = this.edges[edgeIndex]
@@ -271,14 +276,14 @@ export class FlowchartEngine {
 
     // 新节点的中文标签
     const labelMap: Record<string, string> = {
-      'input':  '输入',
-      'output': '输出',
-      'declare':'声明',
-      'assign': '赋值',
-      'if':     '判断',
-      'for':    'for 循环',
-      'while':  'while 循环',
-      'do':     'do 循环',
+      input: '输入',
+      output: '输出',
+      declare: '声明',
+      assign: '赋值',
+      if: '判断',
+      for: 'for 循环',
+      while: 'while 循环',
+      do: 'do 循环'
     }
 
     const nodeType = KIND_TO_NODE_TYPE[statementKind] ?? 'default'
@@ -334,12 +339,12 @@ export class FlowchartEngine {
     fromNode: FlowNode,
     fromHandle: string,
     toNode: FlowNode,
-    toHandle: string,
+    toHandle: string
   ): void {
     if (statements.length === 0) {
       this.connect(fromNode, toNode, {
         sourceHandle: fromHandle,
-        targetHandle: toHandle,
+        targetHandle: toHandle
       })
       return
     }
@@ -354,7 +359,7 @@ export class FlowchartEngine {
    */
   private buildIfStatement(
     stmt: IfStatement & { _nodeId?: string },
-    prevNode: FlowNode | null,
+    prevNode: FlowNode | null
   ): [FlowNode, FlowNode] {
     const ifNode = this.createNode('fg-if', stmt.expression, undefined, stmt)
     stmt._nodeId = ifNode.id
@@ -375,7 +380,7 @@ export class FlowchartEngine {
    */
   private buildForStatement(
     stmt: ForStatement & { _nodeId?: string },
-    prevNode: FlowNode | null,
+    prevNode: FlowNode | null
   ): FlowNode {
     const label = statementToLabel(stmt)
     const forNode = this.createNode('fg-for', label, undefined, stmt)
@@ -426,7 +431,10 @@ export class FlowchartEngine {
         const forNode = this.nodesMap.get(stmt._nodeId!)
         const forW = forNode?.data.width ?? this.params.FOR_NODE_MIN_W
         const bodyE = this.measureExtents(stmt.body)
-        const blockRight = Math.max(forW / 2, forW / 2 + this.params.BRANCH_H_GAP + bodyE.totalWidth)
+        const blockRight = Math.max(
+          forW / 2,
+          forW / 2 + this.params.BRANCH_H_GAP + bodyE.totalWidth
+        )
         left = Math.max(left, forW / 2)
         right = Math.max(right, blockRight)
       } else {
@@ -443,11 +451,7 @@ export class FlowchartEngine {
   /**
    * 递归排版一组语句（序列）
    */
-  private layoutBlock(
-    statements: Statement[],
-    centerX: number,
-    startY: number,
-  ): LayoutResult {
+  private layoutBlock(statements: Statement[], centerX: number, startY: number): LayoutResult {
     let cursor = startY
     let maxW = 0
 
@@ -480,7 +484,7 @@ export class FlowchartEngine {
   private layoutIfSelection(
     stmt: IfStatement & { _nodeId?: string },
     centerX: number,
-    startY: number,
+    startY: number
   ): LayoutResult {
     const ifNode = this.nodesMap.get(stmt._nodeId!)
     if (!ifNode) return { endY: startY, width: 0 }
@@ -510,13 +514,14 @@ export class FlowchartEngine {
     if (mergeNode) {
       mergeNode.position = {
         x: centerX - this.params.MERGE_NODE_W / 2,
-        y: maxBranchEndY + this.params.BRANCH_V_GAP,
+        y: maxBranchEndY + this.params.BRANCH_V_GAP
       }
     }
 
     return {
-      endY: maxBranchEndY + this.params.MERGE_NODE_H + this.params.BRANCH_V_GAP + this.params.SPACING,
-      width: totalWidth,
+      endY:
+        maxBranchEndY + this.params.MERGE_NODE_H + this.params.BRANCH_V_GAP + this.params.SPACING,
+      width: totalWidth
     }
   }
 
@@ -526,7 +531,7 @@ export class FlowchartEngine {
   private layoutForSelection(
     stmt: ForStatement & { _nodeId?: string },
     centerX: number,
-    startY: number,
+    startY: number
   ): LayoutResult {
     const forNode = this.nodesMap.get(stmt._nodeId!)
     if (!forNode) return { endY: startY, width: 0 }
@@ -553,7 +558,7 @@ export class FlowchartEngine {
    * 流程入口排版：START → Main body → END
    */
   private layoutFlowchart(): void {
-    const mainFunc = this.program.functions.find((f) => f.name === 'Main')
+    const mainFunc = this.program.functions.find(f => f.name === 'Main')
     if (!mainFunc) return
 
     // 查找 START/END 节点
