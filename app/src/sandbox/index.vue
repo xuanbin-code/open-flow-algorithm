@@ -18,6 +18,7 @@ import InsertNodePanel from './components/panels/InsertNodePanel.vue'
 import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
 import ExecutionConsole from './components/panels/ExecutionConsole.vue'
 import type { ChatMessage, VariableEntry } from './components/panels/ExecutionConsole.vue'
+import ExecutionToolbar from './components/panels/ExecutionToolbar.vue'
 import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
@@ -310,6 +311,17 @@ function stopExecution() {
   showToast('执行已终止', 'error')
 }
 
+function pauseExecution() {
+  if (executionStatus.value !== 'running') return
+  executionStatus.value = 'paused'
+}
+
+function resumeExecution() {
+  if (executionStatus.value !== 'paused') return
+  executionStatus.value = 'running'
+  stepResolve?.()
+}
+
 function setExecutionSpeed(speed: 'slow' | 'normal' | 'fast') {
   executionSpeed.value = speed
   const labels = { slow: '慢速', normal: '正常', fast: '快速' }
@@ -388,6 +400,19 @@ async function driveInterpreter(mode: 'run' | 'step') {
       // Run 模式：语句间延迟
       if (mode === 'run' && executionStatus.value === 'running') {
         await new Promise<void>((resolve) => setTimeout(resolve, SPEED_DELAYS[executionSpeed.value]))
+      }
+
+      // 检查是否在 run 模式中被暂停了
+      if (mode === 'run' && executionStatus.value === 'paused' && !stopped) {
+        await new Promise<void>((resolve) => {
+          stepResolve = resolve
+        })
+        stepResolve = null
+        if (stopped) {
+          executionStatus.value = 'stopped'
+          return
+        }
+        executionStatus.value = 'running'
       }
 
       // Step 模式：暂停等待下一次步进
@@ -696,6 +721,16 @@ async function handleSaveAs() {
 <template>
   <div class="flowchart-sandbox">
     <MenuBar :recent-files="recentFiles" :execution-status="executionStatus" @action="onMenuAction" />
+    <ExecutionToolbar
+      :execution-status="executionStatus"
+      :execution-speed="executionSpeed"
+      @run="startExecution"
+      @step="stepExecution"
+      @pause="pauseExecution"
+      @resume="resumeExecution"
+      @stop="stopExecution"
+      @set-speed="setExecutionSpeed"
+    />
     <div class="main-area">
       <div class="flow-container">
         <VueFlow
