@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 
 interface WhileNodeProps {
@@ -25,6 +25,13 @@ const nodeHeight = computed(() => props.data?.height ?? 80)
 const label = computed(() => props.data?.label ?? '')
 const isEmpty = computed(() => props.data?.isEmpty ?? false)
 const executing = computed(() => props.data?.executing ?? false)
+
+watch(
+  () => props.data?.executing,
+  (newVal, oldVal) => {
+    console.log(`[WhileNode ${props.id}] executing changed: ${oldVal} → ${newVal}`)
+  }
+)
 </script>
 
 <template>

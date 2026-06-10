@@ -20,13 +20,10 @@ const props = withDefaults(defineProps<IfNodeProps>(), {
   dragging: false
 })
 watch(
-  () => props.data,
-  () => {
-    if (props.data?.executing) {
-      console.log('executing', props.data.executing)
-    }
-  },
-  { deep: true }
+  () => props.data?.executing,
+  (newVal, oldVal) => {
+    console.log(`[IfNode ${props.id}] executing changed: ${oldVal} → ${newVal}, data=`, props.data)
+  }
 )
 const nodeWidth = computed(() => props.data?.width ?? 160)
 const nodeHeight = computed(() => props.data?.height ?? 80)

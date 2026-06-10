@@ -256,9 +256,13 @@ function syncExecutionHighlight() {
     const shouldBe = activeSet.has(node.id)
     const was = prevSet.has(node.id)
     if (shouldBe && !was) {
+      console.log(`[syncExec] ACTIVATE node=${node.id} dataBefore=`, node.data?.executing)
       updateNodeData(node.id, { executing: true })
+      console.log(`[syncExec] ACTIVATE node=${node.id} dataAfter=`, node.data?.executing)
     } else if (!shouldBe && was) {
+      console.log(`[syncExec] DEACTIVATE node=${node.id} dataBefore=`, node.data?.executing)
       updateNodeData(node.id, { executing: false })
+      console.log(`[syncExec] DEACTIVATE node=${node.id} dataAfter=`, node.data?.executing)
     }
   }
 
@@ -403,6 +407,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
           break
         }
         case 'statement-leave': {
+          console.log(`[eventLoop] statement-leave nodeId=${event.nodeId}`)
           executingNodeIds.value.delete(event.nodeId)
           syncExecutionHighlight()
           break
