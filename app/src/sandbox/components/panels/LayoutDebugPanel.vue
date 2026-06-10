@@ -25,6 +25,52 @@ const emit = defineEmits<{
 
 const collapsed = ref(true)
 
+// ============================================================
+// Draggable state
+// ============================================================
+
+const panelLeft = ref(window.innerWidth - 60)
+const panelTop = ref(10)
+const dragging = ref(false)
+const hasDragged = ref(false)
+let dragStartX = 0
+let dragStartY = 0
+let panelStartX = 0
+let panelStartY = 0
+
+function onDragStart(e: MouseEvent) {
+  dragging.value = true
+  hasDragged.value = false
+  dragStartX = e.clientX
+  dragStartY = e.clientY
+  panelStartX = panelLeft.value
+  panelStartY = panelTop.value
+  document.addEventListener('mousemove', onDragMove)
+  document.addEventListener('mouseup', onDragEnd)
+}
+
+function onDragMove(e: MouseEvent) {
+  if (!dragging.value) return
+  const dx = e.clientX - dragStartX
+  const dy = e.clientY - dragStartY
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+    hasDragged.value = true
+  }
+  panelLeft.value = panelStartX + dx
+  panelTop.value = panelStartY + dy
+}
+
+function onDragEnd() {
+  dragging.value = false
+  document.removeEventListener('mousemove', onDragMove)
+  document.removeEventListener('mouseup', onDragEnd)
+}
+
+function onToggleClick() {
+  if (hasDragged.value) return
+  collapsed.value = !collapsed.value
+}
+
 // 分组
 const groups = computed(() => {
   const spacing: ParamDef[] = []
@@ -54,13 +100,22 @@ const groups = computed(() => {
 </script>
 
 <template>
-  <div class="debug-panel" :class="{ collapsed }">
-    <button class="toggle-btn" @click="collapsed = !collapsed">
+  <div
+    class="debug-panel"
+    :class="{ collapsed, dragging }"
+    :style="{ left: panelLeft + 'px', top: panelTop + 'px' }"
+  >
+    <button
+      class="toggle-btn"
+      :class="{ 'drag-handle': collapsed }"
+      @mousedown="collapsed && onDragStart($event)"
+      @click="onToggleClick"
+    >
       {{ collapsed ? '◀ 调试' : '调试 ▶' }}
     </button>
 
     <div v-if="!collapsed" class="panel-body">
-      <div class="panel-header">
+      <div class="panel-header" @mousedown="onDragStart">
         <h3>📐 布局参数</h3>
       </div>
 
@@ -172,8 +227,6 @@ const groups = computed(() => {
 <style scoped>
 .debug-panel {
   position: fixed;
-  top: 10px;
-  right: 10px;
   z-index: 1000;
   background: var(--bg-float-panel-95);
   border: 1px solid var(--border-medium);
@@ -185,7 +238,13 @@ const groups = computed(() => {
   flex-direction: column;
   box-shadow: var(--shadow-debug);
   backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
+  transition: box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.debug-panel.dragging {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+  transition: none;
 }
 
 .debug-panel.collapsed {
@@ -203,8 +262,21 @@ const groups = computed(() => {
   white-space: nowrap;
   transition: background 0.15s;
 }
+.toggle-btn.drag-handle {
+  cursor: grab;
+}
+.toggle-btn.drag-handle:active {
+  cursor: grabbing;
+}
 .toggle-btn:hover {
   background: var(--bg-toggle-btn-hover);
+}
+
+.panel-header {
+  cursor: grab;
+}
+.panel-header:active {
+  cursor: grabbing;
 }
 
 .panel-body {
