@@ -12,6 +12,15 @@ export interface ParamDef {
 const props = defineProps<{
   params: Record<string, number>
   definitions: ParamDef[]
+  vpZoom: number
+  vpX: number
+  vpY: number
+}>()
+
+const emit = defineEmits<{
+  'update:vpZoom': [value: number]
+  'update:vpX': [value: number]
+  'update:vpY': [value: number]
 }>()
 
 const collapsed = ref(true)
@@ -77,6 +86,81 @@ const groups = computed(() => {
               :step="def.step"
               :value="props.params[def.key]"
               @input="(e: Event) => { props.params[def.key] = Number((e.target as HTMLInputElement).value) }"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 视图参数（不影响 nodes/edges，仅调视口） -->
+      <div class="viewport-separator" />
+      <div class="param-group">
+        <h4 class="group-title viewport-title">👁 视图（不重绘）</h4>
+        <div class="param-row">
+          <label class="param-label">缩放 Zoom</label>
+          <div class="param-controls">
+            <input
+              type="range"
+              class="param-slider"
+              min="0.1"
+              max="4"
+              step="0.1"
+              :value="props.vpZoom"
+              @input="(e: Event) => { emit('update:vpZoom', Number((e.target as HTMLInputElement).value)) }"
+            />
+            <input
+              type="number"
+              class="param-input"
+              min="0.1"
+              max="4"
+              step="0.1"
+              :value="props.vpZoom"
+              @input="(e: Event) => { emit('update:vpZoom', Number((e.target as HTMLInputElement).value)) }"
+            />
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label">视口 X</label>
+          <div class="param-controls">
+            <input
+              type="range"
+              class="param-slider"
+              min="-500"
+              max="2000"
+              step="10"
+              :value="props.vpX"
+              @input="(e: Event) => { emit('update:vpX', Number((e.target as HTMLInputElement).value)) }"
+            />
+            <input
+              type="number"
+              class="param-input"
+              min="-500"
+              max="2000"
+              step="10"
+              :value="props.vpX"
+              @input="(e: Event) => { emit('update:vpX', Number((e.target as HTMLInputElement).value)) }"
+            />
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label">视口 Y</label>
+          <div class="param-controls">
+            <input
+              type="range"
+              class="param-slider"
+              min="-500"
+              max="2000"
+              step="10"
+              :value="props.vpY"
+              @input="(e: Event) => { emit('update:vpY', Number((e.target as HTMLInputElement).value)) }"
+            />
+            <input
+              type="number"
+              class="param-input"
+              min="-500"
+              max="2000"
+              step="10"
+              :value="props.vpY"
+              @input="(e: Event) => { emit('update:vpY', Number((e.target as HTMLInputElement).value)) }"
             />
           </div>
         </div>
@@ -186,6 +270,16 @@ const groups = computed(() => {
 .param-input:focus {
   outline: none;
   border-color: #4fc3f7;
+}
+
+/* ---- Viewport separator ---- */
+.viewport-separator {
+  height: 1px;
+  margin: 10px 0 6px;
+  background: #444;
+}
+.viewport-title {
+  color: #4fc3f7 !important;
 }
 
 /* 滚动条 */

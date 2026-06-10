@@ -76,6 +76,16 @@ const previousNodeId = ref<string | null>(null)
 const executionSpeed = ref<'slow' | 'normal' | 'fast'>('normal')
 const SPEED_DELAYS: Record<string, number> = { slow: 1000, normal: 300, fast: 50 }
 
+/** 视图参数（仅影响视口，不触发 re-layout） */
+const vpZoom = ref(1)
+const vpX = ref(50)
+const vpY = ref(20)
+
+// 视图参数变化 → 仅调整视口
+watch([vpZoom, vpX, vpY], () => {
+  setViewport({ zoom: vpZoom.value, x: vpX.value, y: vpY.value })
+})
+
 /** 是否正在执行中（禁用编辑操作） */
 const isExecuting = computed(() => executionStatus.value !== 'idle')
 
@@ -137,7 +147,7 @@ watch(LP, () => {
   }, 30)
 })
 
-const { fitView } = useVueFlow()
+const { fitView, setViewport } = useVueFlow()
 
 // ============================================
 // 启动：尝试恢复上次文件
@@ -821,7 +831,7 @@ async function handleSaveAs() {
         @cancel-input="onInputCancel"
       />
     </div>
-    <LayoutDebugPanel :params="LP" :definitions="PARAM_DEFS" />
+    <LayoutDebugPanel :params="LP" :definitions="PARAM_DEFS" v-model:vp-zoom="vpZoom" v-model:vp-x="vpX" v-model:vp-y="vpY" />
     <InsertNodePanel
       v-if="panelVisible"
       :position="panelPosition"

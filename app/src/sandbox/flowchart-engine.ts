@@ -98,7 +98,7 @@ export interface LayoutParams {
 // ============================================================
 
 export const DEFAULT_PARAMS: LayoutParams = {
-  SPACING: 60,
+  SPACING: 30,
   START_Y: 50,
   NODE_H: 50,
   MIN_W: 80,
@@ -118,7 +118,7 @@ export const DEFAULT_PARAMS: LayoutParams = {
 }
 
 export const PARAM_DEFS = [
-  { key: 'SPACING', label: '垂直间距 SPACING', min: 10, max: 300, step: 5 },
+  { key: 'SPACING', label: '垂直间距 SPACING', min: 5, max: 300, step: 5 },
   { key: 'START_Y', label: '起始 Y START_Y', min: 0, max: 500, step: 10 },
   { key: 'FLOW_CENTER_X', label: '水平中心 FLOW_CENTER_X', min: 100, max: 1500, step: 10 },
   { key: 'BRANCH_H_GAP', label: '水平分支间距 BRANCH_H_GAP', min: 10, max: 300, step: 5 },
