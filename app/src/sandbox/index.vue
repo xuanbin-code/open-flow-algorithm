@@ -19,6 +19,7 @@ import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
 import ExecutionConsole from './components/panels/ExecutionConsole.vue'
 import type { ChatMessage, VariableEntry } from './components/panels/ExecutionConsole.vue'
 import ExecutionToolbar from './components/panels/ExecutionToolbar.vue'
+import SettingsDialog from './components/SettingsDialog.vue'
 import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
@@ -37,6 +38,7 @@ import {
   type FlowEdge,
 } from './flowchart-engine'
 import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './interpreter'
+import { useSettings } from '../composables/useSettings'
 
 // ============================================
 // 布局参数（可实时调试）
@@ -555,6 +557,13 @@ function showToast(message: string, type: 'success' | 'error' = 'success') {
 }
 
 // ============================================
+// 设置对话框
+// ============================================
+
+const { settings } = useSettings()
+const showSettingsDialog = ref(false)
+
+// ============================================
 // 节点插入面板
 // ============================================
 const panelVisible = ref(false)
@@ -736,6 +745,10 @@ async function onMenuAction(actionId: string) {
       setExecutionSpeed('fast')
       break
     }
+    case 'open-settings': {
+      showSettingsDialog.value = true
+      break
+    }
     default:
       console.log(`Menu action: ${actionId} (未实现)`)
   }
@@ -873,6 +886,7 @@ async function handleSaveAs() {
       @update-property="onUpdateProperty"
       @close-editor="onCloseEditor"
     />
+    <SettingsDialog :visible="showSettingsDialog" @close="showSettingsDialog = false" />
     <!-- Toast 消息 -->
     <Transition name="toast-fade">
       <div v-if="toast.visible" class="toast" :class="toast.type">{{ toast.message }}</div>
@@ -886,7 +900,7 @@ async function handleSaveAs() {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #1a1a2e;
+  background: var(--bg-app);
 }
 .main-area {
   flex: 1;
@@ -900,7 +914,7 @@ async function handleSaveAs() {
 .execution-console {
   width: 380px;
   flex-shrink: 0;
-  border-left: 1px solid #2a2a3e;
+  border-left: 1px solid var(--border-soft);
 }
 </style>
 
@@ -913,7 +927,12 @@ async function handleSaveAs() {
 
 /* hover 效果：仅改变 stroke 颜色，避免 CSS filter 触发 Chromium SVG 合成层闪烁 */
 .vue-flow__edge:hover .vue-flow__edge-path {
-  stroke: #4fc3f7;
+  stroke: var(--accent);
+}
+
+/* 连接线箭头填充 */
+.vue-flow__arrowclosed path {
+  fill: var(--vf-pattern-color);
 }
 
 /* ---- Toast ---- */
@@ -931,10 +950,10 @@ async function handleSaveAs() {
   pointer-events: none;
 }
 .toast.success {
-  background: #27ae60;
+  background: var(--accent-green);
 }
 .toast.error {
-  background: #e74c3c;
+  background: var(--accent-red);
 }
 
 .toast-fade-enter-active,
@@ -954,8 +973,8 @@ async function handleSaveAs() {
   justify-content: center;
   color: #fff;
   font-size: 13px;
-  background: #7f8c8d;
-  border: 2px solid #6c7a7a;
+  background: var(--node-fallback-bg);
+  border: 2px solid var(--node-fallback-border);
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   white-space: nowrap;

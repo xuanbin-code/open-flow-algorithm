@@ -102,7 +102,7 @@ onUnmounted(() => {
   position: fixed;
   inset: 0;
   z-index: 10001;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--overlay-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -110,10 +110,10 @@ onUnmounted(() => {
 }
 
 .input-dialog {
-  background: #1e1e32;
-  border: 1px solid #555;
+  background: var(--dialog-bg);
+  border: 1px solid var(--dialog-border);
   border-radius: 12px;
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
+  box-shadow: var(--shadow-dialog);
   min-width: 360px;
   max-width: 480px;
   overflow: hidden;
@@ -125,7 +125,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   padding: 14px 20px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .dialog-icon {
@@ -135,7 +135,7 @@ onUnmounted(() => {
 .dialog-title {
   font-size: 16px;
   font-weight: 600;
-  color: #eee;
+  color: var(--text-primary);
 }
 
 /* ---- Body ---- */
@@ -144,24 +144,24 @@ onUnmounted(() => {
 }
 
 .dialog-prompt {
-  color: #bbb;
+  color: var(--text-dim);
   font-size: 14px;
   margin: 0 0 14px 0;
   line-height: 1.5;
 }
 
 .dialog-prompt strong {
-  color: #4fc3f7;
+  color: var(--accent);
   font-weight: 600;
 }
 
 .dialog-input {
   width: 100%;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid #555;
+  background: var(--bg-input);
+  border: 1px solid var(--dialog-border);
   border-radius: 6px;
-  color: #eee;
+  color: var(--text-primary);
   font-size: 15px;
   outline: none;
   transition: border-color 0.15s;
@@ -169,11 +169,11 @@ onUnmounted(() => {
 }
 
 .dialog-input:focus {
-  border-color: #4fc3f7;
+  border-color: var(--accent);
 }
 
 .dialog-input::placeholder {
-  color: #666;
+  color: var(--text-disabled);
 }
 
 /* ---- Footer ---- */
@@ -182,7 +182,7 @@ onUnmounted(() => {
   justify-content: flex-end;
   gap: 10px;
   padding: 12px 20px;
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--border-color);
 }
 
 .dialog-btn {
@@ -200,19 +200,19 @@ onUnmounted(() => {
 }
 
 .dialog-btn-cancel {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ccc;
+  background: var(--btn-cancel-bg);
+  color: var(--text-secondary);
 }
 .dialog-btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--btn-cancel-hover);
 }
 
 .dialog-btn-submit {
-  background: #3498db;
+  background: var(--btn-primary-bg);
   color: #fff;
 }
 .dialog-btn-submit:hover {
-  background: #2980b9;
+  background: var(--btn-primary-hover);
 }
 
 /* ---- Transition ---- */

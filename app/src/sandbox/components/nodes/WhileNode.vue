@@ -137,7 +137,7 @@ watch(
   white-space: nowrap;
 }
 .body-tag {
-  color: #fff;
+  color: var(--handle-label-color);
   right: -4px;
   top: 20%;
   transform: translate(100%, -50%);

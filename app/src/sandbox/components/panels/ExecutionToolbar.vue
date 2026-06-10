@@ -153,8 +153,8 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
   align-items: center;
   height: 32px;
   padding: 0 8px;
-  background: #12122a;
-  border-bottom: 1px solid #2a2a3e;
+  background: var(--bg-toolbar);
+  border-bottom: 1px solid var(--border-soft);
   gap: 2px;
   flex-shrink: 0;
 }
@@ -169,7 +169,7 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
   background: transparent;
   border: 1px solid transparent;
   border-radius: 4px;
-  color: #bbb;
+  color: var(--text-dim);
   font-size: 11px;
   font-family: inherit;
   cursor: pointer;
@@ -177,14 +177,14 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
   white-space: nowrap;
 }
 .tb-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 .tb-btn:active:not(:disabled) {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--bg-hover-strong);
 }
 .tb-btn:disabled {
-  color: #444;
+  color: var(--border-medium);
   cursor: not-allowed;
 }
 .tb-btn:disabled svg {
@@ -195,7 +195,7 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
 .tb-sep {
   width: 1px;
   height: 16px;
-  background: #2a2a3e;
+  background: var(--border-soft);
   margin: 0 4px;
   flex-shrink: 0;
 }
@@ -213,29 +213,29 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
 }
 .speed-label {
   font-size: 10px;
-  color: #666;
+  color: var(--text-disabled);
   margin-right: 4px;
 }
 .speed-btn {
   height: 22px;
   padding: 0 8px;
   background: transparent;
-  border: 1px solid #333;
+  border: 1px solid var(--border-color);
   border-radius: 3px;
-  color: #888;
+  color: var(--text-muted-2);
   font-size: 10px;
   font-family: inherit;
   cursor: pointer;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 .speed-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #bbb;
+  background: var(--bg-hover);
+  color: var(--text-dim);
 }
 .speed-btn.active {
-  background: rgba(52, 152, 219, 0.2);
-  border-color: #3498db;
-  color: #4fc3f7;
+  background: var(--bg-speed-active);
+  border-color: var(--accent-blue);
+  color: var(--accent);
   font-weight: 600;
 }
 </style>

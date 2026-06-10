@@ -203,12 +203,12 @@ function labelStyle(n: InsertableNode): Record<string, string> {
 .insert-panel {
   position: fixed;
   z-index: 9999;
-  background: rgba(30, 30, 50, 0.97);
-  border: 1px solid #555;
+  background: var(--bg-float-panel);
+  border: 1px solid var(--dialog-border);
   border-radius: 10px;
-  color: #ccc;
+  color: var(--text-secondary);
   font-size: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-panel);
   backdrop-filter: blur(10px);
   min-width: 340px;
   user-select: none;
@@ -220,7 +220,7 @@ function labelStyle(n: InsertableNode): Record<string, string> {
   align-items: center;
   padding: 8px 12px;
   cursor: grab;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid var(--border-medium);
   gap: 8px;
 }
 .panel-header:active {
@@ -228,19 +228,19 @@ function labelStyle(n: InsertableNode): Record<string, string> {
 }
 .drag-icon {
   font-size: 14px;
-  color: #888;
+  color: var(--text-muted-2);
   cursor: grab;
 }
 .panel-title {
   flex: 1;
   font-size: 13px;
   font-weight: 600;
-  color: #eee;
+  color: var(--text-primary);
 }
 .close-btn {
   background: none;
   border: none;
-  color: #888;
+  color: var(--text-muted-2);
   cursor: pointer;
   font-size: 14px;
   padding: 2px 6px;
@@ -248,7 +248,7 @@ function labelStyle(n: InsertableNode): Record<string, string> {
   transition: color 0.15s, background 0.15s;
 }
 .close-btn:hover {
-  color: #fff;
+  color: var(--text-primary);
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -283,10 +283,10 @@ function labelStyle(n: InsertableNode): Record<string, string> {
 
 .category-name {
   font-size: 11px;
-  color: #888;
+  color: var(--text-muted-2);
   text-align: center;
   padding-bottom: 4px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--border-color);
   white-space: nowrap;
 }
 

@@ -217,8 +217,8 @@ function typeLabel(type: string): string {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #12122a;
-  color: #ccc;
+  background: var(--bg-panel);
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
@@ -227,14 +227,14 @@ function typeLabel(type: string): string {
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid #2a2a3e;
+  border-bottom: 1px solid var(--border-soft);
   gap: 10px;
   flex-shrink: 0;
 }
 .console-title {
   font-size: 13px;
   font-weight: 600;
-  color: #eee;
+  color: var(--text-primary);
 }
 .status-badge {
   font-size: 10px;
@@ -245,9 +245,9 @@ function typeLabel(type: string): string {
 }
 .clear-btn {
   margin-left: auto;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid #444;
-  color: #999;
+  background: var(--btn-clear-bg);
+  border: 1px solid var(--border-medium);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 11px;
   padding: 3px 10px;
@@ -255,7 +255,7 @@ function typeLabel(type: string): string {
   transition: background 0.15s, color 0.15s;
 }
 .clear-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--bg-hover-strong);
   color: #ddd;
 }
 
@@ -263,7 +263,7 @@ function typeLabel(type: string): string {
 .section-label {
   font-size: 10px;
   font-weight: 600;
-  color: #666;
+  color: var(--text-disabled);
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 6px 12px 4px;
@@ -291,26 +291,26 @@ function typeLabel(type: string): string {
 .vars-table th {
   text-align: left;
   padding: 3px 6px;
-  color: #777;
+  color: var(--text-muted-3);
   font-weight: 500;
-  border-bottom: 1px solid #2a2a3e;
+  border-bottom: 1px solid var(--border-soft);
   position: sticky;
   top: 0;
-  background: #12122a;
+  background: var(--bg-panel);
 }
 .vars-table td {
   padding: 2px 6px;
-  border-bottom: 1px solid #1e1e36;
+  border-bottom: 1px solid var(--border-table);
 }
 .var-name {
-  color: #4fc3f7;
+  color: var(--accent);
   font-weight: 600;
 }
 .var-type {
-  color: #888;
+  color: var(--text-muted-2);
 }
 .var-value {
-  color: #2ecc71;
+  color: var(--accent-green);
   font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
   max-width: 120px;
   overflow: hidden;
@@ -321,7 +321,7 @@ function typeLabel(type: string): string {
 /* ---- Section divider ---- */
 .section-divider {
   height: 1px;
-  background: #2a2a3e;
+  background: var(--border-soft);
   flex-shrink: 0;
 }
 
@@ -341,7 +341,7 @@ function typeLabel(type: string): string {
   gap: 8px;
 }
 .empty-hint {
-  color: #555;
+  color: var(--text-placeholder);
   font-style: italic;
   text-align: center;
   padding: 24px 0;
@@ -367,33 +367,33 @@ function typeLabel(type: string): string {
 }
 .bubble-program {
   align-self: flex-start;
-  background: rgba(52, 152, 219, 0.15);
-  border: 1px solid rgba(52, 152, 219, 0.3);
+  background: var(--bubble-program-bg);
+  border: 1px solid var(--bubble-program-border);
   border-bottom-left-radius: 2px;
 }
 .bubble-program .bubble-sender {
-  color: #3498db;
+  color: var(--accent-blue);
 }
 .bubble-user {
   align-self: flex-end;
-  background: rgba(46, 204, 113, 0.12);
-  border: 1px solid rgba(46, 204, 113, 0.25);
+  background: var(--bubble-user-bg);
+  border: 1px solid var(--bubble-user-border);
   border-bottom-right-radius: 2px;
 }
 .bubble-user .bubble-sender {
-  color: #2ecc71;
+  color: var(--accent-green);
 }
 .bubble-system {
   align-self: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bubble-system-bg);
+  border: 1px solid var(--bubble-system-border);
   border-radius: 12px;
   font-size: 11px;
-  color: #888;
+  color: var(--text-muted-2);
   font-style: italic;
 }
 .bubble-text {
-  color: #ddd;
+  color: var(--text-bubble);
 }
 
 /* ---- Input bar ---- */
@@ -401,7 +401,7 @@ function typeLabel(type: string): string {
   display: flex;
   gap: 6px;
   padding: 8px 10px;
-  border-top: 1px solid #2a2a3e;
+  border-top: 1px solid var(--border-soft);
   flex-shrink: 0;
 }
 .chat-input-bar.disabled {
@@ -410,27 +410,27 @@ function typeLabel(type: string): string {
 .chat-input {
   flex: 1;
   padding: 7px 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #444;
+  background: var(--bg-input-alt);
+  border: 1px solid var(--border-medium);
   border-radius: 6px;
-  color: #eee;
+  color: var(--text-primary);
   font-size: 12px;
   outline: none;
   transition: border-color 0.15s;
 }
 .chat-input:focus {
-  border-color: #4fc3f7;
+  border-color: var(--accent);
 }
 .chat-input:disabled {
-  color: #666;
+  color: var(--text-disabled);
   background: rgba(255, 255, 255, 0.02);
 }
 .chat-input::placeholder {
-  color: #555;
+  color: var(--text-placeholder);
 }
 .send-btn {
   padding: 7px 14px;
-  background: #3498db;
+  background: var(--btn-primary-bg);
   border: none;
   border-radius: 6px;
   color: #fff;
@@ -441,10 +441,10 @@ function typeLabel(type: string): string {
   flex-shrink: 0;
 }
 .send-btn:hover:not(:disabled) {
-  background: #2980b9;
+  background: var(--btn-primary-hover);
 }
 .send-btn:disabled {
-  background: #555;
+  background: var(--btn-disabled-bg);
   cursor: not-allowed;
 }
 </style>

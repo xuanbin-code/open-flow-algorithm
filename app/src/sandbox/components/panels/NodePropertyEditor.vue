@@ -255,7 +255,7 @@ function setField(key: string, value: any) {
   align-items: center;
   gap: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid var(--border-medium);
   margin-bottom: 4px;
 }
 
@@ -263,13 +263,13 @@ function setField(key: string, value: any) {
   flex: 1;
   font-size: 12px;
   font-weight: 600;
-  color: #4fc3f7;
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .editor-done-btn {
-  background: #27ae60;
+  background: var(--accent-green);
   border: none;
   color: #fff;
   cursor: pointer;
@@ -297,17 +297,17 @@ function setField(key: string, value: any) {
 
 .field-label {
   font-size: 12px;
-  color: #aaa;
+  color: var(--text-muted-2);
   white-space: nowrap;
   min-width: 60px;
 }
 
 .field-input {
   flex: 1;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid #555;
+  background: var(--bg-hover);
+  border: 1px solid var(--dialog-border);
   border-radius: 4px;
-  color: #eee;
+  color: var(--text-primary);
   font-size: 12px;
   padding: 5px 8px;
   outline: none;
@@ -315,11 +315,11 @@ function setField(key: string, value: any) {
 }
 
 .field-input:focus {
-  border-color: #4fc3f7;
+  border-color: var(--accent);
 }
 
 .field-input::placeholder {
-  color: #666;
+  color: var(--text-disabled);
 }
 
 select.field-input {
@@ -327,17 +327,17 @@ select.field-input {
 }
 
 select.field-input option {
-  background: #1e1e32;
-  color: #eee;
+  background: var(--bg-dropdown);
+  color: var(--text-primary);
 }
 
 input[type="checkbox"] {
-  accent-color: #4fc3f7;
+  accent-color: var(--accent);
   cursor: pointer;
 }
 
 .no-props {
-  color: #888;
+  color: var(--text-muted-2);
   font-size: 12px;
   font-style: italic;
   text-align: center;

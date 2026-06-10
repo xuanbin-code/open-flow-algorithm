@@ -175,28 +175,28 @@ const groups = computed(() => {
   top: 10px;
   right: 10px;
   z-index: 1000;
-  background: rgba(30, 30, 50, 0.95);
-  border: 1px solid #444;
+  background: var(--bg-float-panel-95);
+  border: 1px solid var(--border-medium);
   border-radius: 8px;
-  color: #ccc;
+  color: var(--text-secondary);
   font-size: 12px;
   max-height: calc(100vh - 20px);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-debug);
   backdrop-filter: blur(8px);
   transition: all 0.2s ease;
 }
 
 .debug-panel.collapsed {
-  background: rgba(30, 30, 50, 0.85);
+  background: var(--bg-float-collapsed);
 }
 
 .toggle-btn {
   padding: 6px 12px;
-  background: #3a3a5c;
+  background: var(--bg-toggle-btn);
   border: none;
-  color: #ccc;
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 13px;
   border-radius: 8px;
@@ -204,7 +204,7 @@ const groups = computed(() => {
   transition: background 0.15s;
 }
 .toggle-btn:hover {
-  background: #555;
+  background: var(--bg-toggle-btn-hover);
 }
 
 .panel-body {
@@ -216,8 +216,8 @@ const groups = computed(() => {
 .panel-header h3 {
   margin: 8px 0 4px;
   font-size: 14px;
-  color: #eee;
-  border-bottom: 1px solid #444;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-medium);
   padding-bottom: 6px;
 }
 
@@ -228,7 +228,7 @@ const groups = computed(() => {
 .group-title {
   margin: 4px 0;
   font-size: 11px;
-  color: #888;
+  color: var(--text-muted-2);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -240,7 +240,7 @@ const groups = computed(() => {
 .param-label {
   display: block;
   margin-bottom: 2px;
-  color: #aaa;
+  color: var(--text-muted-2);
   font-size: 11px;
 }
 
@@ -253,33 +253,33 @@ const groups = computed(() => {
 .param-slider {
   flex: 1;
   height: 4px;
-  accent-color: #4fc3f7;
+  accent-color: var(--accent);
   cursor: pointer;
 }
 
 .param-input {
   width: 52px;
   padding: 2px 4px;
-  background: #2a2a3e;
-  border: 1px solid #555;
+  background: var(--border-soft);
+  border: 1px solid var(--dialog-border);
   border-radius: 3px;
-  color: #eee;
+  color: var(--text-primary);
   font-size: 11px;
   text-align: right;
 }
 .param-input:focus {
   outline: none;
-  border-color: #4fc3f7;
+  border-color: var(--accent);
 }
 
 /* ---- Viewport separator ---- */
 .viewport-separator {
   height: 1px;
   margin: 10px 0 6px;
-  background: #444;
+  background: var(--border-medium);
 }
 .viewport-title {
-  color: #4fc3f7 !important;
+  color: var(--accent) !important;
 }
 
 /* 滚动条 */
@@ -287,7 +287,7 @@ const groups = computed(() => {
   width: 4px;
 }
 .panel-body::-webkit-scrollbar-thumb {
-  background: #555;
+  background: var(--scrollbar-thumb);
   border-radius: 2px;
 }
 </style>

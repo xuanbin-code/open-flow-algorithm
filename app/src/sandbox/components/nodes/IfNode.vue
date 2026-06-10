@@ -117,13 +117,13 @@ const executing = computed(() => props.data?.executing ?? false)
   white-space: nowrap;
 }
 .then-tag {
-  color: #fff;
+  color: var(--handle-label-color);
   right: -4px;
   top: 25%;
   transform: translate(100%, -50%);
 }
 .else-tag {
-  color: #fff;
+  color: var(--handle-label-color);
   left: -4px;
   top: 25%;
   transform: translate(-100%, -50%);

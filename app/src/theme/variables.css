@@ -1,0 +1,195 @@
+/* ===================================================================
+   Theme: CSS Custom Properties
+   Default: dark (matches current hardcoded colors exactly)
+   =================================================================== */
+
+/* -------------------------------------------------------------------
+   Dark theme (default)
+   ------------------------------------------------------------------- */
+:root,
+[data-theme="dark"] {
+  /* ---- Page chrome ---- */
+  --bg-app:            #1a1a2e;
+  --bg-menu:           #16162a;
+  --bg-toolbar:        #12122a;
+  --bg-panel:          #12122a;
+  --bg-dropdown:       #1e1e32;
+  --bg-input:          rgba(255, 255, 255, 0.06);
+  --bg-input-alt:      rgba(255, 255, 255, 0.05);
+  --bg-hover:          rgba(255, 255, 255, 0.08);
+  --bg-hover-strong:   rgba(255, 255, 255, 0.12);
+  --bg-float-panel:    rgba(30, 30, 50, 0.97);
+  --bg-float-panel-95: rgba(30, 30, 50, 0.95);
+  --bg-float-collapsed: rgba(30, 30, 50, 0.85);
+  --bg-menu-hover:     #3a3a5c;
+  --bg-toggle-btn:     #3a3a5c;
+  --bg-toggle-btn-hover: #555;
+  --bg-speed-active:   rgba(52, 152, 219, 0.2);
+
+  /* ---- Text ---- */
+  --text-primary:      #eee;
+  --text-secondary:    #ccc;
+  --text-dim:          #bbb;
+  --text-muted:        #999;
+  --text-muted-2:      #888;
+  --text-muted-3:      #777;
+  --text-disabled:     #666;
+  --text-placeholder:  #555;
+  --text-nav-disabled: #555;
+  --text-bubble:       #ddd;
+
+  /* ---- Borders ---- */
+  --border-color:      #333;
+  --border-soft:       #2a2a3e;
+  --border-medium:     #444;
+  --border-strong:     #555;
+  --border-table:      #1e1e36;
+
+  /* ---- Accent ---- */
+  --accent:            #4fc3f7;
+  --accent-blue:       #3498db;
+  --accent-green:      #2ecc71;
+  --accent-orange:     #f39c12;
+  --accent-red:        #e74c3c;
+
+  /* ---- Buttons ---- */
+  --btn-primary-bg:    #3498db;
+  --btn-primary-hover: #2980b9;
+  --btn-disabled-bg:   #555;
+  --btn-cancel-bg:     rgba(255, 255, 255, 0.08);
+  --btn-cancel-hover:  rgba(255, 255, 255, 0.15);
+  --btn-clear-bg:      rgba(255, 255, 255, 0.06);
+
+  /* ---- Dialog ---- */
+  --overlay-bg:        rgba(0, 0, 0, 0.6);
+  --dialog-bg:         #1e1e32;
+  --dialog-border:     #555;
+
+  /* ---- Shadows ---- */
+  --shadow-panel:      0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-dialog:     0 12px 48px rgba(0, 0, 0, 0.7);
+  --shadow-debug:      0 4px 20px rgba(0, 0, 0, 0.5);
+
+  /* ---- Status ---- */
+  --status-idle:       #666;
+  --status-running:    #2ecc71;
+  --status-paused:     #f39c12;
+  --status-waiting:    #3498db;
+  --status-stopped:    #e74c3c;
+
+  /* ---- Node fallback ---- */
+  --node-fallback-bg:    #7f8c8d;
+  --node-fallback-border:#6c7a7a;
+
+  /* ---- Chat bubbles ---- */
+  --bubble-program-bg:   rgba(52, 152, 219, 0.15);
+  --bubble-program-border: rgba(52, 152, 219, 0.3);
+  --bubble-user-bg:      rgba(46, 204, 113, 0.12);
+  --bubble-user-border:  rgba(46, 204, 113, 0.25);
+  --bubble-system-bg:    rgba(255, 255, 255, 0.05);
+  --bubble-system-border:rgba(255, 255, 255, 0.08);
+
+  /* ---- VueFlow ---- */
+  --vf-pattern-color:   #aaa;
+
+  /* ---- Scrollbar ---- */
+  --scrollbar-thumb:    #555;
+
+  /* ---- Handle labels ("真"/"假"/"下一个") ---- */
+  --handle-label-color: #fff;
+}
+
+/* -------------------------------------------------------------------
+   Light theme
+   ------------------------------------------------------------------- */
+[data-theme="light"] {
+  /* ---- Page chrome ---- */
+  --bg-app:            #f0f0f5;
+  --bg-menu:           #e0e0e8;
+  --bg-toolbar:        #e8e8ee;
+  --bg-panel:          #e8e8ee;
+  --bg-dropdown:       #ffffff;
+  --bg-input:          rgba(0, 0, 0, 0.04);
+  --bg-input-alt:      rgba(0, 0, 0, 0.03);
+  --bg-hover:          rgba(0, 0, 0, 0.06);
+  --bg-hover-strong:   rgba(0, 0, 0, 0.10);
+  --bg-float-panel:    rgba(250, 250, 255, 0.97);
+  --bg-float-panel-95: rgba(250, 250, 255, 0.95);
+  --bg-float-collapsed: rgba(250, 250, 255, 0.85);
+  --bg-menu-hover:     #d0d0e0;
+  --bg-toggle-btn:     #d0d0e0;
+  --bg-toggle-btn-hover: #c0c0d0;
+  --bg-speed-active:   rgba(25, 118, 210, 0.12);
+
+  /* ---- Text ---- */
+  --text-primary:      #222;
+  --text-secondary:    #444;
+  --text-dim:          #555;
+  --text-muted:        #777;
+  --text-muted-2:      #666;
+  --text-muted-3:      #555;
+  --text-disabled:     #999;
+  --text-placeholder:  #aaa;
+  --text-nav-disabled: #bbb;
+  --text-bubble:       #333;
+
+  /* ---- Borders ---- */
+  --border-color:      #ccc;
+  --border-soft:       #ddd;
+  --border-medium:     #ccc;
+  --border-strong:     #aaa;
+  --border-table:      #e0e0e8;
+
+  /* ---- Accent ---- */
+  --accent:            #1976d2;
+  --accent-blue:       #1976d2;
+  --accent-green:      #27ae60;
+  --accent-orange:     #e67e22;
+  --accent-red:        #c0392b;
+
+  /* ---- Buttons ---- */
+  --btn-primary-bg:    #1976d2;
+  --btn-primary-hover: #1565c0;
+  --btn-disabled-bg:   #bbb;
+  --btn-cancel-bg:     rgba(0, 0, 0, 0.06);
+  --btn-cancel-hover:  rgba(0, 0, 0, 0.12);
+  --btn-clear-bg:      rgba(0, 0, 0, 0.04);
+
+  /* ---- Dialog ---- */
+  --overlay-bg:        rgba(0, 0, 0, 0.3);
+  --dialog-bg:         #ffffff;
+  --dialog-border:     #ccc;
+
+  /* ---- Shadows ---- */
+  --shadow-panel:      0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-dialog:     0 12px 48px rgba(0, 0, 0, 0.2);
+  --shadow-debug:      0 4px 20px rgba(0, 0, 0, 0.12);
+
+  /* ---- Status ---- */
+  --status-idle:       #999;
+  --status-running:    #27ae60;
+  --status-paused:     #e67e22;
+  --status-waiting:    #1976d2;
+  --status-stopped:    #c0392b;
+
+  /* ---- Node fallback ---- */
+  --node-fallback-bg:    #95a5a6;
+  --node-fallback-border:#7f8c8d;
+
+  /* ---- Chat bubbles ---- */
+  --bubble-program-bg:   rgba(25, 118, 210, 0.08);
+  --bubble-program-border: rgba(25, 118, 210, 0.2);
+  --bubble-user-bg:      rgba(39, 174, 96, 0.08);
+  --bubble-user-border:  rgba(39, 174, 96, 0.2);
+  --bubble-system-bg:    rgba(0, 0, 0, 0.04);
+  --bubble-system-border:rgba(0, 0, 0, 0.06);
+
+  /* ---- VueFlow ---- */
+  --vf-pattern-color:   #999;
+
+  /* ---- Scrollbar ---- */
+  --scrollbar-thumb:    #ccc;
+
+  /* ---- Handle labels ("真"/"假"/"下一个") ---- */
+  --handle-label-color: #222;
+}

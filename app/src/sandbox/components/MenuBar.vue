@@ -211,6 +211,13 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
         </template>
       </div>
     </div>
+
+    <!-- Settings button (right-aligned) -->
+    <div class="menu-bar-right">
+      <button class="settings-btn" title="设置" @click.stop="emit('action', 'open-settings')">
+        ⚙
+      </button>
+    </div>
   </div>
 </template>
 
@@ -221,8 +228,8 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
   align-items: center;
   height: 32px;
   padding: 0 6px;
-  background: #16162a;
-  border-bottom: 1px solid #333;
+  background: var(--bg-menu);
+  border-bottom: 1px solid var(--border-color);
   user-select: none;
   flex-shrink: 0;
 }
@@ -240,15 +247,15 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
   cursor: pointer;
   border-radius: 4px;
   font-size: 13px;
-  color: #ccc;
+  color: var(--text-secondary);
   transition: background 0.1s, color 0.1s;
   white-space: nowrap;
 }
 
 .menu-top-label:hover,
 .menu-top.active .menu-top-label {
-  background: #333;
-  color: #fff;
+  background: var(--border-color);
+  color: var(--text-primary);
 }
 
 /* ---- Dropdown ---- */
@@ -258,8 +265,8 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
   left: 0;
   min-width: 180px;
   padding: 4px 0;
-  background: #1e1e32;
-  border: 1px solid #444;
+  background: var(--bg-dropdown);
+  border: 1px solid var(--border-medium);
   border-radius: 6px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
   z-index: 10000;
@@ -272,7 +279,7 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
   justify-content: space-between;
   padding: 6px 16px;
   font-size: 13px;
-  color: #ccc;
+  color: var(--text-secondary);
   cursor: pointer;
   white-space: nowrap;
   position: relative;
@@ -280,18 +287,18 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
 }
 
 .dropdown-item:hover:not(.disabled) {
-  background: #3a3a5c;
-  color: #fff;
+  background: var(--bg-menu-hover);
+  color: var(--text-primary);
 }
 
 .dropdown-item.disabled {
-  color: #555;
+  color: var(--text-nav-disabled);
   cursor: default;
 }
 
 .dropdown-item.has-submenu.submenu-open {
-  background: #3a3a5c;
-  color: #fff;
+  background: var(--bg-menu-hover);
+  color: var(--text-primary);
 }
 
 .dropdown-item-label {
@@ -300,26 +307,26 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
 
 .submenu-arrow {
   font-size: 9px;
-  color: #888;
+  color: var(--text-muted-2);
   margin-left: 16px;
 }
 
 .dropdown-item:hover .submenu-arrow {
-  color: #ccc;
+  color: var(--text-secondary);
 }
 
 /* ---- Divider ---- */
 .dropdown-divider {
   height: 1px;
   margin: 4px 12px;
-  background: #444;
+  background: var(--border-medium);
 }
 
 /* ---- Sublabel ("最近打开的文件") ---- */
 .dropdown-sublabel {
   padding: 4px 16px 2px;
   font-size: 11px;
-  color: #666;
+  color: var(--text-disabled);
   cursor: default;
 }
 
@@ -330,10 +337,35 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
   top: -4px;
   min-width: 120px;
   padding: 4px 0;
-  background: #1e1e32;
-  border: 1px solid #444;
+  background: var(--bg-dropdown);
+  border: 1px solid var(--border-medium);
   border-radius: 6px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
   z-index: 10001;
+}
+
+/* ---- Settings button ---- */
+.menu-bar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.settings-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.1s, color 0.1s;
+  line-height: 1;
+}
+
+.settings-btn:hover {
+  background: var(--bg-menu-hover);
+  color: var(--text-primary);
 }
 </style>
