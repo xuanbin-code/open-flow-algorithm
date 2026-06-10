@@ -326,6 +326,19 @@ function parseStatement(el: Element): Statement | null {
 }
 
 // ============================================================
+// Utility: split declare names
+// ============================================================
+
+/**
+ * 拆分 declare 语句的 name 属性为独立变量名列表。
+ * Flowgorithm 支持在一个 declare 中声明多个同类型变量，用逗号分隔。
+ * 例如 name="N, i, isPrime" → ["N", "i", "isPrime"]
+ */
+export function splitDeclareNames(name: string): string[] {
+  return name.split(',').map(s => s.trim()).filter(Boolean)
+}
+
+// ============================================================
 // Utility: render a Statement to a human-readable label
 // (用于 VueFlow 节点显示或其他调试场景)
 // ============================================================

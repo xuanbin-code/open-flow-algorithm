@@ -6,6 +6,7 @@
 // ============================================================
 
 import type { Program, Statement, IfStatement, WhileStatement, ForStatement } from './fprg-ast'
+import { splitDeclareNames } from './fprg-ast'
 import { evaluateExpression, coerceValue, defaultValueForType } from './expression-evaluator'
 
 // ============================================================
@@ -71,9 +72,12 @@ export function createInterpreter(program: Program): {
 function collectDeclarations(statements: Statement[], state: RuntimeState): void {
   for (const stmt of statements) {
     if (stmt.kind === 'declare') {
-      if (stmt.name && !(stmt.name in state.variables)) {
-        state.variableTypes[stmt.name] = stmt.type || 'Integer'
-        state.variables[stmt.name] = defaultValueForType(stmt.type || 'Integer')
+      const names = splitDeclareNames(stmt.name)
+      for (const name of names) {
+        if (name && !(name in state.variableTypes)) {
+          state.variableTypes[name] = stmt.type || 'Integer'
+          // 不在此处设置 state.variables —— 变量只在 declare 实际执行时才加入追踪
+        }
       }
     } else if (stmt.kind === 'if') {
       collectDeclarations(stmt.thenBranch, state)
@@ -192,11 +196,13 @@ async function* executeDeclare(
   stmt: Statement & { kind: 'declare' },
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
-  if (stmt.name) {
-    state.variableTypes[stmt.name] = stmt.type || 'Integer'
-    // 只在变量不存在时初始化默认值（避免重复声明覆盖已有值）
-    if (!(stmt.name in state.variables)) {
-      state.variables[stmt.name] = defaultValueForType(stmt.type || 'Integer')
+  const names = splitDeclareNames(stmt.name)
+  for (const name of names) {
+    if (name) {
+      state.variableTypes[name] = stmt.type || 'Integer'
+      if (!(name in state.variables)) {
+        state.variables[name] = defaultValueForType(stmt.type || 'Integer')
+      }
     }
   }
 }
