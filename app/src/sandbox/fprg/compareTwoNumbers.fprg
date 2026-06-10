@@ -11,8 +11,8 @@
         <body>
             <declare name="a, b" type="Integer" array="False" size=""/>
             <output expression="&quot;请输入两个整数：&quot;" newline="True"/>
-            <input variable="a"/>
-            <input variable="b"/>
+            <assign variable="a" expression="10"/>
+            <assign variable="b" expression="20"/>
             <if expression="a &gt; b">
                 <then>
                     <output expression="a &amp; &quot; 大于 &quot; &amp; b" newline="True"/>

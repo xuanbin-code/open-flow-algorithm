@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 
 interface IfNodeProps {
@@ -17,9 +17,17 @@ interface IfNodeProps {
 
 const props = withDefaults(defineProps<IfNodeProps>(), {
   selected: false,
-  dragging: false,
+  dragging: false
 })
-
+watch(
+  () => props.data,
+  () => {
+    if (props.data?.executing) {
+      console.log('executing', props.data.executing)
+    }
+  },
+  { deep: true }
+)
 const nodeWidth = computed(() => props.data?.width ?? 160)
 const nodeHeight = computed(() => props.data?.height ?? 80)
 const label = computed(() => props.data?.label ?? '')
@@ -33,9 +41,10 @@ const executing = computed(() => props.data?.executing ?? false)
     :class="{ selected, dragging, executing, 'is-empty': isEmpty }"
     :style="{
       width: nodeWidth + 'px',
-      height: nodeHeight + 'px',
+      height: nodeHeight + 'px'
     }"
   >
+    <div class="node-shape"></div>
     <Handle type="target" :position="Position.Top" />
     <span class="if-label">{{ label }}</span>
     <Handle id="else" type="source" :position="Position.Left" />
@@ -45,22 +54,32 @@ const executing = computed(() => props.data?.executing ?? false)
 
 <style scoped>
 .flow-node {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  border: 2px solid #e67e22;
+}
+
+/* 形状层：承载 clip-path / 背景 / 边框 / 阴影，避免裁剪 Handle 与执行光晕 */
+.node-shape {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
 }
 
-.if-node {
+.if-node .node-shape {
   background: #f39c12;
+  border: 2px solid #e67e22;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .if-label {
+  position: relative;
+  z-index: 1;
   max-width: 55%;
   text-align: center;
   white-space: nowrap;
@@ -68,12 +87,14 @@ const executing = computed(() => props.data?.executing ?? false)
   text-overflow: ellipsis;
 }
 
-.if-node.selected {
+.if-node.selected .node-shape {
   box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.5);
 }
 
 .if-node.executing {
   animation: exec-pulse 0.8s ease-in-out infinite alternate;
+}
+.if-node.executing .node-shape {
   border-color: #2ecc71 !important;
 }
 
@@ -88,7 +109,7 @@ const executing = computed(() => props.data?.executing ?? false)
 }
 
 @keyframes exec-pulse {
-  from { box-shadow: 0 0 8px rgba(46, 204, 113, 0.6), 0 0 16px rgba(46, 204, 113, 0.3); }
-  to   { box-shadow: 0 0 16px rgba(46, 204, 113, 0.9), 0 0 32px rgba(46, 204, 113, 0.5); }
+  from { filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.7)); }
+  to   { filter: drop-shadow(0 0 18px rgba(46, 204, 113, 1)); }
 }
 </style>

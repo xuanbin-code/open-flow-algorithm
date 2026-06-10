@@ -278,6 +278,7 @@ async function* executeIf(
   stmt: IfStatement,
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
+  console.log("Evaluating if condition:", stmt.expression);
   const cond = evaluateExpression(stmt.expression, state.variables)
   if (cond) {
     yield* executeBlock(stmt.thenBranch, state)

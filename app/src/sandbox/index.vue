@@ -148,7 +148,7 @@ watch(LP, () => {
   }, 30)
 })
 
-const { fitView, setViewport } = useVueFlow()
+const { fitView, setViewport, updateNodeData } = useVueFlow()
 
 // ============================================
 // 启动：尝试恢复上次文件
@@ -244,14 +244,25 @@ function syncSelectionState() {
   }
 }
 
-/** 同步 executingNodeIds Set → nodes 数组中对应节点的 executing 属性 */
+/** 记录上一次高亮的节点 ID 集合，用于增量更新 */
+const lastHighlightedIds = ref<Set<string>>(new Set())
+
+/** 同步 executingNodeIds Set → 节点 data.executing（增量更新，避免全量 setNodes 污染 VueFlow 内部状态） */
 function syncExecutionHighlight() {
   const activeSet = executingNodeIds.value
+  const prevSet = lastHighlightedIds.value
+
   for (const node of nodes.value) {
-    node.data.executing = activeSet.has(node.id)
+    const shouldBe = activeSet.has(node.id)
+    const was = prevSet.has(node.id)
+    if (shouldBe && !was) {
+      updateNodeData(node.id, { executing: true })
+    } else if (!shouldBe && was) {
+      updateNodeData(node.id, { executing: false })
+    }
   }
-  // 触发 VueFlow 重渲染
-  nodes.value = [...nodes.value]
+
+  lastHighlightedIds.value = new Set(activeSet)
 }
 
 // ============================================
@@ -270,6 +281,7 @@ function resetExecution() {
   chatMessages.value = []
   varEntries.value = []
   executingNodeIds.value.clear()
+  lastHighlightedIds.value.clear()
   previousNodeId.value = null
   interpreterRuntime = null
   interpreterGen = null
@@ -381,6 +393,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
               e => e.source === previousNodeId.value && e.target === event.nodeId,
             )
             if (edge) {
+              console.log('animating edge', edge)
               edge.animated = true
             }
           }

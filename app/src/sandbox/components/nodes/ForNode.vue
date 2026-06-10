@@ -36,6 +36,7 @@ const executing = computed(() => props.data?.executing ?? false)
       height: nodeHeight + 'px',
     }"
   >
+    <div class="node-shape"></div>
     <!-- 1. 顶部入口：接收上一条语句的连线 -->
     <Handle type="target" :position="Position.Top" />
 
@@ -54,22 +55,32 @@ const executing = computed(() => props.data?.executing ?? false)
 
 <style scoped>
 .flow-node {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-size: 13px;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  border: 2px solid #27ae60;
+}
+
+/* 形状层：承载 clip-path / 背景 / 边框 / 阴影，避免裁剪 Handle 与执行光晕 */
+.node-shape {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
 }
 
-.for-node {
+.for-node .node-shape {
   background: #2ecc71;
+  border: 2px solid #27ae60;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .for-label {
+  position: relative;
+  z-index: 1;
   max-width: 60%;
   text-align: center;
   white-space: nowrap;
@@ -77,12 +88,14 @@ const executing = computed(() => props.data?.executing ?? false)
   text-overflow: ellipsis;
 }
 
-.for-node.selected {
+.for-node.selected .node-shape {
   box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.5);
 }
 
 .for-node.executing {
   animation: exec-pulse 0.8s ease-in-out infinite alternate;
+}
+.for-node.executing .node-shape {
   border-color: #2ecc71 !important;
 }
 
@@ -97,8 +110,8 @@ const executing = computed(() => props.data?.executing ?? false)
 }
 
 @keyframes exec-pulse {
-  from { box-shadow: 0 0 8px rgba(46, 204, 113, 0.6), 0 0 16px rgba(46, 204, 113, 0.3); }
-  to   { box-shadow: 0 0 16px rgba(46, 204, 113, 0.9), 0 0 32px rgba(46, 204, 113, 0.5); }
+  from { filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.7)); }
+  to   { filter: drop-shadow(0 0 18px rgba(46, 204, 113, 1)); }
 }
 
 /* loop-back handle 偏移到 center-bottom source 右边 20px */
