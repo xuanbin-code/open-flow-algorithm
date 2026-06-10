@@ -71,7 +71,8 @@ const recentFiles = ref<RecentEntry[]>([])
 type ExecutionStatus = 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
 const executionStatus = ref<ExecutionStatus>('idle')
 const executionOutput = ref<string[]>([])
-const executingNodeId = ref<string | null>(null)
+/** 执行节点栈（Set）：支持嵌套语句（if/while/for）与内部语句同时高亮 */
+const executingNodeIds = ref<Set<string>>(new Set())
 const previousNodeId = ref<string | null>(null)
 const executionSpeed = ref<'slow' | 'normal' | 'fast'>('normal')
 const SPEED_DELAYS: Record<string, number> = { slow: 1000, normal: 300, fast: 50 }
@@ -243,10 +244,11 @@ function syncSelectionState() {
   }
 }
 
-/** 同步 executingNodeId → nodes 数组中对应节点的 executing 属性 */
+/** 同步 executingNodeIds Set → nodes 数组中对应节点的 executing 属性 */
 function syncExecutionHighlight() {
+  const activeSet = executingNodeIds.value
   for (const node of nodes.value) {
-    node.data.executing = node.id === executingNodeId.value
+    node.data.executing = activeSet.has(node.id)
   }
   // 触发 VueFlow 重渲染
   nodes.value = [...nodes.value]
@@ -267,7 +269,7 @@ function resetExecution() {
   executionOutput.value = []
   chatMessages.value = []
   varEntries.value = []
-  executingNodeId.value = null
+  executingNodeIds.value.clear()
   previousNodeId.value = null
   interpreterRuntime = null
   interpreterGen = null
@@ -370,7 +372,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
 
       switch (event.type) {
         case 'statement-enter': {
-          executingNodeId.value = event.nodeId
+          executingNodeIds.value.add(event.nodeId)
           syncExecutionHighlight()
 
           // 动画化从上一节点到当前节点的边
@@ -388,7 +390,8 @@ async function driveInterpreter(mode: 'run' | 'step') {
           break
         }
         case 'statement-leave': {
-          // 离开循环节点时不清除高亮（body 执行期间保持高亮）
+          executingNodeIds.value.delete(event.nodeId)
+          syncExecutionHighlight()
           break
         }
         case 'output': {
@@ -451,8 +454,8 @@ async function driveInterpreter(mode: 'run' | 'step') {
         executionStatus.value = 'running'
       }
 
-      // Step 模式：暂停等待下一次步进
-      if (mode === 'step') {
+      // Step 模式：暂停等待下一次步进（跳过 statement-leave，避免在节点间连接线处多停一步）
+      if (mode === 'step' && event.type !== 'statement-leave') {
         executionStatus.value = 'paused'
         syncVariables(interpreterRuntime)
         await new Promise<void>((resolve) => {
