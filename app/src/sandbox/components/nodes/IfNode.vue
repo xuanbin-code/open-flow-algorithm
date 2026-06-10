@@ -9,6 +9,7 @@ interface IfNodeProps {
     width?: number
     height?: number
     isEmpty?: boolean
+    executing?: boolean
   }
   selected?: boolean
   dragging?: boolean
@@ -23,12 +24,13 @@ const nodeWidth = computed(() => props.data?.width ?? 160)
 const nodeHeight = computed(() => props.data?.height ?? 80)
 const label = computed(() => props.data?.label ?? '')
 const isEmpty = computed(() => props.data?.isEmpty ?? false)
+const executing = computed(() => props.data?.executing ?? false)
 </script>
 
 <template>
   <div
     class="flow-node if-node"
-    :class="{ selected, dragging, 'is-empty': isEmpty }"
+    :class="{ selected, dragging, executing, 'is-empty': isEmpty }"
     :style="{
       width: nodeWidth + 'px',
       height: nodeHeight + 'px',
@@ -71,7 +73,7 @@ const isEmpty = computed(() => props.data?.isEmpty ?? false)
 }
 
 .if-node.executing {
-  box-shadow: 0 0 12px rgba(46, 204, 113, 0.8), 0 0 24px rgba(46, 204, 113, 0.4);
+  animation: exec-pulse 0.8s ease-in-out infinite alternate;
   border-color: #2ecc71 !important;
 }
 
@@ -83,5 +85,10 @@ const isEmpty = computed(() => props.data?.isEmpty ?? false)
 .if-node.is-empty {
   opacity: 0.6;
   filter: grayscale(0.7);
+}
+
+@keyframes exec-pulse {
+  from { box-shadow: 0 0 8px rgba(46, 204, 113, 0.6), 0 0 16px rgba(46, 204, 113, 0.3); }
+  to   { box-shadow: 0 0 16px rgba(46, 204, 113, 0.9), 0 0 32px rgba(46, 204, 113, 0.5); }
 }
 </style>

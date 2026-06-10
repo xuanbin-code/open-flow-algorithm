@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 
 interface MergeNodeProps {
   id: string
   data?: {
     isEmpty?: boolean
+    executing?: boolean
   }
   selected?: boolean
   dragging?: boolean
@@ -14,12 +16,14 @@ const props = withDefaults(defineProps<MergeNodeProps>(), {
   selected: false,
   dragging: false,
 })
+
+const executing = computed(() => props.data?.executing ?? false)
 </script>
 
 <template>
   <div
     class="flow-node merge-node"
-    :class="{ selected, dragging }"
+    :class="{ selected, dragging, executing }"
   >
     <Handle id="else-in" type="target" :position="Position.Left" />
     <Handle id="then-in" type="target" :position="Position.Right" />
@@ -45,12 +49,17 @@ const props = withDefaults(defineProps<MergeNodeProps>(), {
 }
 
 .merge-node.executing {
-  box-shadow: 0 0 12px rgba(46, 204, 113, 0.8), 0 0 24px rgba(46, 204, 113, 0.4);
+  animation: exec-pulse 0.8s ease-in-out infinite alternate;
   border-color: #2ecc71 !important;
 }
 
 .merge-node.dragging {
   opacity: 0.8;
   cursor: grabbing;
+}
+
+@keyframes exec-pulse {
+  from { box-shadow: 0 0 8px rgba(46, 204, 113, 0.6), 0 0 16px rgba(46, 204, 113, 0.3); }
+  to   { box-shadow: 0 0 16px rgba(46, 204, 113, 0.9), 0 0 32px rgba(46, 204, 113, 0.5); }
 }
 </style>

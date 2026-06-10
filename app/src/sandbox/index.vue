@@ -72,6 +72,7 @@ type ExecutionStatus = 'idle' | 'running' | 'paused' | 'waiting-input' | 'stoppe
 const executionStatus = ref<ExecutionStatus>('idle')
 const executionOutput = ref<string[]>([])
 const executingNodeId = ref<string | null>(null)
+const previousNodeId = ref<string | null>(null)
 const executionSpeed = ref<'slow' | 'normal' | 'fast'>('normal')
 const SPEED_DELAYS: Record<string, number> = { slow: 1000, normal: 300, fast: 50 }
 
@@ -245,17 +246,25 @@ function syncExecutionHighlight() {
 // 执行控制函数
 // ============================================
 
+function resetEdgeAnimation() {
+  for (const edge of edges.value) {
+    edge.animated = false
+  }
+}
+
 function resetExecution() {
   executionStatus.value = 'idle'
   executionOutput.value = []
   chatMessages.value = []
   varEntries.value = []
   executingNodeId.value = null
+  previousNodeId.value = null
   interpreterRuntime = null
   interpreterGen = null
   stepResolve = null
   inputResolve = null
   stopped = false
+  resetEdgeAnimation()
   syncExecutionHighlight()
 }
 
@@ -339,6 +348,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
   try {
     while (true) {
       if (stopped) {
+        resetEdgeAnimation()
         executionStatus.value = 'stopped'
         return
       }
@@ -352,6 +362,18 @@ async function driveInterpreter(mode: 'run' | 'step') {
         case 'statement-enter': {
           executingNodeId.value = event.nodeId
           syncExecutionHighlight()
+
+          // 动画化从上一节点到当前节点的边
+          if (previousNodeId.value) {
+            const edge = edges.value.find(
+              e => e.source === previousNodeId.value && e.target === event.nodeId,
+            )
+            if (edge) {
+              edge.animated = true
+            }
+          }
+          previousNodeId.value = event.nodeId
+
           syncVariables(interpreterRuntime)
           break
         }
@@ -371,6 +393,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
             inputResolve = resolve
           })
           if (stopped) {
+            resetEdgeAnimation()
             executionStatus.value = 'stopped'
             return
           }
@@ -382,6 +405,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         case 'error': {
           executionOutput.value = [...executionOutput.value, `[错误] ${event.message}`]
           chatMessages.value = [...chatMessages.value, { role: 'system', text: `错误: ${event.message}` }]
+          resetEdgeAnimation()
           executionStatus.value = 'stopped'
           showToast(`运行错误: ${event.message}`, 'error')
           syncExecutionHighlight()
@@ -390,6 +414,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         case 'done': {
           executionOutput.value = [...executionOutput.value, '—— 程序执行完毕 ——']
           chatMessages.value = [...chatMessages.value, { role: 'system', text: '程序执行完毕' }]
+          resetEdgeAnimation()
           executionStatus.value = 'idle'
           showToast('程序执行完毕', 'success')
           syncExecutionHighlight()
@@ -409,6 +434,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         })
         stepResolve = null
         if (stopped) {
+          resetEdgeAnimation()
           executionStatus.value = 'stopped'
           return
         }
@@ -424,6 +450,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         })
         stepResolve = null
         if (stopped) {
+          resetEdgeAnimation()
           executionStatus.value = 'stopped'
           return
         }
@@ -438,6 +465,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
     const msg = e instanceof Error ? e.message : String(e)
     executionOutput.value = [...executionOutput.value, `[异常] ${msg}`]
     chatMessages.value = [...chatMessages.value, { role: 'system', text: `异常: ${msg}` }]
+    resetEdgeAnimation()
     executionStatus.value = 'stopped'
     showToast(`运行异常: ${msg}`, 'error')
     syncExecutionHighlight()

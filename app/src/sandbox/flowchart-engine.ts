@@ -70,6 +70,7 @@ export interface FlowEdge {
   targetHandle?: string | null | undefined
   type?: string
   markerEnd?: EdgeMarkerType
+  animated?: boolean
 }
 
 export interface LayoutParams {
