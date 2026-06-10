@@ -14,7 +14,7 @@ const props = defineProps<{
   definitions: ParamDef[]
 }>()
 
-const collapsed = ref(false)
+const collapsed = ref(true)
 
 // 分组
 const groups = computed(() => {
