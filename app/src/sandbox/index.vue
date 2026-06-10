@@ -16,9 +16,8 @@ import ForNode from './components/nodes/ForNode.vue'
 import WhileNode from './components/nodes/WhileNode.vue'
 import InsertNodePanel from './components/panels/InsertNodePanel.vue'
 import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
-import ExecutionPanel from './components/panels/ExecutionPanel.vue'
-import type { VariableEntry } from './components/panels/ExecutionPanel.vue'
-import InputDialog from './components/panels/InputDialog.vue'
+import ExecutionConsole from './components/panels/ExecutionConsole.vue'
+import type { ChatMessage, VariableEntry } from './components/panels/ExecutionConsole.vue'
 import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
@@ -80,6 +79,9 @@ const isExecuting = computed(() => executionStatus.value !== 'idle')
 
 /** 变量列表（响应式，从 RuntimeState 同步） */
 const varEntries = ref<VariableEntry[]>([])
+
+/** 对话消息列表（程序输出 + 用户输入） */
+const chatMessages = ref<ChatMessage[]>([])
 
 // Interpreter 引用（非响应式）
 let interpreterRuntime: RuntimeState | null = null
@@ -245,6 +247,7 @@ function syncExecutionHighlight() {
 function resetExecution() {
   executionStatus.value = 'idle'
   executionOutput.value = []
+  chatMessages.value = []
   varEntries.value = []
   executingNodeId.value = null
   interpreterRuntime = null
@@ -346,6 +349,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         }
         case 'output': {
           executionOutput.value = [...executionOutput.value, event.text]
+          chatMessages.value = [...chatMessages.value, { role: 'program', text: event.text }]
           break
         }
         case 'input-request': {
@@ -365,6 +369,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         }
         case 'error': {
           executionOutput.value = [...executionOutput.value, `[错误] ${event.message}`]
+          chatMessages.value = [...chatMessages.value, { role: 'system', text: `错误: ${event.message}` }]
           executionStatus.value = 'stopped'
           showToast(`运行错误: ${event.message}`, 'error')
           syncExecutionHighlight()
@@ -372,6 +377,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         }
         case 'done': {
           executionOutput.value = [...executionOutput.value, '—— 程序执行完毕 ——']
+          chatMessages.value = [...chatMessages.value, { role: 'system', text: '程序执行完毕' }]
           executionStatus.value = 'idle'
           showToast('程序执行完毕', 'success')
           syncExecutionHighlight()
@@ -406,6 +412,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
     executionOutput.value = [...executionOutput.value, `[异常] ${msg}`]
+    chatMessages.value = [...chatMessages.value, { role: 'system', text: `异常: ${msg}` }]
     executionStatus.value = 'stopped'
     showToast(`运行异常: ${msg}`, 'error')
     syncExecutionHighlight()
@@ -413,6 +420,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
 }
 
 function onInputSubmit(value: string) {
+  chatMessages.value = [...chatMessages.value, { role: 'user', text: value }]
   inputResolve?.(value)
 }
 
@@ -423,6 +431,7 @@ function onInputCancel() {
 
 function clearOutput() {
   executionOutput.value = []
+  chatMessages.value = []
 }
 
 onMounted(async () => {
@@ -687,64 +696,69 @@ async function handleSaveAs() {
 <template>
   <div class="flowchart-sandbox">
     <MenuBar :recent-files="recentFiles" :execution-status="executionStatus" @action="onMenuAction" />
-    <div class="flow-container">
-      <VueFlow
-        :nodes="nodes"
-        :edges="edges"
-        :default-viewport="{ zoom: 1, x: 50, y: 20 }"
-        :min-zoom="0.1"
-        :max-zoom="4"
-        fit-view-on-init
-        @edge-click="onEdgeClick"
-        @node-click="onNodeClick"
-        @node-double-click="onNodeDblClick"
-        @pane-click="onPaneClick"
-      >
-        <Background pattern-color="#aaa" :gap="20" />
-        <Controls />
-        <template #node-start="nodeProps"
-          ><StartNode v-bind="nodeProps"
-        /></template>
-        <template #node-end="nodeProps"
-          ><EndNode v-bind="nodeProps"
-        /></template>
-        <template #node-default="nodeProps"
-          ><div class="default-node-fallback" :class="{ 'is-empty': nodeProps.data?.isEmpty }" :style="{ width: (nodeProps.data?.width ?? 120) + 'px', height: (nodeProps.data?.height ?? 50) + 'px' }">{{ nodeProps.data?.label ?? '' }}</div
-        /></template>
-        <template #node-declare="nodeProps"
-          ><DeclareNode v-bind="nodeProps"
-        /></template>
-        <template #node-assign="nodeProps"
-          ><AssignNode v-bind="nodeProps"
-        /></template>
-        <template #node-fg-input="nodeProps"
-          ><InputNode v-bind="nodeProps"
-        /></template>
-        <template #node-fg-output="nodeProps"
-          ><OutputNode v-bind="nodeProps"
-        /></template>
-        <template #node-fg-if="nodeProps"
-          ><IfNode v-bind="nodeProps"
-        /></template>
-        <template #node-fg-merge="nodeProps"
-          ><MergeNode v-bind="nodeProps"
-        /></template>
-        <template #node-fg-for="nodeProps"
-          ><ForNode v-bind="nodeProps"
-        /></template>
-        <template #node-fg-while="nodeProps"
-          ><WhileNode v-bind="nodeProps"
-        /></template>
-      </VueFlow>
+    <div class="main-area">
+      <div class="flow-container">
+        <VueFlow
+          :nodes="nodes"
+          :edges="edges"
+          :default-viewport="{ zoom: 1, x: 50, y: 20 }"
+          :min-zoom="0.1"
+          :max-zoom="4"
+          fit-view-on-init
+          @edge-click="onEdgeClick"
+          @node-click="onNodeClick"
+          @node-double-click="onNodeDblClick"
+          @pane-click="onPaneClick"
+        >
+          <Background pattern-color="#aaa" :gap="20" />
+          <Controls />
+          <template #node-start="nodeProps"
+            ><StartNode v-bind="nodeProps"
+          /></template>
+          <template #node-end="nodeProps"
+            ><EndNode v-bind="nodeProps"
+          /></template>
+          <template #node-default="nodeProps"
+            ><div class="default-node-fallback" :class="{ 'is-empty': nodeProps.data?.isEmpty }" :style="{ width: (nodeProps.data?.width ?? 120) + 'px', height: (nodeProps.data?.height ?? 50) + 'px' }">{{ nodeProps.data?.label ?? '' }}</div
+          /></template>
+          <template #node-declare="nodeProps"
+            ><DeclareNode v-bind="nodeProps"
+          /></template>
+          <template #node-assign="nodeProps"
+            ><AssignNode v-bind="nodeProps"
+          /></template>
+          <template #node-fg-input="nodeProps"
+            ><InputNode v-bind="nodeProps"
+          /></template>
+          <template #node-fg-output="nodeProps"
+            ><OutputNode v-bind="nodeProps"
+          /></template>
+          <template #node-fg-if="nodeProps"
+            ><IfNode v-bind="nodeProps"
+          /></template>
+          <template #node-fg-merge="nodeProps"
+            ><MergeNode v-bind="nodeProps"
+          /></template>
+          <template #node-fg-for="nodeProps"
+            ><ForNode v-bind="nodeProps"
+          /></template>
+          <template #node-fg-while="nodeProps"
+            ><WhileNode v-bind="nodeProps"
+          /></template>
+        </VueFlow>
+      </div>
+      <ExecutionConsole
+        class="execution-console"
+        :chat-messages="chatMessages"
+        :variables="varEntries"
+        :execution-status="executionStatus"
+        :variable-name="inputVariableName"
+        @clear="clearOutput"
+        @submit-input="onInputSubmit"
+        @cancel-input="onInputCancel"
+      />
     </div>
     <LayoutDebugPanel :params="LP" :definitions="PARAM_DEFS" />
-    <ExecutionPanel
-      :output="executionOutput"
-      :variables="varEntries"
-      :visible="true"
-      :execution-status="executionStatus"
-      @clear="clearOutput"
-    />
     <InsertNodePanel
       v-if="panelVisible"
       :position="panelPosition"
@@ -753,12 +767,6 @@ async function handleSaveAs() {
       @insert="onInsertNode"
       @update-property="onUpdateProperty"
       @close-editor="onCloseEditor"
-    />
-    <InputDialog
-      :visible="executionStatus === 'waiting-input'"
-      :variable-name="inputVariableName"
-      @submit="onInputSubmit"
-      @cancel="onInputCancel"
     />
     <!-- Toast 消息 -->
     <Transition name="toast-fade">
@@ -775,9 +783,19 @@ async function handleSaveAs() {
   flex-direction: column;
   background: #1a1a2e;
 }
+.main-area {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
 .flow-container {
   flex: 1;
-  width: 100%;
+  min-width: 0;
+}
+.execution-console {
+  width: 380px;
+  flex-shrink: 0;
+  border-left: 1px solid #2a2a3e;
 }
 </style>
 
