@@ -71,6 +71,8 @@ export interface FlowEdge {
   type?: string
   markerEnd?: EdgeMarkerType
   animated?: boolean
+  /** 边 inline 样式（如 stroke 颜色） */
+  style?: Record<string, string>
 }
 
 export interface LayoutParams {
@@ -289,19 +291,23 @@ export class FlowchartEngine {
   private connect(
     from: FlowNode,
     to: FlowNode,
-    opts?: { sourceHandle?: string | null; targetHandle?: string | null }
+    opts?: { sourceHandle?: string | null; targetHandle?: string | null; color?: string }
   ): void {
     const sh = opts?.sourceHandle
     const th = opts?.targetHandle
-    this.edges.push({
+    const edge: FlowEdge = {
       id: `edge_${from.id}_${to.id}${sh ? '_' + sh : ''}${th ? '_' + th : ''}`,
       source: from.id,
       target: to.id,
       sourceHandle: sh,
       targetHandle: th,
       type: sh || th ? 'step' : 'default',
-      markerEnd: { type: 'arrowclosed', color: 'context-stroke' } as EdgeMarkerType
-    })
+      markerEnd: { type: 'arrowclosed', color: 'context-stroke' } as EdgeMarkerType,
+    }
+    if (opts?.color) {
+      edge.style = { stroke: opts.color }
+    }
+    this.edges.push(edge)
   }
 
   /**
@@ -424,17 +430,19 @@ export class FlowchartEngine {
     fromNode: FlowNode,
     fromHandle: string,
     toNode: FlowNode,
-    toHandle: string
+    toHandle: string,
+    color?: string
   ): void {
     if (statements.length === 0) {
       this.connect(fromNode, toNode, {
         sourceHandle: fromHandle,
-        targetHandle: toHandle
+        targetHandle: toHandle,
+        color,
       })
       return
     }
     const [first, last] = this.processSequence(statements)
-    this.connect(fromNode, first, { sourceHandle: fromHandle })
+    this.connect(fromNode, first, { sourceHandle: fromHandle, color })
     this.connect(last, toNode, { targetHandle: toHandle })
   }
 
@@ -453,8 +461,8 @@ export class FlowchartEngine {
     const mergeNode = this.createNode('fg-merge', '', 20)
     mergeNode.data.ifNodeId = ifNode.id
 
-    this.processBranch(stmt.thenBranch, ifNode, 'then', mergeNode, 'then-in')
-    this.processBranch(stmt.elseBranch, ifNode, 'else', mergeNode, 'else-in')
+    this.processBranch(stmt.thenBranch, ifNode, 'then', mergeNode, 'then-in', '#27ae60')
+    this.processBranch(stmt.elseBranch, ifNode, 'else', mergeNode, 'else-in', '#e74c3c')
 
     return [ifNode, mergeNode]
   }

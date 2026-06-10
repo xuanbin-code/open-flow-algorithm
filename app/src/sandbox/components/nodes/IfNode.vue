@@ -45,7 +45,9 @@ const executing = computed(() => props.data?.executing ?? false)
     <Handle type="target" :position="Position.Top" />
     <span class="if-label">{{ label }}</span>
     <Handle id="else" type="source" :position="Position.Left" />
+    <span class="handle-tag else-tag">假</span>
     <Handle id="then" type="source" :position="Position.Right" />
+    <span class="handle-tag then-tag">真</span>
   </div>
 </template>
 
@@ -103,6 +105,28 @@ const executing = computed(() => props.data?.executing ?? false)
 .if-node.is-empty {
   opacity: 0.6;
   filter: grayscale(0.7);
+}
+
+/* handle 旁标签 */
+.handle-tag {
+  position: absolute;
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.then-tag {
+  color: #fff;
+  right: -4px;
+  top: 25%;
+  transform: translate(100%, -50%);
+}
+.else-tag {
+  color: #fff;
+  left: -4px;
+  top: 25%;
+  transform: translate(-100%, -50%);
 }
 
 @keyframes exec-pulse {

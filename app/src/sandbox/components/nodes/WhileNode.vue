@@ -55,6 +55,7 @@ watch(
 
     <!-- 4. 右侧居中：指向循环体内首节点 -->
     <Handle id="loop-body" type="source" :position="Position.Right" />
+    <span class="handle-tag body-tag">下一个</span>
 
     <span class="while-label">{{ label }}</span>
   </div>
@@ -124,5 +125,21 @@ watch(
 /* loop-back handle 偏移到 center-bottom source 右边 20px */
 :deep(.handle-loop-back) {
   left: calc(50% + 20px) !important;
+}
+
+/* handle 旁标签 */
+.handle-tag {
+  position: absolute;
+  z-index: 2;
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.body-tag {
+  color: #fff;
+  right: -4px;
+  top: 20%;
+  transform: translate(100%, -50%);
 }
 </style>
