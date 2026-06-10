@@ -22,6 +22,7 @@ import ExecutionToolbar from './components/panels/ExecutionToolbar.vue'
 import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
+import '@vue-flow/controls/dist/style.css'
 
 import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, type Program, type Statement } from './fprg-ast'
 import { open, save } from '@tauri-apps/plugin-dialog'
