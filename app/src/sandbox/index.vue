@@ -247,7 +247,9 @@ function syncSelectionState() {
 /** 记录上一次高亮的节点 ID 集合，用于增量更新 */
 const lastHighlightedIds = ref<Set<string>>(new Set())
 
-/** 同步 executingNodeIds Set → 节点 data.executing（增量更新，避免全量 setNodes 污染 VueFlow 内部状态） */
+/** 同步 executingNodeIds Set → 节点 data.executing（增量更新，避免全量 setNodes 污染 VueFlow 内部状态）
+ *  使用 lastHighlightedIds 对比避免重复调用 updateNodeData（重复调用会导致 CSS animation 重启造成闪烁）
+ *  节点取消高亮由 statement-leave 事件处理程序中显式调用 updateNodeData 保证可靠性 */
 function syncExecutionHighlight() {
   const activeSet = executingNodeIds.value
   const prevSet = lastHighlightedIds.value
@@ -256,14 +258,11 @@ function syncExecutionHighlight() {
     const shouldBe = activeSet.has(node.id)
     const was = prevSet.has(node.id)
     if (shouldBe && !was) {
-      console.log(`[syncExec] ACTIVATE node=${node.id} dataBefore=`, node.data?.executing)
       updateNodeData(node.id, { executing: true })
-      console.log(`[syncExec] ACTIVATE node=${node.id} dataAfter=`, node.data?.executing)
-    } else if (!shouldBe && was) {
-      console.log(`[syncExec] DEACTIVATE node=${node.id} dataBefore=`, node.data?.executing)
-      updateNodeData(node.id, { executing: false })
-      console.log(`[syncExec] DEACTIVATE node=${node.id} dataAfter=`, node.data?.executing)
     }
+    // 注意：取消高亮不在 syncExecutionHighlight 中处理
+    // 由 statement-leave 事件处理程序显式调用 updateNodeData(..., false)
+    // 避免因 lastHighlightedIds 与实际状态漂移导致高亮残留
   }
 
   lastHighlightedIds.value = new Set(activeSet)
@@ -284,8 +283,17 @@ function resetExecution() {
   executionOutput.value = []
   chatMessages.value = []
   varEntries.value = []
+
+  // 基于旧 lastHighlightedIds 显式取消所有高亮，避免 clear 后节点 data.executing 残留
+  const prevSet = lastHighlightedIds.value
+  for (const node of nodes.value) {
+    if (prevSet.has(node.id)) {
+      updateNodeData(node.id, { executing: false })
+    }
+  }
   executingNodeIds.value.clear()
   lastHighlightedIds.value.clear()
+
   previousNodeId.value = null
   interpreterRuntime = null
   interpreterGen = null
@@ -293,7 +301,6 @@ function resetExecution() {
   inputResolve = null
   stopped = false
   resetEdgeAnimation()
-  syncExecutionHighlight()
 }
 
 async function startExecution() {
@@ -409,6 +416,9 @@ async function driveInterpreter(mode: 'run' | 'step') {
         case 'statement-leave': {
           console.log(`[eventLoop] statement-leave nodeId=${event.nodeId}`)
           executingNodeIds.value.delete(event.nodeId)
+          // 显式取消高亮：直接调用 updateNodeData 而非依赖 syncExecutionHighlight 的 lastHighlightedIds 对比
+          // 避免 lastHighlightedIds 与 VueFlow 内部状态漂移导致节点样式残留
+          updateNodeData(event.nodeId, { executing: false })
           syncExecutionHighlight()
           break
         }

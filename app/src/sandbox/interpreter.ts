@@ -140,8 +140,12 @@ async function* executeStatement(
   state.currentStatement = stmt
   state.currentNodeId = nodeId ?? null
 
-  // 进入语句
-  if (nodeId) {
+  // 复合语句（if/while/for/do）不在 executeStatement 层面包裹 enter/leave
+  // 由各自的执行器在条件求值阶段自行发出，使得父节点仅在"做判断"时高亮
+  const isCompound = stmt.kind === 'if' || stmt.kind === 'while' || stmt.kind === 'for' || stmt.kind === 'do'
+
+  // 进入语句（仅叶子语句在此发出 enter）
+  if (nodeId && !isCompound) {
     yield { type: 'statement-enter', statement: stmt, nodeId }
   }
 
@@ -179,8 +183,8 @@ async function* executeStatement(
         break
     }
   } finally {
-    // 离开语句（即使出错也发出 leave 事件，让 UI 取消高亮）
-    if (nodeId) {
+    // 离开语句（仅叶子语句在此发出 leave）
+    if (nodeId && !isCompound) {
       yield { type: 'statement-leave', statement: stmt, nodeId }
     }
     state.currentStatement = null
@@ -278,8 +282,23 @@ async function* executeIf(
   stmt: IfStatement,
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
-  console.log("Evaluating if condition:", stmt.expression);
+  const nodeId = (stmt as any)._nodeId as string | undefined
+
+  // 仅在条件求值时高亮 if 节点
+  if (nodeId) {
+    state.currentStatement = stmt
+    state.currentNodeId = nodeId
+    yield { type: 'statement-enter', statement: stmt, nodeId }
+  }
+
   const cond = evaluateExpression(stmt.expression, state.variables)
+
+  if (nodeId) {
+    yield { type: 'statement-leave', statement: stmt, nodeId }
+    state.currentStatement = null
+    state.currentNodeId = null
+  }
+
   if (cond) {
     yield* executeBlock(stmt.thenBranch, state)
   } else {
@@ -291,13 +310,29 @@ async function* executeWhile(
   stmt: WhileStatement,
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
+  const nodeId = (stmt as any)._nodeId as string | undefined
   let iterations = 0
   while (true) {
     if (++iterations > MAX_ITERATIONS) {
       yield { type: 'error', message: `while 循环超过最大迭代次数 (${MAX_ITERATIONS})，可能存在死循环`, statement: stmt }
       return
     }
+
+    // 每次循环条件求值时高亮 while 节点
+    if (nodeId) {
+      state.currentStatement = stmt
+      state.currentNodeId = nodeId
+      yield { type: 'statement-enter', statement: stmt, nodeId }
+    }
+
     const cond = evaluateExpression(stmt.expression, state.variables)
+
+    if (nodeId) {
+      yield { type: 'statement-leave', statement: stmt, nodeId }
+      state.currentStatement = null
+      state.currentNodeId = null
+    }
+
     if (!cond) break
     yield* executeBlock(stmt.body, state)
   }
@@ -307,6 +342,7 @@ async function* executeFor(
   stmt: ForStatement,
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
+  const nodeId = (stmt as any)._nodeId as string | undefined
   // 初始化循环变量
   const varName = stmt.variable
   if (!varName) return
@@ -330,7 +366,23 @@ async function* executeFor(
     }
 
     const current = Number(state.variables[varName])
-    if (step > 0 ? current > end : current < end) break
+
+    // 每次迭代条件判断时高亮 for 节点
+    if (nodeId) {
+      state.currentStatement = stmt
+      state.currentNodeId = nodeId
+      yield { type: 'statement-enter', statement: stmt, nodeId }
+    }
+
+    const shouldBreak = step > 0 ? current > end : current < end
+
+    if (nodeId) {
+      yield { type: 'statement-leave', statement: stmt, nodeId }
+      state.currentStatement = null
+      state.currentNodeId = null
+    }
+
+    if (shouldBreak) break
 
     yield* executeBlock(stmt.body, state)
 
@@ -343,6 +395,7 @@ async function* executeDo(
   stmt: Statement & { kind: 'do' },
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
+  const nodeId = (stmt as any)._nodeId as string | undefined
   let iterations = 0
   do {
     if (++iterations > MAX_ITERATIONS) {
@@ -350,7 +403,22 @@ async function* executeDo(
       return
     }
     yield* executeBlock(stmt.body, state)
+
+    // do-while 在 body 执行后才做条件判断
+    if (nodeId) {
+      state.currentStatement = stmt
+      state.currentNodeId = nodeId
+      yield { type: 'statement-enter', statement: stmt, nodeId }
+    }
+
     const cond = evaluateExpression(stmt.expression, state.variables)
+
+    if (nodeId) {
+      yield { type: 'statement-leave', statement: stmt, nodeId }
+      state.currentStatement = null
+      state.currentNodeId = null
+    }
+
     if (!cond) break
   } while (true)
 }
