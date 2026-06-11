@@ -43,6 +43,24 @@ const emit = defineEmits<{
 
 const isEditing = computed(() => !!props.editingStatement)
 
+const KIND_LABELS: Record<string, string> = {
+  declare: '声明',
+  assign: '赋值',
+  input: '输入',
+  output: '输出',
+  call: '函数调用',
+  if: '判断',
+  while: 'while 循环',
+  for: 'for 循环',
+  do: 'do 循环',
+  more: '占位',
+}
+
+const editTitle = computed(() => {
+  if (!props.editingStatement) return '编辑属性'
+  return KIND_LABELS[props.editingStatement.kind] ?? props.editingStatement.kind
+})
+
 // ============================================================
 // Draggable state
 // ============================================================
@@ -155,7 +173,7 @@ function labelStyle(n: InsertableNode): Record<string, string> {
       <!-- Header (drag handle) -->
       <div class="panel-header" @mousedown="onDragStart">
         <span class="drag-icon">⠿</span>
-        <span class="panel-title">{{ isEditing ? '编辑属性' : '插入节点' }}</span>
+        <span class="panel-title">{{ isEditing ? editTitle : '插入节点' }}</span>
         <button class="close-btn" @click="isEditing ? emit('close-editor') : emit('close')">✕</button>
       </div>
 
