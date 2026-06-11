@@ -8,6 +8,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   executionStatus: 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
   executionSpeed: 'slow' | 'normal' | 'fast'
+  showVariableMonitor: boolean
 }>()
 
 const emit = defineEmits<{
@@ -17,6 +18,7 @@ const emit = defineEmits<{
   resume: []
   stop: []
   setSpeed: [speed: 'slow' | 'normal' | 'fast']
+  toggleVariableMonitor: []
 }>()
 
 // ============================================================
@@ -144,6 +146,17 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
         {{ s.label }}
       </button>
     </div>
+
+    <div class="tb-sep" />
+
+    <!-- Variable monitor toggle -->
+    <button
+      class="tb-btn"
+      :title="showVariableMonitor ? '隐藏变量监视' : '显示变量监视'"
+      @click="emit('toggleVariableMonitor')"
+    >
+      <span>{{ showVariableMonitor ? '📊 变量' : '📊' }}</span>
+    </button>
   </div>
 </template>
 

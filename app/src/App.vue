@@ -17,7 +17,9 @@ import WhileNode from './components/nodes/WhileNode.vue'
 import InsertNodePanel from './components/panels/InsertNodePanel.vue'
 import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
 import ExecutionConsole from './components/panels/ExecutionConsole.vue'
-import type { ChatMessage, VariableEntry } from './components/panels/ExecutionConsole.vue'
+import type { ChatMessage } from './components/panels/ExecutionConsole.vue'
+import VariableMonitor from './components/panels/VariableMonitor.vue'
+import type { VariableEntry } from './components/panels/VariableMonitor.vue'
 import ExecutionToolbar from './components/panels/ExecutionToolbar.vue'
 import SettingsDialog from './components/SettingsDialog.vue'
 import MenuBar from './components/MenuBar.vue'
@@ -95,6 +97,9 @@ const isExecuting = computed(() => executionStatus.value !== 'idle')
 
 /** 变量列表（响应式，从 RuntimeState 同步） */
 const varEntries = ref<VariableEntry[]>([])
+
+/** 变量监视面板是否可见 */
+const showVariableMonitor = ref(true)
 
 /** 对话消息列表（程序输出 + 用户输入） */
 const chatMessages = ref<ChatMessage[]>([])
@@ -860,12 +865,14 @@ async function handleSaveAs() {
     <ExecutionToolbar
       :execution-status="executionStatus"
       :execution-speed="executionSpeed"
+      :show-variable-monitor="showVariableMonitor"
       @run="startExecution"
       @step="stepExecution"
       @pause="pauseExecution"
       @resume="resumeExecution"
       @stop="stopExecution"
       @set-speed="setExecutionSpeed"
+      @toggle-variable-monitor="showVariableMonitor = !showVariableMonitor"
     />
     <div class="main-area">
       <div class="flow-container">
@@ -921,7 +928,6 @@ async function handleSaveAs() {
       <ExecutionConsole
         class="execution-console"
         :chat-messages="chatMessages"
-        :variables="varEntries"
         :execution-status="executionStatus"
         :variable-name="inputVariableName"
         @clear="clearOutput"
@@ -930,6 +936,11 @@ async function handleSaveAs() {
         @highlight-node="onHighlightNode"
       />
     </div>
+    <VariableMonitor
+      :variables="varEntries"
+      :visible="showVariableMonitor"
+      @close="showVariableMonitor = false"
+    />
     <LayoutDebugPanel :params="LP" :definitions="PARAM_DEFS" v-model:vp-zoom="vpZoom" v-model:vp-x="vpX" v-model:vp-y="vpY" />
     <InsertNodePanel
       v-if="panelVisible"

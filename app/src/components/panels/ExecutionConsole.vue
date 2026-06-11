@@ -5,12 +5,6 @@ import { ref, watch, nextTick } from 'vue'
 // Types
 // ============================================================
 
-export interface VariableEntry {
-  name: string
-  type: string
-  value: unknown
-}
-
 export interface ChatMessage {
   role: 'program' | 'user' | 'system'
   text: string
@@ -23,7 +17,6 @@ export interface ChatMessage {
 
 const props = defineProps<{
   chatMessages: ChatMessage[]
-  variables: VariableEntry[]
   executionStatus: 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
   variableName: string
 }>()
@@ -112,26 +105,6 @@ const STATUS_COLORS: Record<string, string> = {
   stopped: '#e74c3c',
 }
 
-// ============================================================
-// Value display
-// ============================================================
-
-function displayValue(value: unknown): string {
-  if (value === null || value === undefined) return '—'
-  if (typeof value === 'boolean') return value ? '真' : '假'
-  if (typeof value === 'number') return Number.isInteger(value) ? String(value) : String(value)
-  return String(value)
-}
-
-function typeLabel(type: string): string {
-  const map: Record<string, string> = {
-    Integer: '整数',
-    Real: '实数',
-    String: '字符串',
-    Boolean: '布尔',
-  }
-  return map[type] ?? type
-}
 </script>
 
 <template>
@@ -145,34 +118,7 @@ function typeLabel(type: string): string {
       <button class="clear-btn" title="清空" @click="emit('clear')">清空</button>
     </div>
 
-    <!-- Variable monitor (top) -->
-    <div class="vars-section">
-      <div class="section-label">变量监视</div>
-      <div class="vars-scroll">
-        <table v-if="variables.length > 0" class="vars-table">
-          <thead>
-            <tr>
-              <th>变量</th>
-              <th>类型</th>
-              <th>值</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="v in variables" :key="v.name">
-              <td class="var-name">{{ v.name }}</td>
-              <td class="var-type">{{ typeLabel(v.type) }}</td>
-              <td class="var-value">{{ displayValue(v.value) }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div v-else class="empty-hint">暂无变量</div>
-      </div>
-    </div>
-
-    <!-- Divider -->
-    <div class="section-divider" />
-
-    <!-- Chat dialogue (bottom) -->
+    <!-- Chat dialogue -->
     <div class="chat-section">
       <div class="section-label">对话</div>
       <div ref="chatEl" class="chat-messages">
@@ -264,72 +210,6 @@ function typeLabel(type: string): string {
 .clear-btn:hover {
   background: var(--bg-hover-strong);
   color: #ddd;
-}
-
-/* ---- Section common ---- */
-.section-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-disabled);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 6px 12px 4px;
-  flex-shrink: 0;
-}
-
-/* ---- Variable monitor ---- */
-.vars-section {
-  display: flex;
-  flex-direction: column;
-  flex: 0 0 auto;
-  max-height: 38%;
-  overflow: hidden;
-}
-.vars-scroll {
-  overflow-y: auto;
-  flex: 1;
-  padding: 0 8px 4px;
-}
-.vars-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11px;
-}
-.vars-table th {
-  text-align: left;
-  padding: 3px 6px;
-  color: var(--text-muted-3);
-  font-weight: 500;
-  border-bottom: 1px solid var(--border-soft);
-  position: sticky;
-  top: 0;
-  background: var(--bg-panel);
-}
-.vars-table td {
-  padding: 2px 6px;
-  border-bottom: 1px solid var(--border-table);
-}
-.var-name {
-  color: var(--accent);
-  font-weight: 600;
-}
-.var-type {
-  color: var(--text-muted-2);
-}
-.var-value {
-  color: var(--accent-green);
-  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ---- Section divider ---- */
-.section-divider {
-  height: 1px;
-  background: var(--border-soft);
-  flex-shrink: 0;
 }
 
 /* ---- Chat section ---- */
