@@ -12,7 +12,8 @@
       "Bash(node -e \"const p = require\\('@tauri-apps/api/package.json'\\); console.log\\('version:', p.version\\)\")",
       "Bash(pnpm add *)",
       "Bash(pnpm build *)",
-      "Bash(pnpm vue-tsc *)"
+      "Bash(pnpm vue-tsc *)",
+      "Bash(git add *)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useSettings } from '../composables/useSettings'
+import { ACCENT_PRESETS } from '../utils/color-palette'
 
 // ============================================================
 // Props & Emits
@@ -19,6 +20,37 @@ const emit = defineEmits<{
 // ============================================================
 
 const { settings } = useSettings()
+
+// ============================================================
+// Accent color state
+// ============================================================
+
+/** 当前选中的预设 id（若是自定义颜色则为 null） */
+const activePresetId = computed(() => {
+  const val = settings.value.accentColor
+  if (val.startsWith('#')) return null
+  return val
+})
+
+/** 自定义颜色的 hex 值 */
+const customColorHex = computed({
+  get: () => {
+    const val = settings.value.accentColor
+    return val.startsWith('#') ? val : '#4fc3f7'
+  },
+  set: (hex: string) => {
+    settings.value.accentColor = hex
+  },
+})
+
+function selectPreset(presetId: string) {
+  settings.value.accentColor = presetId
+}
+
+function onCustomColorChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  settings.value.accentColor = input.value
+}
 
 // ============================================================
 // Theme toggle
@@ -68,24 +100,47 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
             </div>
           </div>
 
-          <!-- 2. Theme color (placeholder) -->
-          <div class="setting-row">
+          <!-- 2. Theme color -->
+          <div class="setting-row setting-row-top">
             <div class="setting-info">
               <span class="setting-label">主题色</span>
               <span class="setting-desc">自定义强调色</span>
             </div>
+            <div class="setting-control" />
+          </div>
+          <!-- Preset swatches -->
+          <div class="accent-presets">
+            <button
+              v-for="preset in ACCENT_PRESETS"
+              :key="preset.id"
+              class="accent-preset-btn"
+              :class="{ active: activePresetId === preset.id }"
+              :title="preset.name"
+              @click="selectPreset(preset.id)"
+            >
+              <span class="accent-swatch" :style="{ background: preset.dark }">
+                <span v-if="activePresetId === preset.id" class="accent-check">✓</span>
+              </span>
+              <span class="accent-name">{{ preset.name }}</span>
+            </button>
+          </div>
+          <!-- Custom color -->
+          <div class="setting-row accent-custom-row">
+            <div class="setting-info">
+              <span class="setting-label">自定义颜色</span>
+            </div>
             <div class="setting-control">
-              <div class="color-swatches">
-                <span class="swatch active" style="background: #4fc3f7"></span>
-                <span class="swatch" style="background: #2ecc71; opacity: 0.4"></span>
-                <span class="swatch" style="background: #e74c3c; opacity: 0.4"></span>
-                <span class="swatch" style="background: #f39c12; opacity: 0.4"></span>
-              </div>
-              <span class="coming-soon-tag">即将推出</span>
+              <input
+                type="color"
+                class="custom-color-input"
+                :value="customColorHex"
+                @input="onCustomColorChange"
+              />
+              <span class="custom-hex-label">{{ customColorHex }}</span>
             </div>
           </div>
 
-          <!-- 3. Dark/Light toggle (functional) -->
+          <!-- 3. Dark/Light toggle -->
           <div class="setting-row">
             <div class="setting-info">
               <span class="setting-label">深色 / 浅色模式</span>
@@ -179,10 +234,9 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  border-bottom: 1px solid var(--border-soft);
 }
-.setting-row:last-child {
-  border-bottom: none;
+.setting-row-top {
+  padding-bottom: 4px;
 }
 
 .setting-info {
@@ -226,32 +280,108 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 /* ---- Coming soon tag ---- */
 .coming-soon-tag {
   font-size: 10px;
-  color: var(--accent);
-  background: rgba(79, 195, 247, 0.1);
-  border: 1px solid rgba(79, 195, 247, 0.25);
+  color: var(--accent, #4fc3f7);
+  background: color-mix(in srgb, var(--accent, #4fc3f7) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, #4fc3f7) 25%, transparent);
   border-radius: 4px;
   padding: 1px 8px;
   white-space: nowrap;
   font-weight: 500;
 }
 
-/* ---- Color swatches ---- */
-.color-swatches {
+/* ---- Accent presets ---- */
+.accent-presets {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
+  padding: 0 20px 4px;
 }
 
-.swatch {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 2px solid transparent;
+.accent-preset-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
   cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.accent-preset-btn:hover {
+  background: var(--bg-hover);
+}
+
+.accent-preset-btn.active {
+  background: var(--bg-hover-strong);
+}
+
+.accent-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
   transition: border-color 0.15s, transform 0.15s;
 }
-.swatch.active {
+
+.accent-preset-btn.active .accent-swatch {
   border-color: var(--text-primary);
-  transform: scale(1.1);
+  transform: scale(1.12);
+}
+
+.accent-check {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  line-height: 1;
+}
+
+.accent-name {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.accent-preset-btn.active .accent-name {
+  color: var(--text-primary);
+}
+
+/* ---- Custom color row ---- */
+.accent-custom-row {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.custom-color-input {
+  width: 32px;
+  height: 28px;
+  border: 1px solid var(--border-medium);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 2px;
+  background: none;
+}
+
+.custom-color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.custom-color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+.custom-hex-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-weight: 500;
 }
 
 /* ---- Theme toggle button ---- */
@@ -271,7 +401,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 }
 .theme-toggle-btn:hover {
   background: var(--btn-cancel-hover);
-  border-color: var(--accent);
+  border-color: var(--accent, #4fc3f7);
 }
 
 .theme-icon {
@@ -322,11 +452,11 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 }
 
 .dialog-btn-close {
-  background: var(--btn-primary-bg);
+  background: var(--btn-primary-bg, #3498db);
   color: #fff;
 }
 .dialog-btn-close:hover {
-  background: var(--btn-primary-hover);
+  background: var(--btn-primary-hover, #2980b9);
 }
 
 /* ---- Transition ---- */

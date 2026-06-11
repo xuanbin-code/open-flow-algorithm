@@ -24,7 +24,6 @@
   --bg-menu-hover:     #3a3a5c;
   --bg-toggle-btn:     #3a3a5c;
   --bg-toggle-btn-hover: #555;
-  --bg-speed-active:   rgba(52, 152, 219, 0.2);
 
   /* ---- Text ---- */
   --text-primary:      #eee;
@@ -45,16 +44,12 @@
   --border-strong:     #555;
   --border-table:      #1e1e36;
 
-  /* ---- Accent ---- */
-  --accent:            #4fc3f7;
-  --accent-blue:       #3498db;
+  /* ---- Semantic accents (不变) ---- */
   --accent-green:      #2ecc71;
   --accent-orange:     #f39c12;
   --accent-red:        #e74c3c;
 
-  /* ---- Buttons ---- */
-  --btn-primary-bg:    #3498db;
-  --btn-primary-hover: #2980b9;
+  /* ---- Buttons (structual, not accent-driven) ---- */
   --btn-disabled-bg:   #555;
   --btn-cancel-bg:     rgba(255, 255, 255, 0.08);
   --btn-cancel-hover:  rgba(255, 255, 255, 0.15);
@@ -81,9 +76,7 @@
   --node-fallback-bg:    #7f8c8d;
   --node-fallback-border:#6c7a7a;
 
-  /* ---- Chat bubbles ---- */
-  --bubble-program-bg:   rgba(52, 152, 219, 0.15);
-  --bubble-program-border: rgba(52, 152, 219, 0.3);
+  /* ---- User / System bubbles (不变) ---- */
   --bubble-user-bg:      rgba(46, 204, 113, 0.12);
   --bubble-user-border:  rgba(46, 204, 113, 0.25);
   --bubble-system-bg:    rgba(255, 255, 255, 0.05);
@@ -119,7 +112,6 @@
   --bg-menu-hover:     #d0d0e0;
   --bg-toggle-btn:     #d0d0e0;
   --bg-toggle-btn-hover: #c0c0d0;
-  --bg-speed-active:   rgba(25, 118, 210, 0.12);
 
   /* ---- Text ---- */
   --text-primary:      #222;
@@ -140,16 +132,12 @@
   --border-strong:     #aaa;
   --border-table:      #e0e0e8;
 
-  /* ---- Accent ---- */
-  --accent:            #1976d2;
-  --accent-blue:       #1976d2;
+  /* ---- Semantic accents (不变) ---- */
   --accent-green:      #27ae60;
   --accent-orange:     #e67e22;
   --accent-red:        #c0392b;
 
-  /* ---- Buttons ---- */
-  --btn-primary-bg:    #1976d2;
-  --btn-primary-hover: #1565c0;
+  /* ---- Buttons (structual, not accent-driven) ---- */
   --btn-disabled-bg:   #bbb;
   --btn-cancel-bg:     rgba(0, 0, 0, 0.06);
   --btn-cancel-hover:  rgba(0, 0, 0, 0.12);
@@ -176,9 +164,7 @@
   --node-fallback-bg:    #95a5a6;
   --node-fallback-border:#7f8c8d;
 
-  /* ---- Chat bubbles ---- */
-  --bubble-program-bg:   rgba(25, 118, 210, 0.08);
-  --bubble-program-border: rgba(25, 118, 210, 0.2);
+  /* ---- User / System bubbles (不变) ---- */
   --bubble-user-bg:      rgba(39, 174, 96, 0.08);
   --bubble-user-border:  rgba(39, 174, 96, 0.2);
   --bubble-system-bg:    rgba(0, 0, 0, 0.04);

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useSettings } from '../composables/useSettings'
 
 // ============================================================
 // Types
@@ -142,6 +143,16 @@ function onClose() {
 }
 
 // ============================================================
+// Theme toggle
+// ============================================================
+
+const { settings } = useSettings()
+
+function toggleTheme() {
+  settings.value.theme = settings.value.theme === 'dark' ? 'light' : 'dark'
+}
+
+// ============================================================
 // Click outside → close
 // ============================================================
 
@@ -212,8 +223,15 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
       </div>
     </div>
 
-    <!-- Settings button (right-aligned) -->
+    <!-- Right-aligned buttons -->
     <div class="menu-bar-right">
+      <button
+        class="theme-toggle-btn"
+        :title="settings.theme === 'dark' ? '切换浅色模式' : '切换深色模式'"
+        @click.stop="toggleTheme"
+      >
+        {{ settings.theme === 'dark' ? '☀️' : '🌙' }}
+      </button>
       <button class="settings-btn" title="设置" @click.stop="emit('action', 'open-settings')">
         ⚙
       </button>
@@ -342,6 +360,22 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
   border-radius: 6px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
   z-index: 10001;
+}
+
+/* ---- Theme toggle button ---- */
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.1s;
+  line-height: 1;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--bg-menu-hover);
 }
 
 /* ---- Settings button ---- */
