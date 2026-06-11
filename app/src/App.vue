@@ -93,7 +93,7 @@ watch([vpZoom, vpX, vpY], () => {
 })
 
 /** 是否正在执行中（禁用编辑操作） */
-const isExecuting = computed(() => executionStatus.value !== 'idle')
+const isExecuting = computed(() => executionStatus.value !== 'idle' && executionStatus.value !== 'stopped')
 
 /** 变量列表（响应式，从 RuntimeState 同步） */
 const varEntries = ref<VariableEntry[]>([])
@@ -374,8 +374,8 @@ async function startExecution() {
 }
 
 async function stepExecution() {
-  if (executionStatus.value === 'idle') {
-    // 首次步进：初始化解释器
+  if (executionStatus.value === 'idle' || executionStatus.value === 'stopped') {
+    // 首次步进（或终止后重新步进）：初始化解释器
     resetExecution()
 
     const { state, generator } = createInterpreter(program.value)
@@ -407,6 +407,17 @@ function stopExecution() {
   if (interpreterRuntime) {
     abortExecution(interpreterRuntime)
   }
+
+  // 清除执行高亮
+  const prevSet = lastHighlightedIds.value
+  for (const node of nodes.value) {
+    if (prevSet.has(node.id)) {
+      updateNodeData(node.id, { executing: false })
+    }
+  }
+  executingNodeIds.value.clear()
+  lastHighlightedIds.value.clear()
+  resetEdgeAnimation()
 
   executionStatus.value = 'stopped'
   showToast('执行已终止', 'error')
