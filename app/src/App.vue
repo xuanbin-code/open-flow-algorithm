@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, watch, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRefHistory } from '@vueuse/core'
 import { VueFlow, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
@@ -140,9 +140,10 @@ function loadProgram(xml: string, filePath?: string) {
   console.log('Loaded program:', program.value.attributes.name, filePath ? `(${filePath})` : '')
 }
 
-// 绑定到 VueFlow
-const nodes = ref<FlowNode[]>(engine.nodes)
-const edges = ref<FlowEdge[]>(engine.edges)
+// 绑定到 VueFlow — 初始为空数组，待 onMounted 中 initApp 完成后再赋值（防止 Start+End 闪烁）
+const nodes = ref<FlowNode[]>([])
+const edges = ref<FlowEdge[]>([])
+const isContentReady = ref(false)
 
 // 布局参数热更新：监听 LP 变化 → 重新排版
 let layoutTimer: ReturnType<typeof setTimeout> | null = null
@@ -602,7 +603,9 @@ function clearOutput() {
 
 onMounted(async () => {
   await initApp()
-  setTimeout(() => fitView(), 100)
+  isContentReady.value = true
+  await nextTick()
+  fitView()
   window.addEventListener('keydown', onKeydown)
 })
 onUnmounted(() => {
@@ -758,7 +761,8 @@ async function onMenuAction(actionId: string) {
       edges.value = [...engine.edges]
       currentFilePath.value = null
       isNewFile.value = true
-      setTimeout(() => fitView(), 100)
+      await nextTick()
+      fitView()
       break
     }
     case 'open': {
@@ -771,6 +775,8 @@ async function onMenuAction(actionId: string) {
         loadProgram(xml, selected as string)
         await addRecentFile(selected as string)
         await refreshRecentFiles()
+        await nextTick()
+        fitView()
       }
       break
     }
@@ -886,7 +892,7 @@ async function handleSaveAs() {
       @toggle-variable-monitor="showVariableMonitor = !showVariableMonitor"
     />
     <div class="main-area">
-      <div class="flow-container">
+      <div class="flow-container" :class="{ 'flow-ready': isContentReady }">
         <VueFlow
           :nodes="nodes"
           :edges="edges"
@@ -986,6 +992,11 @@ async function handleSaveAs() {
 .flow-container {
   flex: 1;
   min-width: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.flow-container.flow-ready {
+  opacity: 1;
 }
 .execution-console {
   width: 380px;
