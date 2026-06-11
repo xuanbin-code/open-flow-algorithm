@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive, watch } from 'vue'
 
 // ============================================================
 // Types
@@ -15,7 +15,7 @@ export interface VariableEntry {
 // Props & Emits
 // ============================================================
 
-defineProps<{
+const props = defineProps<{
   variables: VariableEntry[]
   visible: boolean
 }>()
@@ -91,6 +91,92 @@ function typeLabel(type: string): string {
   }
   return map[type] ?? type
 }
+
+// ============================================================
+// Value animation state
+// ============================================================
+
+/** 动画过程中显示的中间值（key 为变量名） */
+const displayedValues = reactive<Record<string, number>>({})
+
+/** 正在播放动画的变量名集合 */
+const animating = reactive(new Set<string>())
+
+/** 活跃的 animation frame ID，用于中断重启 */
+const activeAnims = new Map<string, number>()
+
+function animateValue(name: string, from: number, to: number, duration = 300) {
+  // 取消该变量正在进行的动画
+  const existing = activeAnims.get(name)
+  if (existing !== undefined) {
+    cancelAnimationFrame(existing)
+  }
+  // 从当前 displayed 值重新起跳（避免跳变）
+  const actualFrom = displayedValues[name] ?? from
+  animating.add(name)
+  displayedValues[name] = actualFrom
+
+  const start = performance.now()
+  const isInt = Number.isInteger(to) && Number.isInteger(from)
+
+  function tick(now: number) {
+    const elapsed = now - start
+    const t = Math.min(elapsed / duration, 1)
+    // ease-out
+    const eased = 1 - (1 - t) * (1 - t)
+    const current = actualFrom + (to - actualFrom) * eased
+    displayedValues[name] = isInt ? Math.round(current) : current
+
+    if (t < 1) {
+      activeAnims.set(name, requestAnimationFrame(tick))
+    } else {
+      displayedValues[name] = to
+      animating.delete(name)
+      activeAnims.delete(name)
+    }
+  }
+
+  activeAnims.set(name, requestAnimationFrame(tick))
+}
+
+function formatAnimated(name: string, v: { type: string }): string {
+  const val = displayedValues[name]
+  if (val === undefined || val === null) return '—'
+  if (v.type === 'Real') {
+    // 保留合理小数位
+    return Number.isInteger(val) ? val + '.0' : String(Number(val.toFixed(6)))
+  }
+  return String(Math.round(val))
+}
+
+// ============================================================
+// Watch: detect value changes and trigger animation
+// ============================================================
+
+watch(
+  () => props.variables,
+  (newVars) => {
+    for (const v of newVars) {
+      // 只处理 Integer 和 Real
+      if (v.type !== 'Integer' && v.type !== 'Real') continue
+
+      const newValue = Number(v.value)
+      if (isNaN(newValue)) continue
+
+      const prev = displayedValues[v.name]
+
+      if (prev === undefined) {
+        // 首次出现，只记录初始值，不触发动画
+        displayedValues[v.name] = newValue
+        continue
+      }
+
+      if (prev !== newValue) {
+        animateValue(v.name, prev, newValue)
+      }
+    }
+  },
+)
 </script>
 
 <template>
@@ -130,7 +216,9 @@ function typeLabel(type: string): string {
             <tr v-for="v in variables" :key="v.name">
               <td class="var-name">{{ v.name }}</td>
               <td class="var-type">{{ typeLabel(v.type) }}</td>
-              <td class="var-value">{{ displayValue(v.value) }}</td>
+              <td class="var-value" :class="{ animating: animating.has(v.name) }">
+                {{ animating.has(v.name) ? formatAnimated(v.name, v) : displayValue(v.value) }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -282,6 +370,12 @@ function typeLabel(type: string): string {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color 0.15s, font-weight 0.15s;
+}
+
+.var-value.animating {
+  color: #2ecc71;
+  font-weight: 700;
 }
 
 .empty-hint {
