@@ -746,6 +746,8 @@ async function onMenuAction(actionId: string) {
       loadProgram(xml, filePath)
       await addRecentFile(filePath)
       await refreshRecentFiles()
+      await nextTick()
+      fitView()
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
       showToast(`无法打开文件: ${msg}`, 'error')
