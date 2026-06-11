@@ -206,36 +206,64 @@ async function* executeDeclare(
   const names = splitDeclareNames(stmt.name)
   const flowType = stmt.type || 'Integer'
 
-  // 数组声明：创建 JS 数组并填充默认值
+  // ----------------------------------------------------------
+  // 数组声明
+  // ----------------------------------------------------------
   if (stmt.array) {
-    const sizeValue = evaluateExpression(stmt.size || '0', state.variables)
-    const size = Math.max(0, Math.floor(Number(sizeValue)))
-    if (isNaN(size) || !isFinite(size)) {
-      throw new Error(`数组 "${stmt.name}" 的大小无效: ${stmt.size}`)
-    }
-    if (size > 1_000_000) {
-      throw new Error(`数组 "${stmt.name}" 的大小超出上限 (1,000,000): ${size}`)
-    }
-    const defaultValue = defaultValueForType(flowType)
-
     for (const name of names) {
-      if (name) {
-        state.variableTypes[name] = flowType + '[]'
-        if (!(name in state.variables)) {
-          state.variables[name] = new Array(size).fill(defaultValue)
+      if (!name) continue
+      state.variableTypes[name] = flowType + '[]'
+      if (name in state.variables) continue // 不覆盖已有变量
+
+      if (stmt.expression) {
+        const result = evaluateExpression(stmt.expression, state.variables)
+
+        if (Array.isArray(result)) {
+          // 数组字面量初始化 → 直接赋值，自动确定长度
+          state.variables[name] = result
+        } else {
+          // 标量表达式 → 创建 size 长度的数组并填充该值
+          const sizeValue = evaluateExpression(stmt.size || '0', state.variables)
+          const size = Math.max(0, Math.floor(Number(sizeValue)))
+          if (isNaN(size) || !isFinite(size)) {
+            throw new Error(`数组 "${name}" 的大小无效: ${stmt.size}`)
+          }
+          if (size > 1_000_000) {
+            throw new Error(`数组 "${name}" 的大小超出上限 (1,000,000): ${size}`)
+          }
+          const val = coerceValue(result, flowType)
+          state.variables[name] = new Array(size).fill(val)
         }
+      } else {
+        // 无初始化表达式 → 默认值填充
+        const sizeValue = evaluateExpression(stmt.size || '0', state.variables)
+        const size = Math.max(0, Math.floor(Number(sizeValue)))
+        if (isNaN(size) || !isFinite(size)) {
+          throw new Error(`数组 "${name}" 的大小无效: ${stmt.size}`)
+        }
+        if (size > 1_000_000) {
+          throw new Error(`数组 "${name}" 的大小超出上限 (1,000,000): ${size}`)
+        }
+        const defaultValue = defaultValueForType(flowType)
+        state.variables[name] = new Array(size).fill(defaultValue)
       }
     }
     return
   }
 
-  // 标量声明：原有逻辑
+  // ----------------------------------------------------------
+  // 标量声明
+  // ----------------------------------------------------------
   for (const name of names) {
-    if (name) {
-      state.variableTypes[name] = flowType
-      if (!(name in state.variables)) {
-        state.variables[name] = defaultValueForType(flowType)
-      }
+    if (!name) continue
+    state.variableTypes[name] = flowType
+    if (name in state.variables) continue // 不覆盖已有变量
+
+    if (stmt.expression) {
+      const result = evaluateExpression(stmt.expression, state.variables)
+      state.variables[name] = coerceValue(result, flowType)
+    } else {
+      state.variables[name] = defaultValueForType(flowType)
     }
   }
 }

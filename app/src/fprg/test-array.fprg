@@ -9,7 +9,7 @@
     <function name="Main" type="" variable="">
         <parameters/>
         <body>
-            <declare name="a" type="Integer" array="True" size="10"/>
+            <declare name="a" type="Integer" array="True" size="3" expression="[10,20,30]"/>
             <declare name="i" type="Integer" array="False" size=""/>
             <assign variable="i" expression="0"/>
             <assign variable="a[i]" expression="21"/>

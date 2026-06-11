@@ -88,6 +88,36 @@ function setField(key: string, value: any) {
   emit('update', props.statement)
 }
 
+// ============================================================
+// Array literal detection (declare 数组初始化)
+// ============================================================
+
+const isArrayLiteral = computed(() => {
+  if (!props.statement || props.statement.kind !== 'declare') return false
+  const expr = props.statement.expression || ''
+  return /^\s*\[.*\]\s*$/.test(expr)
+})
+
+function onExpressionInput(value: string) {
+  if (!props.statement || props.statement.kind !== 'declare') return
+  setField('expression', value)
+
+  // 数组字面量 → 自动计算 size
+  if (props.statement.array) {
+    const trimmed = value.trim()
+    if (/^\s*\[.*\]\s*$/.test(trimmed)) {
+      try {
+        const parsed = JSON.parse(trimmed)
+        if (Array.isArray(parsed)) {
+          setField('size', String(parsed.length))
+        }
+      } catch {
+        // JSON 解析失败（含变量引用如 [1, N, 3]）→ 保留原 size
+      }
+    }
+  }
+}
+
 function onConfirm() {
   if (!props.statement) return
   emit('update', props.statement)
@@ -151,7 +181,7 @@ function onConfirm() {
           <span class="field-label">数组?</span>
         </label>
 
-        <label v-if="statement.array" class="field">
+        <label v-if="statement.array && !isArrayLiteral" class="field">
           <span class="field-label">数组大小:</span>
           <input
             class="field-input"
@@ -159,6 +189,17 @@ function onConfirm() {
             placeholder="输入数组大小"
             :value="statement.size"
             @input="setField('size', ($event.target as HTMLInputElement).value)"
+          />
+        </label>
+
+        <label class="field">
+          <span class="field-label">初始值:</span>
+          <input
+            class="field-input"
+            type="text"
+            placeholder="可选，如 5 或 [1,2,3]"
+            :value="statement.expression"
+            @input="onExpressionInput(($event.target as HTMLInputElement).value)"
           />
         </label>
       </template>

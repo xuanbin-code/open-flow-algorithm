@@ -37,6 +37,8 @@ export interface DeclareStatement {
   type: string
   array: boolean
   size: string
+  /** 初始化表达式（空字符串表示无初始值，使用默认值） */
+  expression: string
 }
 
 export interface AssignStatement {
@@ -253,6 +255,7 @@ function parseStatement(el: Element): Statement | null {
         type: attr(el, 'type'),
         array: attr(el, 'array') === 'True',
         size: attr(el, 'size'),
+        expression: attr(el, 'expression') || '',
       }
 
     case 'assign':
@@ -352,9 +355,26 @@ export function statementToLabel(stmt: Statement): string {
     case 'declare': {
       if (!stmt.name) return '声明'
       const names = splitDeclareNames(stmt.name)
-      const arrSuffix = stmt.array ? `[${stmt.size}]` : ''
-      const labeled = names.map((n) => n + arrSuffix).join(', ')
-      return `${typeNameToCN(stmt.type)} ${labeled}`
+      const flowTypeCN = typeNameToCN(stmt.type)
+
+      // 数组 + 数组字面量初始化 → 显示为 name = [elements]
+      if (stmt.array && stmt.expression && /^\s*\[.*\]\s*$/.test(stmt.expression)) {
+        const labeled = names.map((n) => `${n} = ${stmt.expression}`).join(', ')
+        return `${flowTypeCN} ${labeled}`
+      }
+
+      // 数组 + 标量/no 初始化 → 显示 [size]
+      if (stmt.array) {
+        const arrSuffix = `[${stmt.size}]`
+        const initPart = stmt.expression ? ` = ${stmt.expression}` : ''
+        const labeled = names.map((n) => n + arrSuffix + initPart).join(', ')
+        return `${flowTypeCN} ${labeled}`
+      }
+
+      // 标量变量
+      const initPart = stmt.expression ? ` = ${stmt.expression}` : ''
+      const labeled = names.map((n) => n + initPart).join(', ')
+      return `${flowTypeCN} ${labeled}`
     }
     case 'assign':
       if (!stmt.variable) return '赋值'
@@ -446,7 +466,7 @@ export function typeNameToCN(en: string): string {
 export function createDefaultStatement(kind: Statement['kind']): Statement {
   switch (kind) {
     case 'declare':
-      return { kind: 'declare', name: '', type: 'Integer', array: false, size: '' }
+      return { kind: 'declare', name: '', type: 'Integer', array: false, size: '', expression: '' }
     case 'assign':
       return { kind: 'assign', variable: '', expression: '' }
     case 'input':
@@ -533,8 +553,10 @@ function stmtToXml(stmt: Statement, indent: string): string {
   const i2 = indent + '    '
 
   switch (stmt.kind) {
-    case 'declare':
-      return `${indent}<declare name="${escapeAttr(stmt.name)}" type="${escapeAttr(stmt.type)}" array="${stmt.array ? 'True' : 'False'}" size="${escapeAttr(stmt.size)}"/>`
+    case 'declare': {
+      const exprAttr = stmt.expression ? ` expression="${escapeAttr(stmt.expression)}"` : ''
+      return `${indent}<declare name="${escapeAttr(stmt.name)}" type="${escapeAttr(stmt.type)}" array="${stmt.array ? 'True' : 'False'}" size="${escapeAttr(stmt.size)}"${exprAttr}/>`
+    }
 
     case 'assign':
       return `${indent}<assign variable="${escapeAttr(stmt.variable)}" expression="${escapeAttr(stmt.expression)}"/>`
