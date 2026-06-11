@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import NodePropertyEditor from './NodePropertyEditor.vue'
-import type { Statement } from '../../fprg-ast'
+import type { Statement } from '../../engine/fprg-ast'
 
 // ============================================================
 // Types

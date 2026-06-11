@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Statement } from '../../fprg-ast'
+import type { Statement } from '../../engine/fprg-ast'
 
 // ============================================================
 // Props & Emits

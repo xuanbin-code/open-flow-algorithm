@@ -25,10 +25,10 @@ import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 
-import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, type Program, type Statement } from './fprg-ast'
+import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, type Program, type Statement } from './engine/fprg-ast'
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs'
-import { addRecentFile, loadRecentFiles, getLastFile, type RecentEntry } from './recent-files'
+import { addRecentFile, loadRecentFiles, getLastFile, type RecentEntry } from './utils/recent-files'
 import {
   FlowchartEngine,
   DEFAULT_PARAMS,
@@ -36,8 +36,8 @@ import {
   type LayoutParams,
   type FlowNode,
   type FlowEdge,
-} from './flowchart-engine'
-import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './interpreter'
+} from './engine/flowchart-engine'
+import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './engine/interpreter'
 import { useSettings } from './composables/useSettings'
 
 // ============================================
