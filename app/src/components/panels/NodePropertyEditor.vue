@@ -42,6 +42,20 @@ const KIND_DESCRIPTIONS: Record<string, string> = {
   while: 'While 循环，当条件为真时重复执行一组语句。',
 }
 
+const KIND_ICONS: Record<string, string> = {
+  declare: '📦',
+  assign: '✏️',
+  input: '📥',
+  output: '📤',
+  if: '🔀',
+  for: '🔁',
+  while: '🔄',
+}
+
+const kindIcon = computed(() =>
+  props.statement ? (KIND_ICONS[props.statement.kind] ?? '📋') : '📋'
+)
+
 const kindLabel = computed(() =>
   props.statement ? (KIND_LABELS[props.statement.kind] ?? props.statement.kind) : ''
 )
@@ -83,8 +97,11 @@ function onConfirm() {
   <div v-if="statement" class="prop-editor">
     <!-- Info banner -->
     <div v-if="kindDescription" class="info-banner">
-      <span class="info-badge">{{ kindLabel }}</span>
-      <span class="info-text">{{ kindDescription }}</span>
+      <span class="info-icon">{{ kindIcon }}</span>
+      <div class="info-content">
+        <span class="info-title">{{ kindLabel }}</span>
+        <span class="info-desc">{{ kindDescription }}</span>
+      </div>
     </div>
 
     <!-- Form body -->
@@ -306,45 +323,39 @@ function onConfirm() {
 .info-banner {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  background: #e8f4fd;
-  border-left: 3px solid var(--accent, #1976d2);
-  border-radius: 0 6px 6px 0;
-  margin-bottom: 4px;
+  gap: 14px;
+  padding: 14px 16px;
+  background: color-mix(in srgb, var(--accent, #1976d2) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, #1976d2) 12%, transparent);
+  border-radius: 8px;
+  margin-bottom: 6px;
 }
 
-[data-theme="dark"] .info-banner {
-  background: rgba(79, 195, 247, 0.1);
-}
-
-.info-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #5a4e2f;
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
-  border-radius: 3px;
-  white-space: nowrap;
+.info-icon {
+  font-size: 22px;
+  line-height: 1;
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
-[data-theme="dark"] .info-badge {
-  color: #fcd34d;
-  background: rgba(252, 211, 77, 0.12);
-  border-color: rgba(252, 211, 77, 0.3);
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
 }
 
-.info-text {
+.info-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.info-desc {
   font-size: 12px;
-  color: #2c3e50;
+  color: var(--text-muted);
   line-height: 1.5;
-}
-
-[data-theme="dark"] .info-text {
-  color: var(--text-secondary);
 }
 
 /* ============================================
