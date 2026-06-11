@@ -181,13 +181,19 @@ function onConfirm() {
           <span class="field-label">数组?</span>
         </label>
 
-        <label v-if="statement.array && !isArrayLiteral" class="field">
-          <span class="field-label">数组大小:</span>
+        <label v-if="statement.array" class="field">
+          <span class="field-label">
+            数组大小
+            <span v-if="isArrayLiteral" class="auto-hint">（自动）</span>
+            :
+          </span>
           <input
             class="field-input"
+            :class="{ disabled: isArrayLiteral }"
             type="text"
-            placeholder="输入数组大小"
+            :placeholder="isArrayLiteral ? '由初始值自动计算' : '输入数组大小'"
             :value="statement.size"
+            :disabled="isArrayLiteral"
             @input="setField('size', ($event.target as HTMLInputElement).value)"
           />
         </label>
@@ -460,6 +466,20 @@ function onConfirm() {
 
 .field-input::placeholder {
   color: var(--text-disabled);
+}
+
+.field-input.disabled,
+.field-input:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: var(--border-soft);
+}
+
+/* ---- "（自动）" hint ---- */
+.auto-hint {
+  font-size: 10px;
+  font-weight: 400;
+  color: color-mix(in srgb, var(--accent, #4fc3f7) 80%, #888);
 }
 
 /* ---- Radio group ---- */
