@@ -111,6 +111,12 @@ const STATUS_COLORS: Record<string, string> = {
 function displayValue(value: unknown): string {
   if (value === null || value === undefined) return '(空)'
   if (typeof value === 'boolean') return value ? '真' : '假'
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '[空数组]'
+    const MAX_SHOW = 10
+    const shown = value.slice(0, MAX_SHOW).map(v => displayValue(v)).join(', ')
+    return value.length > MAX_SHOW ? `[${shown}, …]` : `[${shown}]`
+  }
   if (typeof value === 'number') {
     // 整数不显示小数点
     return Number.isInteger(value) ? String(value) : String(value)

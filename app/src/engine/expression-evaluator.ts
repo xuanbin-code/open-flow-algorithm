@@ -41,6 +41,62 @@ function normalizeExpression(expr: string): string {
   return result
 }
 
+// ============================================================
+// 安全校验
+// ============================================================
+
+/** 拒绝明显危险的表达式注入模式 */
+const DANGEROUS_PATTERNS = [
+  /constructor/i,
+  /__proto__/i,
+  /prototype/i,
+  /\bFunction\s*\(/i,
+  /\beval\s*\(/i,
+  /\bimport\s*\(/i,
+  /\brequire\s*\(/i,
+  /\bfetch\s*\(/i,
+  /\bXMLHttpRequest\b/i,
+  /\bdocument\b/i,
+  /\bwindow\b/i,
+  /\bglobalThis\b/i,
+  /\bprocess\b/i,
+  /\bbuffer\b/i,
+]
+
+function validateExpression(expr: string): void {
+  for (const pattern of DANGEROUS_PATTERNS) {
+    if (pattern.test(expr)) {
+      throw new Error(
+        `表达式包含不允许的操作: "${expr}"\n` +
+        `  匹配模式: ${String(pattern)}`,
+      )
+    }
+  }
+}
+
+// ============================================================
+// 变量访问解析
+// ============================================================
+
+/**
+ * 解析变量名中的数组下标语法。
+ *
+ * 例如：
+ *   "arr[0]"   → { name: "arr", indexExpr: "0" }
+ *   "arr[i+1]" → { name: "arr", indexExpr: "i+1" }
+ *   "x"        → { name: "x", indexExpr: null }
+ */
+export function parseArrayAccess(variable: string): {
+  name: string
+  indexExpr: string | null
+} {
+  const match = variable.match(/^(\w+)\[(.+)\]$/)
+  if (match) {
+    return { name: match[1], indexExpr: match[2] }
+  }
+  return { name: variable, indexExpr: null }
+}
+
 /**
  * 求值 Flowgorithm 表达式。
  *
@@ -53,6 +109,9 @@ export function evaluateExpression(
   variables: Record<string, unknown>,
 ): unknown {
   if (!expr || expr.trim() === '') return undefined
+
+  // 安全校验：拒绝危险注入模式
+  validateExpression(expr)
 
   // 检查是否包含 & 运算符（字符串拼接 / 位与）
   const hasAmpersand = /&/.test(expr)

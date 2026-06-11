@@ -7,7 +7,7 @@
 
 import type { Program, Statement, IfStatement, WhileStatement, ForStatement } from './fprg-ast'
 import { splitDeclareNames } from './fprg-ast'
-import { evaluateExpression, coerceValue, defaultValueForType } from './expression-evaluator'
+import { evaluateExpression, coerceValue, defaultValueForType, parseArrayAccess } from './expression-evaluator'
 
 // ============================================================
 // Types
@@ -73,9 +73,12 @@ function collectDeclarations(statements: Statement[], state: RuntimeState): void
   for (const stmt of statements) {
     if (stmt.kind === 'declare') {
       const names = splitDeclareNames(stmt.name)
+      const flowType = stmt.type || 'Integer'
+      // 数组类型附加 [] 后缀，便于后续区分标量/数组
+      const typeTag = stmt.array ? flowType + '[]' : flowType
       for (const name of names) {
         if (name && !(name in state.variableTypes)) {
-          state.variableTypes[name] = stmt.type || 'Integer'
+          state.variableTypes[name] = typeTag
           // 不在此处设置 state.variables —— 变量只在 declare 实际执行时才加入追踪
         }
       }
@@ -201,11 +204,37 @@ async function* executeDeclare(
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
   const names = splitDeclareNames(stmt.name)
+  const flowType = stmt.type || 'Integer'
+
+  // 数组声明：创建 JS 数组并填充默认值
+  if (stmt.array) {
+    const sizeValue = evaluateExpression(stmt.size || '0', state.variables)
+    const size = Math.max(0, Math.floor(Number(sizeValue)))
+    if (isNaN(size) || !isFinite(size)) {
+      throw new Error(`数组 "${stmt.name}" 的大小无效: ${stmt.size}`)
+    }
+    if (size > 1_000_000) {
+      throw new Error(`数组 "${stmt.name}" 的大小超出上限 (1,000,000): ${size}`)
+    }
+    const defaultValue = defaultValueForType(flowType)
+
+    for (const name of names) {
+      if (name) {
+        state.variableTypes[name] = flowType + '[]'
+        if (!(name in state.variables)) {
+          state.variables[name] = new Array(size).fill(defaultValue)
+        }
+      }
+    }
+    return
+  }
+
+  // 标量声明：原有逻辑
   for (const name of names) {
     if (name) {
-      state.variableTypes[name] = stmt.type || 'Integer'
+      state.variableTypes[name] = flowType
       if (!(name in state.variables)) {
-        state.variables[name] = defaultValueForType(stmt.type || 'Integer')
+        state.variables[name] = defaultValueForType(flowType)
       }
     }
   }
@@ -218,8 +247,35 @@ async function* executeAssign(
   if (!stmt.variable) return
 
   const value = evaluateExpression(stmt.expression, state.variables)
-  const varType = state.variableTypes[stmt.variable] || ''
-  state.variables[stmt.variable] = coerceValue(value, varType)
+
+  // 解析数组下标：如 "arr[0]" → name="arr", indexExpr="0"
+  const access = parseArrayAccess(stmt.variable)
+
+  if (access.indexExpr !== null) {
+    // --- 数组元素赋值 ---
+    const { name, indexExpr } = access
+    const arr = state.variables[name]
+    if (!Array.isArray(arr)) {
+      throw new Error(`"${name}" 不是数组，无法使用下标访问`)
+    }
+    const rawIndex = evaluateExpression(indexExpr!, state.variables)
+    const index = Math.floor(Number(rawIndex))
+    if (isNaN(index) || !isFinite(index)) {
+      throw new Error(`数组 "${name}" 的索引无效: ${indexExpr}`)
+    }
+    if (index < 0 || index >= arr.length) {
+      throw new Error(
+        `数组 "${name}" 索引 ${index} 越界 (大小: ${arr.length})`,
+      )
+    }
+    // 从 variableTypes 中推断元素类型（去掉 [] 后缀）
+    const elemType = (state.variableTypes[name] || '').replace(/\[\]$/, '')
+    arr[index] = coerceValue(value, elemType)
+  } else {
+    // --- 普通标量赋值 ---
+    const varType = state.variableTypes[stmt.variable] || ''
+    state.variables[stmt.variable] = coerceValue(value, varType)
+  }
 }
 
 async function* executeInput(
@@ -242,11 +298,40 @@ async function* executeInput(
     throw new StopExecution('输入已取消')
   }
 
-  const varType = state.variableTypes[stmt.variable] || ''
-  state.variables[stmt.variable] = coerceValue(inputValue, varType)
-  // 如果类型是 String，保留原始输入
-  if (varType === 'String') {
-    state.variables[stmt.variable] = inputValue
+  // 解析数组下标
+  const access = parseArrayAccess(stmt.variable)
+
+  if (access.indexExpr !== null) {
+    // --- 数组元素输入 ---
+    const { name, indexExpr } = access
+    const arr = state.variables[name]
+    if (!Array.isArray(arr)) {
+      throw new Error(`"${name}" 不是数组，无法使用下标访问`)
+    }
+    const rawIndex = evaluateExpression(indexExpr!, state.variables)
+    const index = Math.floor(Number(rawIndex))
+    if (isNaN(index) || !isFinite(index)) {
+      throw new Error(`数组 "${name}" 的索引无效: ${indexExpr}`)
+    }
+    if (index < 0 || index >= arr.length) {
+      throw new Error(
+        `数组 "${name}" 索引 ${index} 越界 (大小: ${arr.length})`,
+      )
+    }
+    const elemType = (state.variableTypes[name] || '').replace(/\[\]$/, '')
+    arr[index] = coerceValue(inputValue, elemType)
+    // 如果类型是 String，保留原始输入
+    if (elemType === 'String') {
+      arr[index] = inputValue
+    }
+  } else {
+    // --- 普通标量输入 ---
+    const varType = state.variableTypes[stmt.variable] || ''
+    state.variables[stmt.variable] = coerceValue(inputValue, varType)
+    // 如果类型是 String，保留原始输入
+    if (varType === 'String') {
+      state.variables[stmt.variable] = inputValue
+    }
   }
 }
 
