@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
+import { GripVertical, X, ChevronRight } from '../icons'
 
 // ============================================================
 // Types
@@ -192,12 +193,16 @@ watch(
       @mousedown="onDragStart"
       @click="onToggleClick"
     >
-      <span v-if="collapsed" class="collapsed-label">变量监视 ▸</span>
+      <span v-if="collapsed" class="collapsed-label">
+        变量监视 <ChevronRight :size="12" class="collapsed-arrow" />
+      </span>
       <template v-else>
-        <span class="drag-icon">⠿</span>
+        <GripVertical class="drag-icon" :size="14" />
         <span class="monitor-title">变量监视</span>
         <span v-if="variables.length" class="var-count">({{ variables.length }})</span>
-        <button class="close-btn" @click.stop="emit('close')" title="关闭">✕</button>
+        <button class="close-btn" @click.stop="emit('close')" title="关闭">
+          <X :size="12" />
+        </button>
       </template>
     </div>
 
@@ -280,16 +285,23 @@ watch(
 }
 
 .collapsed-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
   padding: 2px 4px;
 }
 
-.drag-icon {
-  font-size: 14px;
+.collapsed-arrow {
   color: var(--text-muted-2);
-  letter-spacing: 2px;
+  flex-shrink: 0;
+}
+
+.drag-icon {
+  color: var(--text-muted-2);
+  flex-shrink: 0;
 }
 
 .monitor-title {
@@ -304,12 +316,13 @@ watch(
 }
 
 .close-btn {
+  display: flex;
+  align-items: center;
   margin-left: auto;
   background: none;
   border: none;
   color: var(--text-muted-2);
   cursor: pointer;
-  font-size: 12px;
   padding: 2px 6px;
   border-radius: 3px;
   transition: background 0.15s, color 0.15s;

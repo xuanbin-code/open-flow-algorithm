@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import NodePropertyEditor from './NodePropertyEditor.vue'
 import type { Statement } from '../../engine/fprg-ast'
+import { GripVertical, X } from '../icons'
 
 // ============================================================
 // Types
@@ -172,9 +173,11 @@ function labelStyle(n: InsertableNode): Record<string, string> {
     >
       <!-- Header (drag handle) -->
       <div class="panel-header" @mousedown="onDragStart">
-        <span class="drag-icon">⠿</span>
+        <GripVertical class="drag-icon" :size="14" />
         <span class="panel-title">{{ isEditing ? editTitle : '插入节点' }}</span>
-        <button class="close-btn" @click="isEditing ? emit('close-editor') : emit('close')">✕</button>
+        <button class="close-btn" @click="isEditing ? emit('close-editor') : emit('close')">
+          <X :size="14" />
+        </button>
       </div>
 
       <!-- Body -->
@@ -245,9 +248,9 @@ function labelStyle(n: InsertableNode): Record<string, string> {
   cursor: grabbing;
 }
 .drag-icon {
-  font-size: 14px;
   color: var(--text-muted-2);
   cursor: grab;
+  flex-shrink: 0;
 }
 .panel-title {
   flex: 1;
@@ -256,11 +259,12 @@ function labelStyle(n: InsertableNode): Record<string, string> {
   color: var(--text-primary);
 }
 .close-btn {
+  display: flex;
+  align-items: center;
   background: none;
   border: none;
   color: var(--text-muted-2);
   cursor: pointer;
-  font-size: 14px;
   padding: 2px 6px;
   border-radius: 3px;
   transition: color 0.15s, background 0.15s;

@@ -351,8 +351,10 @@ export function statementToLabel(stmt: Statement): string {
   switch (stmt.kind) {
     case 'declare': {
       if (!stmt.name) return '声明'
-      const arr = stmt.array ? `[${stmt.size}]` : ''
-      return `${typeNameToCN(stmt.type)} ${stmt.name}${arr}`
+      const names = splitDeclareNames(stmt.name)
+      const arrSuffix = stmt.array ? `[${stmt.size}]` : ''
+      const labeled = names.map((n) => n + arrSuffix).join(', ')
+      return `${typeNameToCN(stmt.type)} ${labeled}`
     }
     case 'assign':
       if (!stmt.variable) return '赋值'

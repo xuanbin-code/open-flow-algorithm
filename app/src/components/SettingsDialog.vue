@@ -2,6 +2,7 @@
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useSettings } from '../composables/useSettings'
 import { ACCENT_PRESETS } from '../utils/color-palette'
+import { Sun, Moon, Settings, Check, Circle } from './icons'
 
 // ============================================================
 // Props & Emits
@@ -80,7 +81,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
       <div class="settings-dialog">
         <!-- Header -->
         <div class="dialog-header">
-          <span class="dialog-icon">⚙</span>
+          <Settings class="dialog-icon" :size="20" />
           <span class="dialog-title">设置</span>
         </div>
 
@@ -119,7 +120,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
               @click="selectPreset(preset.id)"
             >
               <span class="accent-swatch" :style="{ background: preset.dark }">
-                <span v-if="activePresetId === preset.id" class="accent-check">✓</span>
+                <Check v-if="activePresetId === preset.id" class="accent-check" :size="14" />
               </span>
               <span class="accent-name">{{ preset.name }}</span>
             </button>
@@ -148,7 +149,8 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
             </div>
             <div class="setting-control">
               <button class="theme-toggle-btn" @click="toggleTheme">
-                <span class="theme-icon">{{ settings.theme === 'dark' ? '🌙' : '☀️' }}</span>
+                <Moon v-if="settings.theme === 'dark'" class="theme-icon" :size="16" />
+                <Sun v-else class="theme-icon" :size="16" />
                 <span class="theme-label">{{ settings.theme === 'dark' ? '深色' : '浅色' }}</span>
               </button>
             </div>
@@ -162,7 +164,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
             </div>
             <div class="setting-control">
               <div class="toggle-placeholder">
-                <span class="toggle-knob off">○</span>
+                <Circle class="toggle-knob off" :size="16" />
                 <span class="toggle-state">关</span>
               </div>
               <span class="coming-soon-tag">即将推出</span>
@@ -214,7 +216,8 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 }
 
 .dialog-icon {
-  font-size: 20px;
+  color: var(--text-primary);
+  flex-shrink: 0;
 }
 
 .dialog-title {
@@ -337,10 +340,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 
 .accent-check {
   color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
 .accent-name {
@@ -405,7 +405,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 }
 
 .theme-icon {
-  font-size: 16px;
+  flex-shrink: 0;
 }
 
 .theme-label {
@@ -421,8 +421,8 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 }
 
 .toggle-knob {
-  font-size: 18px;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .toggle-state {

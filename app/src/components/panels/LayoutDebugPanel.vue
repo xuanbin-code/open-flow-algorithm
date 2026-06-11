@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { Ruler, Eye, ChevronLeft, ChevronRight } from '../icons'
 
 export interface ParamDef {
   key: string
@@ -111,12 +112,15 @@ const groups = computed(() => {
       @mousedown="collapsed && onDragStart($event)"
       @click="onToggleClick"
     >
-      {{ collapsed ? '◀ 调试' : '调试 ▶' }}
+      <ChevronRight v-if="collapsed" :size="14" />
+      <span v-if="collapsed">调试</span>
+      <span v-else>调试</span>
+      <ChevronLeft v-if="!collapsed" :size="14" />
     </button>
 
     <div v-if="!collapsed" class="panel-body">
       <div class="panel-header" @mousedown="onDragStart">
-        <h3>📐 布局参数</h3>
+        <h3><Ruler :size="16" class="section-icon" /> 布局参数</h3>
       </div>
 
       <div v-for="group in groups" :key="group.name" class="param-group">
@@ -149,7 +153,7 @@ const groups = computed(() => {
       <!-- 视图参数（不影响 nodes/edges，仅调视口） -->
       <div class="viewport-separator" />
       <div class="param-group">
-        <h4 class="group-title viewport-title">👁 视图（不重绘）</h4>
+        <h4 class="group-title viewport-title"><Eye :size="14" class="section-icon" /> 视图（不重绘）</h4>
         <div class="param-row">
           <label class="param-label">缩放 Zoom</label>
           <div class="param-controls">
@@ -252,6 +256,9 @@ const groups = computed(() => {
 }
 
 .toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding: 6px 12px;
   background: var(--bg-toggle-btn);
   border: none;
@@ -286,11 +293,19 @@ const groups = computed(() => {
 }
 
 .panel-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 8px 0 4px;
   font-size: 14px;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-medium);
   padding-bottom: 6px;
+}
+
+.section-icon {
+  color: var(--accent);
+  flex-shrink: 0;
 }
 
 .param-group {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useSettings } from '../composables/useSettings'
+import { Sun, Moon, Settings, ChevronRight } from './icons'
 
 // ============================================================
 // Types
@@ -202,7 +203,7 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
             @click.stop="!item.disabled && !item.submenu && onItemClick(item.id)"
           >
             <span class="dropdown-item-label">{{ item.label }}</span>
-            <span v-if="item.submenu" class="submenu-arrow">▶</span>
+            <ChevronRight v-if="item.submenu" class="submenu-arrow" :size="10" />
 
             <!-- 子菜单 -->
             <div
@@ -230,10 +231,11 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
         :title="settings.theme === 'dark' ? '切换浅色模式' : '切换深色模式'"
         @click.stop="toggleTheme"
       >
-        {{ settings.theme === 'dark' ? '☀️' : '🌙' }}
+        <Sun v-if="settings.theme === 'dark'" :size="16" />
+        <Moon v-else :size="16" />
       </button>
       <button class="settings-btn" title="设置" @click.stop="emit('action', 'open-settings')">
-        ⚙
+        <Settings :size="16" />
       </button>
     </div>
   </div>
@@ -324,9 +326,9 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
 }
 
 .submenu-arrow {
-  font-size: 9px;
   color: var(--text-muted-2);
   margin-left: 16px;
+  flex-shrink: 0;
 }
 
 .dropdown-item:hover .submenu-arrow {
@@ -364,13 +366,15 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
 
 /* ---- Theme toggle button ---- */
 .theme-toggle-btn {
+  display: flex;
+  align-items: center;
   background: none;
   border: none;
-  font-size: 15px;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
-  transition: background 0.1s;
+  transition: background 0.1s, color 0.1s;
   line-height: 1;
 }
 
@@ -387,10 +391,11 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
 }
 
 .settings-btn {
+  display: flex;
+  align-items: center;
   background: none;
   border: none;
   color: var(--text-secondary);
-  font-size: 15px;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;

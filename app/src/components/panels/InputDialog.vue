@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { Keyboard } from '../icons'
 
 // ============================================================
 // Props & Emits
@@ -66,7 +67,7 @@ onUnmounted(() => {
     <div v-if="visible" class="input-dialog-overlay" @mousedown.self="emit('cancel')">
       <div class="input-dialog">
         <div class="dialog-header">
-          <span class="dialog-icon">⌨</span>
+          <Keyboard class="dialog-icon" :size="20" />
           <span class="dialog-title">输入</span>
         </div>
 
@@ -129,7 +130,8 @@ onUnmounted(() => {
 }
 
 .dialog-icon {
-  font-size: 20px;
+  color: var(--text-primary);
+  flex-shrink: 0;
 }
 
 .dialog-title {

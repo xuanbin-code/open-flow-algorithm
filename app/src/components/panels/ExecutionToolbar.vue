@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { Play, StepForward, Pause, Square, Table } from '../icons'
 
 // ============================================================
 // Props & Emits
@@ -76,9 +77,7 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
       :disabled="!canRun"
       @click="emit('run')"
     >
-      <svg width="14" height="14" viewBox="0 0 14 14">
-        <path d="M3,1 L13,7 L3,13 Z" fill="currentColor" />
-      </svg>
+      <Play :size="14" />
       <span>运行</span>
     </button>
 
@@ -91,10 +90,7 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
       :disabled="!canStep"
       @click="emit('step')"
     >
-      <svg width="14" height="14" viewBox="0 0 14 14">
-        <rect x="2" y="1" width="3" height="12" rx="0.5" fill="currentColor" />
-        <path d="M8,1 L14,7 L8,13 Z" fill="currentColor" />
-      </svg>
+      <StepForward :size="14" />
       <span>{{ stepLabel }}</span>
     </button>
 
@@ -105,15 +101,8 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
       :disabled="!canPause && !isPaused"
       @click="onPauseClick"
     >
-      <!-- Pause icon: two vertical bars -->
-      <svg v-if="!isPaused" width="14" height="14" viewBox="0 0 14 14">
-        <rect x="2" y="1" width="4" height="12" rx="0.5" fill="currentColor" />
-        <rect x="8" y="1" width="4" height="12" rx="0.5" fill="currentColor" />
-      </svg>
-      <!-- Resume icon: triangle (same as run) -->
-      <svg v-else width="14" height="14" viewBox="0 0 14 14">
-        <path d="M3,1 L13,7 L3,13 Z" fill="currentColor" />
-      </svg>
+      <Pause v-if="!isPaused" :size="14" />
+      <Play v-else :size="14" />
       <span>{{ isPaused ? '继续' : '暂停' }}</span>
     </button>
 
@@ -124,9 +113,7 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
       :disabled="!canStop"
       @click="emit('stop')"
     >
-      <svg width="14" height="14" viewBox="0 0 14 14">
-        <rect x="2" y="2" width="10" height="10" rx="1.5" fill="currentColor" />
-      </svg>
+      <Square :size="14" />
       <span>停止</span>
     </button>
 
@@ -155,7 +142,8 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
       :title="showVariableMonitor ? '隐藏变量监视' : '显示变量监视'"
       @click="emit('toggleVariableMonitor')"
     >
-      <span>{{ showVariableMonitor ? '📊 变量' : '📊' }}</span>
+      <Table :size="14" />
+      <span v-if="showVariableMonitor">变量</span>
     </button>
   </div>
 </template>

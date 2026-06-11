@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
+import { GripVertical } from '../icons'
 
 // ============================================================
 // Types
@@ -136,7 +137,7 @@ function typeLabel(type: string): string {
   >
     <!-- Header (drag handle) -->
     <div class="panel-header" @mousedown="onDragStart">
-      <span class="drag-icon">⠿</span>
+      <GripVertical class="drag-icon" :size="14" />
       <span class="panel-title">运行时</span>
       <span class="status-badge" :style="{ background: STATUS_COLORS[executionStatus] }">
         {{ STATUS_LABELS[executionStatus] ?? executionStatus }}
@@ -230,9 +231,9 @@ function typeLabel(type: string): string {
   cursor: grabbing;
 }
 .drag-icon {
-  font-size: 14px;
   color: #666;
   cursor: grab;
+  flex-shrink: 0;
 }
 .panel-title {
   font-size: 13px;

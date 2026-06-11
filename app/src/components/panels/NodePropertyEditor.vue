@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import type { Component } from 'vue'
 import type { Statement } from '../../engine/fprg-ast'
+import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard } from '../icons'
 
 // ============================================================
 // Props & Emits
@@ -42,18 +44,18 @@ const KIND_DESCRIPTIONS: Record<string, string> = {
   while: 'While 循环，当条件为真时重复执行一组语句。',
 }
 
-const KIND_ICONS: Record<string, string> = {
-  declare: '📦',
-  assign: '✏️',
-  input: '📥',
-  output: '📤',
-  if: '🔀',
-  for: '🔁',
-  while: '🔄',
+const KIND_ICONS: Record<string, Component> = {
+  declare: Package,
+  assign: Pencil,
+  input: ArrowDownToLine,
+  output: ArrowUpFromLine,
+  if: GitBranch,
+  for: Repeat,
+  while: RefreshCw,
 }
 
 const kindIcon = computed(() =>
-  props.statement ? (KIND_ICONS[props.statement.kind] ?? '📋') : '📋'
+  props.statement ? (KIND_ICONS[props.statement.kind] ?? Clipboard) : Clipboard
 )
 
 const kindLabel = computed(() =>
@@ -97,7 +99,7 @@ function onConfirm() {
   <div v-if="statement" class="prop-editor">
     <!-- Info banner -->
     <div v-if="kindDescription" class="info-banner">
-      <span class="info-icon">{{ kindIcon }}</span>
+      <component :is="kindIcon" class="info-icon" :size="22" />
       <div class="info-content">
         <span class="info-title">{{ kindLabel }}</span>
         <span class="info-desc">{{ kindDescription }}</span>
@@ -332,8 +334,7 @@ function onConfirm() {
 }
 
 .info-icon {
-  font-size: 22px;
-  line-height: 1;
+  color: var(--accent);
   flex-shrink: 0;
   margin-top: 1px;
 }
