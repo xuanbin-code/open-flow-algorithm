@@ -7,6 +7,7 @@ interface MergeNodeProps {
   data?: {
     isEmpty?: boolean
     executing?: boolean
+    flashHighlight?: boolean
   }
   selected?: boolean
   dragging?: boolean
@@ -18,12 +19,13 @@ const props = withDefaults(defineProps<MergeNodeProps>(), {
 })
 
 const executing = computed(() => props.data?.executing ?? false)
+const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
 </script>
 
 <template>
   <div
     class="flow-node merge-node"
-    :class="{ selected, dragging, executing }"
+    :class="{ selected, dragging, executing, flashHighlight }"
   >
     <Handle id="else-in" type="target" :position="Position.Left" />
     <Handle id="then-in" type="target" :position="Position.Right" />
@@ -61,5 +63,15 @@ const executing = computed(() => props.data?.executing ?? false)
 @keyframes exec-pulse {
   from { box-shadow: 0 0 8px rgba(46, 204, 113, 0.6), 0 0 16px rgba(46, 204, 113, 0.3); }
   to   { box-shadow: 0 0 16px rgba(46, 204, 113, 0.9), 0 0 32px rgba(46, 204, 113, 0.5); }
+}
+
+.merge-node.flashHighlight {
+  animation: flash-pulse 0.5s ease-in-out 3;
+  border-color: var(--accent-orange, #f39c12) !important;
+}
+
+@keyframes flash-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(243, 156, 18, 0.4); }
+  50%      { box-shadow: 0 0 20px rgba(243, 156, 18, 0.9), 0 0 36px rgba(243, 156, 18, 0.4); }
 }
 </style>

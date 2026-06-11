@@ -10,6 +10,7 @@ interface IfNodeProps {
     height?: number
     isEmpty?: boolean
     executing?: boolean
+    flashHighlight?: boolean
   }
   selected?: boolean
   dragging?: boolean
@@ -30,12 +31,13 @@ const nodeHeight = computed(() => props.data?.height ?? 80)
 const label = computed(() => props.data?.label ?? '')
 const isEmpty = computed(() => props.data?.isEmpty ?? false)
 const executing = computed(() => props.data?.executing ?? false)
+const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
 </script>
 
 <template>
   <div
     class="flow-node if-node"
-    :class="{ selected, dragging, executing, 'is-empty': isEmpty }"
+    :class="{ selected, dragging, executing, flashHighlight, 'is-empty': isEmpty }"
     :style="{
       width: nodeWidth + 'px',
       height: nodeHeight + 'px'
@@ -132,5 +134,17 @@ const executing = computed(() => props.data?.executing ?? false)
 @keyframes exec-pulse {
   from { filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.7)); }
   to   { filter: drop-shadow(0 0 18px rgba(46, 204, 113, 1)); }
+}
+
+.if-node.flashHighlight {
+  animation: flash-pulse 0.5s ease-in-out 3;
+}
+.if-node.flashHighlight .node-shape {
+  border-color: var(--accent-orange, #f39c12) !important;
+}
+
+@keyframes flash-pulse {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(243, 156, 18, 0.7)); }
+  50%      { filter: drop-shadow(0 0 18px rgba(243, 156, 18, 1)); }
 }
 </style>

@@ -14,6 +14,7 @@ export interface VariableEntry {
 export interface ChatMessage {
   role: 'program' | 'user' | 'system'
   text: string
+  sourceNodeId?: string
 }
 
 // ============================================================
@@ -31,6 +32,7 @@ const emit = defineEmits<{
   clear: []
   submitInput: [value: string]
   cancelInput: []
+  highlightNode: [nodeId: string]
 }>()
 
 // ============================================================
@@ -73,6 +75,10 @@ function onSubmit() {
   if (!val && props.executionStatus === 'waiting-input') return
   emit('submitInput', val)
   inputValue.value = ''
+}
+
+function onOutputClick(nodeId: string) {
+  emit('highlightNode', nodeId)
 }
 
 function onInputKeydown(e: KeyboardEvent) {
@@ -177,7 +183,8 @@ function typeLabel(type: string): string {
           v-for="(msg, i) in chatMessages"
           :key="i"
           class="chat-bubble"
-          :class="`bubble-${msg.role}`"
+          :class="[`bubble-${msg.role}`, { 'bubble-clickable': msg.role === 'program' && msg.sourceNodeId }]"
+          @click="msg.role === 'program' && msg.sourceNodeId && onOutputClick(msg.sourceNodeId)"
         >
           <span v-if="msg.role === 'program'" class="bubble-sender">程序</span>
           <span v-else-if="msg.role === 'user'" class="bubble-sender">你</span>
@@ -394,6 +401,14 @@ function typeLabel(type: string): string {
 }
 .bubble-text {
   color: var(--text-bubble);
+}
+
+.bubble-clickable {
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+.bubble-clickable:hover {
+  filter: brightness(1.15);
 }
 
 /* ---- Input bar ---- */

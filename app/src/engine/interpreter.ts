@@ -29,7 +29,7 @@ export interface RuntimeState {
 export type InterpreterEvent =
   | { type: 'statement-enter'; statement: Statement; nodeId: string }
   | { type: 'statement-leave'; statement: Statement; nodeId: string }
-  | { type: 'output'; text: string }
+  | { type: 'output'; text: string; nodeId?: string }
   | { type: 'input-request'; variable: string }
   | { type: 'done' }
   | { type: 'error'; message: string; statement?: Statement }
@@ -259,7 +259,9 @@ async function* executeOutput(
   const value = evaluateExpression(stmt.expression, state.variables)
   const text = formatOutputValue(value, stmt.newline)
   state.output.push(text)
-  yield { type: 'output', text }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const nodeId = (stmt as any)._nodeId as string | undefined
+  yield { type: 'output', text, nodeId }
 }
 
 async function* executeCall(

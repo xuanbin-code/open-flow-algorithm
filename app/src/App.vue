@@ -151,7 +151,7 @@ watch(LP, () => {
   }, 30)
 })
 
-const { fitView, setViewport, updateNodeData } = useVueFlow()
+const { fitView, setViewport, updateNodeData, setCenter, findNode } = useVueFlow()
 
 // ============================================
 // 启动：尝试恢复上次文件
@@ -250,6 +250,11 @@ function syncSelectionState() {
 /** 记录上一次高亮的节点 ID 集合，用于增量更新 */
 const lastHighlightedIds = ref<Set<string>>(new Set())
 
+/** 当前 flash 高亮的节点 ID（点击输出气泡触发，同一时间只有一个） */
+const flashHighlightedId = ref<string | null>(null)
+/** flash 高亮自动清除定时器 */
+let flashTimer: ReturnType<typeof setTimeout> | null = null
+
 /** 同步 executingNodeIds Set → 节点 data.executing（增量更新，避免全量 setNodes 污染 VueFlow 内部状态）
  *  使用 lastHighlightedIds 对比避免重复调用 updateNodeData（重复调用会导致 CSS animation 重启造成闪烁）
  *  节点取消高亮由 statement-leave 事件处理程序中显式调用 updateNodeData 保证可靠性 */
@@ -274,6 +279,40 @@ function syncExecutionHighlight() {
 // ============================================
 // 执行控制函数
 // ============================================
+
+/** 点击输出气泡：高亮对应节点 + 滚动视口 */
+function onHighlightNode(nodeId: string) {
+  const targetNode = findNode(nodeId)
+  if (!targetNode) return
+
+  // 清除上一个 flash 高亮（处理快速点击）
+  if (flashHighlightedId.value && flashHighlightedId.value !== nodeId) {
+    updateNodeData(flashHighlightedId.value, { flashHighlight: false })
+  }
+  if (flashTimer) {
+    clearTimeout(flashTimer)
+    flashTimer = null
+  }
+
+  // 应用 flash 高亮
+  flashHighlightedId.value = nodeId
+  updateNodeData(nodeId, { flashHighlight: true })
+
+  // 1.8s 后自动清除
+  flashTimer = setTimeout(() => {
+    if (flashHighlightedId.value === nodeId) {
+      updateNodeData(nodeId, { flashHighlight: false })
+      flashHighlightedId.value = null
+    }
+    flashTimer = null
+  }, 1800)
+
+  // 滚动视口到目标节点
+  const pos = targetNode.position
+  const w = (targetNode as any).dimensions?.width ?? 120
+  const h = (targetNode as any).dimensions?.height ?? 50
+  setCenter(pos.x + w / 2, pos.y + h / 2, { zoom: 1, duration: 400 })
+}
 
 function resetEdgeAnimation() {
   for (const edge of edges.value) {
@@ -304,6 +343,16 @@ function resetExecution() {
   inputResolve = null
   stopped = false
   resetEdgeAnimation()
+
+  // 清理 flash 高亮
+  if (flashHighlightedId.value) {
+    updateNodeData(flashHighlightedId.value, { flashHighlight: false })
+    flashHighlightedId.value = null
+  }
+  if (flashTimer) {
+    clearTimeout(flashTimer)
+    flashTimer = null
+  }
 }
 
 async function startExecution() {
@@ -427,7 +476,11 @@ async function driveInterpreter(mode: 'run' | 'step') {
         }
         case 'output': {
           executionOutput.value = [...executionOutput.value, event.text]
-          chatMessages.value = [...chatMessages.value, { role: 'program', text: event.text }]
+          chatMessages.value = [...chatMessages.value, {
+            role: 'program',
+            text: event.text,
+            sourceNodeId: event.nodeId,
+          }]
           break
         }
         case 'input-request': {
@@ -874,6 +927,7 @@ async function handleSaveAs() {
         @clear="clearOutput"
         @submit-input="onInputSubmit"
         @cancel-input="onInputCancel"
+        @highlight-node="onHighlightNode"
       />
     </div>
     <LayoutDebugPanel :params="LP" :definitions="PARAM_DEFS" v-model:vp-zoom="vpZoom" v-model:vp-x="vpX" v-model:vp-y="vpY" />
