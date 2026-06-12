@@ -137,6 +137,8 @@ function loadProgram(xml: string, filePath?: string) {
     currentFilePath.value = filePath
     isNewFile.value = false
   }
+  // 推迟到下一微任务：等 Vue pre-flush watcher 记录完旧值后再清空历史
+  Promise.resolve().then(() => programHistory.clear())
   console.log('Loaded program:', program.value.attributes.name, filePath ? `(${filePath})` : '')
 }
 
@@ -185,6 +187,8 @@ async function initApp() {
   edges.value = [...engine.edges]
   currentFilePath.value = null
   isNewFile.value = true
+  // 推迟到下一微任务：等 Vue pre-flush watcher 记录完旧值后再清空历史
+  Promise.resolve().then(() => programHistory.clear())
   await refreshRecentFiles()
   console.log('空白画布已创建')
 }
@@ -199,6 +203,16 @@ async function refreshRecentFiles() {
 
 // CTRL+S / Ctrl+Z / Ctrl+Y / Delete 快捷键
 function onKeydown(e: KeyboardEvent) {
+  // 焦点在输入框中 → 交给浏览器处理原生快捷键（如 Ctrl+Z 文本撤销）
+  const ae = document.activeElement
+  if (
+    ae &&
+    (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT' ||
+     (ae as HTMLElement).isContentEditable)
+  ) {
+    return
+  }
+
   // 运行时不响应编辑快捷键（Ctrl+S 除外：运行中不允许保存）
   if (isExecuting.value) {
     // 仍允许 Ctrl+S 保存
@@ -763,6 +777,8 @@ async function onMenuAction(actionId: string) {
       edges.value = [...engine.edges]
       currentFilePath.value = null
       isNewFile.value = true
+      // 推迟到下一微任务：等 Vue pre-flush watcher 记录完旧值后再清空历史
+      Promise.resolve().then(() => programHistory.clear())
       await nextTick()
       fitView()
       break
