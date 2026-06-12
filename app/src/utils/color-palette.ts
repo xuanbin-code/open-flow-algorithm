@@ -2,6 +2,9 @@
 // 主题色调色板工具
 // ============================================================
 
+import { i18n } from '../i18n'
+const t = i18n.global.t
+
 export interface AccentPreset {
   id: string
   name: string
@@ -10,14 +13,14 @@ export interface AccentPreset {
 }
 
 export const ACCENT_PRESETS: AccentPreset[] = [
-  { id: 'blue',    name: '天空蓝', dark: '#4fc3f7', light: '#1976d2' },
-  { id: 'emerald', name: '翡翠绿', dark: '#2ecc71', light: '#27ae60' },
-  { id: 'coral',   name: '珊瑚红', dark: '#e74c3c', light: '#c0392b' },
-  { id: 'orange',  name: '活力橙', dark: '#e67e22', light: '#d35400' },
-  { id: 'violet',  name: '紫罗兰', dark: '#9b59b6', light: '#8e44ad' },
-  { id: 'teal',    name: '青碧色', dark: '#1abc9c', light: '#16a085' },
-  { id: 'amber',   name: '琥珀金', dark: '#f39c12', light: '#e67e22' },
-  { id: 'rose',    name: '玫瑰粉', dark: '#e91e63', light: '#c2185b' },
+  { id: 'blue',    name: t('colorPresets.blue'), dark: '#4fc3f7', light: '#1976d2' },
+  { id: 'emerald', name: t('colorPresets.emerald'), dark: '#2ecc71', light: '#27ae60' },
+  { id: 'coral',   name: t('colorPresets.coral'), dark: '#e74c3c', light: '#c0392b' },
+  { id: 'orange',  name: t('colorPresets.orange'), dark: '#e67e22', light: '#d35400' },
+  { id: 'violet',  name: t('colorPresets.violet'), dark: '#9b59b6', light: '#8e44ad' },
+  { id: 'teal',    name: t('colorPresets.teal'), dark: '#1abc9c', light: '#16a085' },
+  { id: 'amber',   name: t('colorPresets.amber'), dark: '#f39c12', light: '#e67e22' },
+  { id: 'rose',    name: t('colorPresets.rose'), dark: '#e91e63', light: '#c2185b' },
 ]
 
 // ============================================================

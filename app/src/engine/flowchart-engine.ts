@@ -22,6 +22,8 @@ import {
 } from './fprg-ast'
 import type { EdgeMarkerType } from '@vue-flow/core'
 import { measureTextWidth } from './text-measure'
+import { i18n } from '../i18n'
+const t = i18n.global.t
 
 // ============================================================
 // Types
@@ -214,7 +216,7 @@ export class FlowchartEngine {
 
   private initGraph(): void {
     // 始终创建 START 节点
-    let prev: FlowNode = this.createNode('start', '开始', 80)
+    let prev: FlowNode = this.createNode('start', t('engine.label.start'), 80)
 
     // 遍历 Main 函数 body 中的每条语句（递归处理嵌套 if/for）
     const mainFunc = this.program.functions.find(f => f.name === 'Main')

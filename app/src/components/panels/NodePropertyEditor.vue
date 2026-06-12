@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Component } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Statement } from '../../engine/fprg-ast'
 import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard } from '../icons'
+
+const { t } = useI18n()
 
 // ============================================================
 // Props & Emits
@@ -22,26 +25,26 @@ const emit = defineEmits<{
 // ============================================================
 
 const KIND_LABELS: Record<string, string> = {
-  declare: '声明',
-  assign: '赋值',
-  input: '输入',
-  output: '输出',
-  call: '函数调用',
-  if: '判断',
-  while: 'while 循环',
-  for: 'for 循环',
-  do: 'do 循环',
-  more: '占位',
+  declare: t('nodes.kind.declare'),
+  assign: t('nodes.kind.assign'),
+  input: t('nodes.kind.input'),
+  output: t('nodes.kind.output'),
+  call: t('nodes.kind.call'),
+  if: t('nodes.kind.if'),
+  while: t('nodes.kind.while'),
+  for: t('nodes.kind.for'),
+  do: t('nodes.kind.do'),
+  more: t('nodes.kind.more'),
 }
 
 const KIND_DESCRIPTIONS: Record<string, string> = {
-  declare: '声明，用来创建程序运行中存储数据用的变量或数组。',
-  assign: '赋值，用来修改变量或数组元素的值。',
-  input: '输入，从用户获取数据并存储到变量中。',
-  output: '输出，将表达式的结果显示给用户。',
-  if: '判断，根据条件表达式的真假选择不同的执行路径。',
-  for: 'For 循环，按照指定的次数重复执行一组语句。',
-  while: 'While 循环，当条件为真时重复执行一组语句。',
+  declare: t('nodes.description.declare'),
+  assign: t('nodes.description.assign'),
+  input: t('nodes.description.input'),
+  output: t('nodes.description.output'),
+  if: t('nodes.description.if'),
+  for: t('nodes.description.for'),
+  while: t('nodes.description.while'),
 }
 
 const KIND_ICONS: Record<string, Component> = {
@@ -71,10 +74,10 @@ const kindDescription = computed(() =>
 // ============================================================
 
 const DECLARE_TYPES = [
-  { value: 'Integer', label: '整数值' },
-  { value: 'Real', label: '实数值' },
-  { value: 'String', label: '字符串' },
-  { value: 'Boolean', label: '逻辑值' },
+  { value: 'Integer', label: t('nodes.type.Integer') },
+  { value: 'Real', label: t('nodes.type.Real') },
+  { value: 'String', label: t('nodes.type.String') },
+  { value: 'Boolean', label: t('nodes.type.Boolean') },
 ]
 
 // ============================================================
@@ -175,18 +178,18 @@ function onConfirm() {
       <!-- ===== declare ===== -->
       <template v-if="statement.kind === 'declare'">
         <label class="field">
-          <span class="field-label">变量名称:</span>
+          <span class="field-label">{{ $t('editor.form.variableName') }}</span>
           <input
             class="field-input"
             type="text"
-            placeholder="输入变量名称"
+            :placeholder="$t('editor.form.namePlaceholder')"
             :value="statement.name"
             @input="setField('name', ($event.target as HTMLInputElement).value)"
           />
         </label>
 
         <div class="field field-block">
-          <span class="field-label">类型:</span>
+          <span class="field-label">{{ $t('editor.form.type') }}</span>
           <div class="radio-group">
             <label
               v-for="dt in DECLARE_TYPES"
@@ -212,20 +215,20 @@ function onConfirm() {
             :checked="statement.array"
             @change="setField('array', ($event.target as HTMLInputElement).checked)"
           />
-          <span class="field-label">数组?</span>
+          <span class="field-label">{{ $t('editor.form.isArray') }}</span>
         </label>
 
         <label v-if="statement.array" class="field">
           <span class="field-label">
-            数组大小
-            <span v-if="isArrayLiteral" class="auto-hint">（自动）</span>
+            {{ $t('editor.form.arraySize') }}
+            <span v-if="isArrayLiteral" class="auto-hint">{{ $t('editor.form.auto') }}</span>
             :
           </span>
           <input
             class="field-input"
             :class="{ disabled: isArrayLiteral }"
             type="text"
-            :placeholder="isArrayLiteral ? '由初始值自动计算' : '输入数组大小'"
+            :placeholder="isArrayLiteral ? $t('editor.form.autoPlaceholder') : $t('editor.form.sizePlaceholder')"
             :value="statement.size"
             :disabled="isArrayLiteral"
             @input="setField('size', ($event.target as HTMLInputElement).value)"
@@ -233,11 +236,11 @@ function onConfirm() {
         </label>
 
         <label class="field">
-          <span class="field-label">初始值:</span>
+          <span class="field-label">{{ $t('editor.form.initialValue') }}</span>
           <input
             class="field-input"
             type="text"
-            placeholder="可选，如 5 或 [1,2,3]"
+            :placeholder="$t('editor.form.optionalExpr')"
             :value="statement.expression"
             @input="onExpressionInput(($event.target as HTMLInputElement).value)"
           />
@@ -248,21 +251,21 @@ function onConfirm() {
       <template v-if="statement.kind === 'assign'">
         <div class="assign-layout">
           <div class="assign-left">
-            <span class="field-label">变量</span>
+            <span class="field-label">{{ $t('editor.form.variable') }}</span>
             <input
               class="field-input"
               type="text"
-              placeholder="变量名"
+              :placeholder="$t('editor.form.variablePlaceholder')"
               :value="statement.variable"
               @input="setField('variable', ($event.target as HTMLInputElement).value)"
             />
           </div>
           <span class="assign-equals">=</span>
           <div class="assign-right">
-            <span class="field-label">表达式</span>
+            <span class="field-label">{{ $t('editor.form.expression') }}</span>
             <textarea
               class="field-input"
-              placeholder="表达式"
+              :placeholder="$t('editor.form.expressionPlaceholder')"
               rows="3"
               :value="statement.expression"
               @input="setField('expression', ($event.target as HTMLTextAreaElement).value)"
@@ -274,10 +277,11 @@ function onConfirm() {
       <!-- ===== input ===== -->
       <template v-if="statement.kind === 'input'">
         <label class="field">
-          <span class="field-label">变量名:</span>
+          <span class="field-label">{{ $t('editor.form.variableName') }}</span>
           <input
             class="field-input"
             type="text"
+            :placeholder="$t('editor.form.namePlaceholder')"
             :value="statement.variable"
             @input="setField('variable', ($event.target as HTMLInputElement).value)"
           />
@@ -287,7 +291,7 @@ function onConfirm() {
       <!-- ===== output ===== -->
       <template v-if="statement.kind === 'output'">
         <label class="field">
-          <span class="field-label">表达式:</span>
+          <span class="field-label">{{ $t('editor.form.expression') }}</span>
           <input
             class="field-input"
             type="text"
@@ -301,14 +305,14 @@ function onConfirm() {
             :checked="statement.newline"
             @change="setField('newline', ($event.target as HTMLInputElement).checked)"
           />
-          <span class="field-label">输出后换行</span>
+          <span class="field-label">{{ $t('editor.form.newlineAfterOutput') }}</span>
         </label>
       </template>
 
       <!-- ===== call ===== -->
       <template v-if="statement.kind === 'call'">
         <label class="field">
-          <span class="field-label">函数调用:</span>
+          <span class="field-label">{{ $t('editor.form.functionCall') }}</span>
           <input
             class="field-input"
             type="text"
@@ -321,7 +325,7 @@ function onConfirm() {
       <!-- ===== if ===== -->
       <template v-if="statement.kind === 'if'">
         <label class="field">
-          <span class="field-label">条件表达式:</span>
+          <span class="field-label">{{ $t('editor.form.condition') }}</span>
           <input
             class="field-input"
             type="text"
@@ -334,7 +338,7 @@ function onConfirm() {
       <!-- ===== while / do ===== -->
       <template v-if="statement.kind === 'while' || statement.kind === 'do'">
         <label class="field">
-          <span class="field-label">条件表达式:</span>
+          <span class="field-label">{{ $t('editor.form.condition') }}</span>
           <input
             class="field-input"
             type="text"
@@ -349,11 +353,11 @@ function onConfirm() {
         <div class="for-fields">
         <!-- Row 1: 循环变量 -->
         <label class="field">
-          <span class="field-label">循环变量:</span>
+          <span class="field-label">{{ $t('editor.form.forVariable') }}</span>
           <input
             class="field-input"
             type="text"
-            placeholder="如 i"
+            :placeholder="$t('editor.form.forVarPlaceholder')"
             :value="statement.variable"
             @input="setField('variable', ($event.target as HTMLInputElement).value)"
           />
@@ -362,7 +366,7 @@ function onConfirm() {
         <!-- Row 2: 起始值 → 终止值 -->
         <div class="for-row">
           <label class="field for-half">
-            <span class="field-label">起始值:</span>
+            <span class="field-label">{{ $t('editor.form.startValue') }}</span>
             <div class="spin-wrap">
               <input
                 class="field-input spin-input"
@@ -379,7 +383,7 @@ function onConfirm() {
           </label>
           <span class="for-arrow">→</span>
           <label class="field for-half">
-            <span class="field-label">终止值:</span>
+            <span class="field-label">{{ $t('editor.form.endValue') }}</span>
             <div class="spin-wrap">
               <input
                 class="field-input spin-input"
@@ -399,7 +403,7 @@ function onConfirm() {
         <!-- Row 3: 每步变化 + 方向 -->
         <div class="for-row">
           <label class="field for-half">
-            <span class="field-label">每步变化:</span>
+            <span class="field-label">{{ $t('editor.form.step') }}</span>
             <div class="spin-wrap">
               <input
                 class="field-input spin-input"
@@ -415,18 +419,18 @@ function onConfirm() {
             </div>
           </label>
           <div class="for-direction">
-            <span class="field-label">方向:</span>
+            <span class="field-label">{{ $t('editor.form.direction') }}</span>
             <div class="direction-toggle">
               <button
                 class="dir-btn"
                 :class="{ active: forDirection === 'inc' }"
                 @click="setDirection('inc')"
-              >增加</button>
+              >{{ $t('editor.form.increment') }}</button>
               <button
                 class="dir-btn"
                 :class="{ active: forDirection === 'dec' }"
                 @click="setDirection('dec')"
-              >减少</button>
+              >{{ $t('editor.form.decrement') }}</button>
             </div>
           </div>
         </div>
@@ -435,14 +439,14 @@ function onConfirm() {
 
       <!-- ===== more ===== -->
       <template v-if="statement.kind === 'more'">
-        <div class="no-props">此节点无属性可编辑</div>
+        <div class="no-props">{{ $t('editor.form.noProperties') }}</div>
       </template>
     </div>
 
     <!-- Footer buttons -->
     <div class="editor-footer">
-      <button class="btn-cancel" @click="emit('close')">取消</button>
-      <button class="btn-confirm" @click="onConfirm">确定</button>
+      <button class="btn-cancel" @click="emit('close')">{{ $t('common.cancel') }}</button>
+      <button class="btn-confirm" @click="onConfirm">{{ $t('common.ok') }}</button>
     </div>
   </div>
 </template>

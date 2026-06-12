@@ -8,6 +8,8 @@
 import type { Program, Statement, IfStatement, WhileStatement, ForStatement } from './fprg-ast'
 import { splitDeclareNames } from './fprg-ast'
 import { evaluateExpression, coerceValue, defaultValueForType, parseArrayAccess } from './expression-evaluator'
+import { i18n } from '../i18n'
+const t = i18n.global.t
 
 // ============================================================
 // Types
@@ -102,7 +104,7 @@ async function* runProgram(
 ): AsyncGenerator<InterpreterEvent> {
   const mainFunc = program.functions.find((f) => f.name === 'Main')
   if (!mainFunc) {
-    yield { type: 'error', message: '程序中没有 Main 函数' }
+    yield { type: 'error', message: t('engine.error.noMainFunction') }
     return
   }
 
@@ -207,7 +209,7 @@ async function* executeDeclare(
 ): AsyncGenerator<InterpreterEvent> {
   const names = splitDeclareNames(stmt.name)
   if (names.length === 0 || !names.some((n) => n)) {
-    yield { type: 'error', message: '声明语句缺少变量名称', statement: stmt }
+    yield { type: 'error', message: t('engine.error.declareMissingName'), statement: stmt }
     return
   }
   const flowType = stmt.type || 'Integer'
@@ -232,10 +234,10 @@ async function* executeDeclare(
           const sizeValue = evaluateExpression(stmt.size || '0', state.variables)
           const size = Math.max(0, Math.floor(Number(sizeValue)))
           if (isNaN(size) || !isFinite(size)) {
-            throw new Error(`数组 "${name}" 的大小无效: ${stmt.size}`)
+            throw new Error(t('engine.error.arraySizeInvalid', { name, size: stmt.size }))
           }
           if (size > 1_000_000) {
-            throw new Error(`数组 "${name}" 的大小超出上限 (1,000,000): ${size}`)
+            throw new Error(t('engine.error.arraySizeExceeded', { name, size }))
           }
           const val = coerceValue(result, flowType)
           state.variables[name] = new Array(size).fill(val)
@@ -245,10 +247,10 @@ async function* executeDeclare(
         const sizeValue = evaluateExpression(stmt.size || '0', state.variables)
         const size = Math.max(0, Math.floor(Number(sizeValue)))
         if (isNaN(size) || !isFinite(size)) {
-          throw new Error(`数组 "${name}" 的大小无效: ${stmt.size}`)
+          throw new Error(t('engine.error.arraySizeInvalid', { name, size: stmt.size }))
         }
         if (size > 1_000_000) {
-          throw new Error(`数组 "${name}" 的大小超出上限 (1,000,000): ${size}`)
+          throw new Error(t('engine.error.arraySizeExceeded', { name, size }))
         }
         const defaultValue = defaultValueForType(flowType)
         state.variables[name] = new Array(size).fill(defaultValue)
@@ -279,11 +281,11 @@ async function* executeAssign(
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
   if (!stmt.variable) {
-    yield { type: 'error', message: '赋值语句缺少目标变量', statement: stmt }
+    yield { type: 'error', message: t('engine.error.assignMissingTarget'), statement: stmt }
     return
   }
   if (!stmt.expression) {
-    yield { type: 'error', message: '赋值语句缺少表达式', statement: stmt }
+    yield { type: 'error', message: t('engine.error.assignMissingExpression'), statement: stmt }
     return
   }
 
@@ -297,7 +299,7 @@ async function* executeAssign(
     const { name, indexExpr } = access
     const arr = state.variables[name]
     if (!Array.isArray(arr)) {
-      throw new Error(`"${name}" 不是数组，无法使用下标访问`)
+      throw new Error(t('engine.error.notArray', { name }))
     }
     const rawIndex = evaluateExpression(indexExpr!, state.variables)
     const index = Math.floor(Number(rawIndex))
@@ -306,7 +308,7 @@ async function* executeAssign(
     }
     if (index < 0 || index >= arr.length) {
       throw new Error(
-        `数组 "${name}" 索引 ${index} 越界 (大小: ${arr.length})`,
+        t('engine.error.indexOutOfBounds', { name, index, size: arr.length }),
       )
     }
     // 从 variableTypes 中推断元素类型（去掉 [] 后缀）
@@ -336,7 +338,7 @@ async function* executeInput(
 
   if (inputValue === undefined) {
     // 用户取消了输入或终止了执行
-    throw new StopExecution('输入已取消')
+    throw new StopExecution(t('engine.error.inputCancelled'))
   }
 
   // 解析数组下标
@@ -347,16 +349,16 @@ async function* executeInput(
     const { name, indexExpr } = access
     const arr = state.variables[name]
     if (!Array.isArray(arr)) {
-      throw new Error(`"${name}" 不是数组，无法使用下标访问`)
+      throw new Error(t('engine.error.notArray', { name }))
     }
     const rawIndex = evaluateExpression(indexExpr!, state.variables)
     const index = Math.floor(Number(rawIndex))
     if (isNaN(index) || !isFinite(index)) {
-      throw new Error(`数组 "${name}" 的索引无效: ${indexExpr}`)
+      throw new Error(t('engine.error.indexInvalid', { name, indexExpr }))
     }
     if (index < 0 || index >= arr.length) {
       throw new Error(
-        `数组 "${name}" 索引 ${index} 越界 (大小: ${arr.length})`,
+        t('engine.error.indexOutOfBounds', { name, index, size: arr.length }),
       )
     }
     const elemType = (state.variableTypes[name] || '').replace(/\[\]$/, '')
@@ -413,7 +415,7 @@ async function* executeIf(
   const nodeId = (stmt as any)._nodeId as string | undefined
 
   if (!stmt.expression) {
-    yield { type: 'error', message: '判断语句缺少条件表达式', statement: stmt }
+    yield { type: 'error', message: t('engine.error.ifMissingCondition'), statement: stmt }
     return
   }
 
@@ -446,14 +448,14 @@ async function* executeWhile(
   const nodeId = (stmt as any)._nodeId as string | undefined
 
   if (!stmt.expression) {
-    yield { type: 'error', message: 'while 循环缺少条件表达式', statement: stmt }
+    yield { type: 'error', message: t('engine.error.whileMissingCondition'), statement: stmt }
     return
   }
 
   let iterations = 0
   while (true) {
     if (++iterations > MAX_ITERATIONS) {
-      yield { type: 'error', message: `while 循环超过最大迭代次数 (${MAX_ITERATIONS})，可能存在死循环`, statement: stmt }
+      yield { type: 'error', message: t('engine.error.loopMaxIterations', { kind: 'while', max: MAX_ITERATIONS }), statement: stmt }
       return
     }
 
@@ -500,7 +502,7 @@ async function* executeFor(
   let iterations = 0
   while (true) {
     if (++iterations > MAX_ITERATIONS) {
-      yield { type: 'error', message: `for 循环超过最大迭代次数 (${MAX_ITERATIONS})，可能存在死循环`, statement: stmt }
+      yield { type: 'error', message: t('engine.error.loopMaxIterations', { kind: 'for', max: MAX_ITERATIONS }), statement: stmt }
       return
     }
 
@@ -537,14 +539,14 @@ async function* executeDo(
   const nodeId = (stmt as any)._nodeId as string | undefined
 
   if (!stmt.expression) {
-    yield { type: 'error', message: 'do 循环缺少条件表达式', statement: stmt }
+    yield { type: 'error', message: t('engine.error.doMissingCondition'), statement: stmt }
     return
   }
 
   let iterations = 0
   do {
     if (++iterations > MAX_ITERATIONS) {
-      yield { type: 'error', message: `do 循环超过最大迭代次数 (${MAX_ITERATIONS})，可能存在死循环`, statement: stmt }
+      yield { type: 'error', message: t('engine.error.loopMaxIterations', { kind: 'do', max: MAX_ITERATIONS }), statement: stmt }
       return
     }
     yield* executeBlock(stmt.body, state)
@@ -575,7 +577,7 @@ async function* executeDo(
 /** 格式化输出值为显示字符串 */
 function formatOutputValue(value: unknown, _newline: boolean): string {
   if (value === null || value === undefined) return ''
-  if (typeof value === 'boolean') return value ? '真' : '假'
+  if (typeof value === 'boolean') return value ? t('execution.true') : t('execution.false')
   return String(value)
 }
 

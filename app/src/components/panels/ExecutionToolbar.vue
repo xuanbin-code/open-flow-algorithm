@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Play, StepForward, Pause, Square, Table } from '../icons'
+
+const { t } = useI18n()
 
 // ============================================================
 // Props & Emits
@@ -41,7 +44,7 @@ const canStop = computed(() =>
 
 // 步进按钮在 paused 状态下文案改为"继续"
 const stepLabel = computed(() =>
-  props.executionStatus === 'paused' ? '继续' : '步进',
+  props.executionStatus === 'paused' ? t('execution.btnContinue') : t('execution.btnStep'),
 )
 
 // 暂停按钮在 paused 状态下变为"继续运行"（waiting-input 不在此列，需通过控制台输入）
@@ -62,9 +65,9 @@ function onPauseClick() {
 // ============================================================
 
 const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
-  { id: 'slow', label: '慢' },
-  { id: 'normal', label: '常' },
-  { id: 'fast', label: '快' },
+  { id: 'slow', label: t('execution.speedSlow') },
+  { id: 'normal', label: t('execution.speedNormal') },
+  { id: 'fast', label: t('execution.speedFast') },
 ]
 </script>
 
@@ -73,12 +76,12 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
     <!-- Run -->
     <button
       class="tb-btn"
-      title="运行"
+      :title="$t('execution.btnRun')"
       :disabled="!canRun"
       @click="emit('run')"
     >
       <Play :size="14" />
-      <span>运行</span>
+      <span>{{ $t('execution.btnRun') }}</span>
     </button>
 
     <div class="tb-sep" />
@@ -97,24 +100,24 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
     <!-- Pause / Resume -->
     <button
       class="tb-btn"
-      :title="isPaused ? '继续运行' : '暂停'"
+      :title="isPaused ? $t('execution.btnResume') : $t('execution.btnPause')"
       :disabled="!canPause && !isPaused"
       @click="onPauseClick"
     >
       <Pause v-if="!isPaused" :size="14" />
       <Play v-else :size="14" />
-      <span>{{ isPaused ? '继续' : '暂停' }}</span>
+      <span>{{ isPaused ? $t('execution.btnContinue') : $t('execution.btnPause') }}</span>
     </button>
 
     <!-- Stop -->
     <button
       class="tb-btn"
-      title="停止"
+      :title="$t('execution.btnStop')"
       :disabled="!canStop"
       @click="emit('stop')"
     >
       <Square :size="14" />
-      <span>停止</span>
+      <span>{{ $t('execution.btnStop') }}</span>
     </button>
 
     <!-- Spacer -->
@@ -122,7 +125,7 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
 
     <!-- Speed selector -->
     <div class="tb-speed-group">
-      <span class="speed-label">速度</span>
+      <span class="speed-label">{{ $t('execution.speed') }}</span>
       <button
         v-for="s in SPEEDS"
         :key="s.id"
@@ -139,11 +142,11 @@ const SPEEDS: Array<{ id: 'slow' | 'normal' | 'fast'; label: string }> = [
     <!-- Variable monitor toggle -->
     <button
       class="tb-btn"
-      :title="showVariableMonitor ? '隐藏变量监视' : '显示变量监视'"
+      :title="showVariableMonitor ? $t('execution.hideVarMonitor') : $t('execution.showVarMonitor')"
       @click="emit('toggleVariableMonitor')"
     >
       <Table :size="14" />
-      <span v-if="showVariableMonitor">变量</span>
+      <span v-if="showVariableMonitor">{{ $t('execution.varValue') }}</span>
     </button>
   </div>
 </template>

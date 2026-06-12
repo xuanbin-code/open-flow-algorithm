@@ -1,5 +1,6 @@
 import { ref, watch } from 'vue'
 import { generateAccentPalette } from '../utils/color-palette'
+import { setI18nLocale } from '../i18n'
 
 // ============================================================
 // Types
@@ -107,6 +108,16 @@ watch(
     persist(newVal)
   },
   { deep: true },
+)
+
+// Sync language changes to vue-i18n
+watch(
+  () => settings.value.language,
+  (newLang) => {
+    setI18nLocale(newLang)
+    // Notify App.vue to rebuild the flowchart engine (node labels change with locale)
+    window.dispatchEvent(new CustomEvent('language-changed', { detail: newLang }))
+  },
 )
 
 // ============================================================

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useSettings } from '../composables/useSettings'
 import { ACCENT_PRESETS } from '../utils/color-palette'
 import { Sun, Moon, Settings, Check, Circle } from './icons'
+
+const { t } = useI18n()
 
 // ============================================================
 // Props & Emits
@@ -82,30 +85,34 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
         <!-- Header -->
         <div class="dialog-header">
           <Settings class="dialog-icon" :size="20" />
-          <span class="dialog-title">设置</span>
+          <span class="dialog-title">{{ $t('settings.title') }}</span>
         </div>
 
         <!-- Body -->
         <div class="dialog-body">
-          <!-- 1. Language (placeholder) -->
+          <!-- 1. Language -->
           <div class="setting-row">
             <div class="setting-info">
-              <span class="setting-label">语言</span>
-              <span class="setting-desc">界面显示语言</span>
+              <span class="setting-label">{{ $t('settings.languageLabel') }}</span>
+              <span class="setting-desc">{{ $t('settings.languageDesc') }}</span>
             </div>
             <div class="setting-control">
-              <select disabled class="setting-select">
-                <option>中文 (简体)</option>
+              <select
+                class="setting-select setting-select--active"
+                :value="settings.language"
+                @change="settings.language = ($event.target as HTMLSelectElement).value"
+              >
+                <option value="zh-CN">{{ $t('settings.zhCN') }}</option>
+                <option value="en">{{ $t('settings.enUS') }}</option>
               </select>
-              <span class="coming-soon-tag">即将推出</span>
             </div>
           </div>
 
           <!-- 2. Theme color -->
           <div class="setting-row setting-row-top">
             <div class="setting-info">
-              <span class="setting-label">主题色</span>
-              <span class="setting-desc">自定义强调色</span>
+              <span class="setting-label">{{ $t('settings.themeColor') }}</span>
+              <span class="setting-desc">{{ $t('settings.themeColorDesc') }}</span>
             </div>
             <div class="setting-control" />
           </div>
@@ -128,7 +135,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
           <!-- Custom color -->
           <div class="setting-row accent-custom-row">
             <div class="setting-info">
-              <span class="setting-label">自定义颜色</span>
+              <span class="setting-label">{{ $t('settings.customColor') }}</span>
             </div>
             <div class="setting-control">
               <input
@@ -144,30 +151,32 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
           <!-- 3. Dark/Light toggle -->
           <div class="setting-row">
             <div class="setting-info">
-              <span class="setting-label">深色 / 浅色模式</span>
-              <span class="setting-desc">切换界面明暗主题</span>
+              <span class="setting-label">{{ $t('settings.darkLightMode') }}</span>
+              <span class="setting-desc">{{ $t('settings.darkLightDesc') }}</span>
             </div>
             <div class="setting-control">
               <button class="theme-toggle-btn" @click="toggleTheme">
                 <Moon v-if="settings.theme === 'dark'" class="theme-icon" :size="16" />
                 <Sun v-else class="theme-icon" :size="16" />
-                <span class="theme-label">{{ settings.theme === 'dark' ? '深色' : '浅色' }}</span>
+                <span class="theme-label">{{ settings.theme === 'dark' ? $t('settings.dark') : $t('settings.light') }}</span>
               </button>
             </div>
           </div>
 
-          <!-- 4. Sound effects (placeholder) -->
+          <!-- 4. Sound effects -->
           <div class="setting-row">
             <div class="setting-info">
-              <span class="setting-label">音效</span>
-              <span class="setting-desc">运行、结束、报错时播放提示音</span>
+              <span class="setting-label">{{ $t('settings.soundEffects') }}</span>
+              <span class="setting-desc">{{ $t('settings.soundEffectsDesc') }}</span>
             </div>
             <div class="setting-control">
-              <div class="toggle-placeholder">
-                <Circle class="toggle-knob off" :size="16" />
-                <span class="toggle-state">关</span>
-              </div>
-              <span class="coming-soon-tag">即将推出</span>
+              <input
+                type="checkbox"
+                class="sound-checkbox"
+                :checked="settings.soundEffects"
+                @change="settings.soundEffects = ($event.target as HTMLInputElement).checked"
+              />
+              <span class="toggle-state">{{ settings.soundEffects ? $t('common.on') : $t('common.off') }}</span>
             </div>
           </div>
         </div>
@@ -175,7 +184,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
         <!-- Footer -->
         <div class="dialog-footer">
           <button class="dialog-btn dialog-btn-close" @click="emit('close')">
-            关闭
+            {{ $t('common.close') }}
           </button>
         </div>
       </div>
@@ -266,18 +275,28 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
   flex-shrink: 0;
 }
 
-/* ---- Placeholder select ---- */
+/* ---- Language select ---- */
 .setting-select {
   padding: 6px 10px;
   background: var(--bg-input);
   border: 1px solid var(--border-medium);
   border-radius: 6px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 13px;
   font-family: inherit;
   outline: none;
-  cursor: not-allowed;
-  opacity: 0.5;
+  cursor: pointer;
+}
+.setting-select:focus {
+  border-color: var(--accent, #4fc3f7);
+}
+
+/* ---- Sound checkbox ---- */
+.sound-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--accent, #4fc3f7);
 }
 
 /* ---- Coming soon tag ---- */

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import NodePropertyEditor from './NodePropertyEditor.vue'
 import type { Statement } from '../../engine/fprg-ast'
 import { GripVertical, X } from '../icons'
+
+const { t } = useI18n()
 
 // ============================================================
 // Types
@@ -45,20 +48,20 @@ const emit = defineEmits<{
 const isEditing = computed(() => !!props.editingStatement)
 
 const KIND_LABELS: Record<string, string> = {
-  declare: '声明',
-  assign: '赋值',
-  input: '输入',
-  output: '输出',
-  call: '函数调用',
-  if: '判断',
-  while: 'while 循环',
-  for: 'for 循环',
-  do: 'do 循环',
-  more: '占位',
+  declare: t('nodes.kind.declare'),
+  assign: t('nodes.kind.assign'),
+  input: t('nodes.kind.input'),
+  output: t('nodes.kind.output'),
+  call: t('nodes.kind.call'),
+  if: t('nodes.kind.if'),
+  while: t('nodes.kind.while'),
+  for: t('nodes.kind.for'),
+  do: t('nodes.kind.do'),
+  more: t('nodes.kind.more'),
 }
 
 const editTitle = computed(() => {
-  if (!props.editingStatement) return '编辑属性'
+  if (!props.editingStatement) return t('editor.editTitle')
   return KIND_LABELS[props.editingStatement.kind] ?? props.editingStatement.kind
 })
 
@@ -102,30 +105,30 @@ function onDragEnd() {
 
 const categories: Category[] = [
   {
-    name: '输入/输出',
+    name: t('editor.categories.io'),
     nodes: [
-      { type: 'input',  label: '输入',  category: '输入/输出', bg: '#e67e22', border: '#d35400', shape: 'parallelogram' },
-      { type: 'output', label: '输出',  category: '输入/输出', bg: '#1abc9c', border: '#16a085', shape: 'parallelogram' },
+      { type: 'input',  label: t('nodes.kind.input'),  category: t('editor.categories.io'), bg: '#e67e22', border: '#d35400', shape: 'parallelogram' },
+      { type: 'output', label: t('nodes.kind.output'),  category: t('editor.categories.io'), bg: '#1abc9c', border: '#16a085', shape: 'parallelogram' },
     ],
   },
   {
-    name: '变量',
+    name: t('editor.categories.variables'),
     nodes: [
-      { type: 'declare', label: '声明', category: '变量', bg: '#3498db', border: '#2980b9', shape: 'rect' },
-      { type: 'assign',  label: '赋值', category: '变量', bg: '#9b59b6', border: '#8e44ad', shape: 'rect' },
+      { type: 'declare', label: t('nodes.kind.declare'), category: t('editor.categories.variables'), bg: '#3498db', border: '#2980b9', shape: 'rect' },
+      { type: 'assign',  label: t('nodes.kind.assign'), category: t('editor.categories.variables'), bg: '#9b59b6', border: '#8e44ad', shape: 'rect' },
     ],
   },
   {
-    name: '控制',
+    name: t('editor.categories.control'),
     nodes: [
-      { type: 'if', label: '判断', category: '控制', bg: '#f39c12', border: '#e67e22', shape: 'diamond' },
+      { type: 'if', label: t('nodes.kind.if'), category: t('editor.categories.control'), bg: '#f39c12', border: '#e67e22', shape: 'diamond' },
     ],
   },
   {
-    name: '循环',
+    name: t('editor.categories.loop'),
     nodes: [
-      { type: 'for',   label: 'for 循环',   category: '循环', bg: '#2ecc71', border: '#27ae60', shape: 'hexagon' },
-      { type: 'while', label: 'while 循环', category: '循环', bg: '#f1c40f', border: '#d4ac0d', shape: 'hexagon' },
+      { type: 'for',   label: t('nodes.kind.for'),   category: t('editor.categories.loop'), bg: '#2ecc71', border: '#27ae60', shape: 'hexagon' },
+      { type: 'while', label: t('nodes.kind.while'), category: t('editor.categories.loop'), bg: '#f1c40f', border: '#d4ac0d', shape: 'hexagon' },
     ],
   },
 ]
@@ -174,7 +177,7 @@ function labelStyle(n: InsertableNode): Record<string, string> {
       <!-- Header (drag handle) -->
       <div class="panel-header" @mousedown="onDragStart">
         <GripVertical class="drag-icon" :size="14" />
-        <span class="panel-title">{{ isEditing ? editTitle : '插入节点' }}</span>
+        <span class="panel-title">{{ isEditing ? editTitle : $t('editor.title') }}</span>
         <button class="close-btn" @click="isEditing ? emit('close-editor') : emit('close')">
           <X :size="14" />
         </button>

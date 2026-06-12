@@ -10,6 +10,9 @@
 //   Loop:    while, for, do
 // ============================================================
 
+import { i18n } from '../i18n'
+const t = i18n.global.t
+
 // ============================================================
 // Types
 // ============================================================
@@ -134,7 +137,7 @@ export function createEmptyProgram(name?: string): Program {
   return {
     kind: 'program',
     attributes: {
-      name: name ?? '未命名',
+      name: name ?? t('engine.label.untitled'),
       authors: '',
       about: '',
       saved: new Date().toISOString().split('T')[0],
@@ -165,7 +168,7 @@ export function parseFprgToAst(xml: string): Program {
   const root = doc.documentElement
 
   if (!root || root.tagName !== 'flowgorithm') {
-    throw new Error('Invalid fprg file: missing <flowgorithm> root element')
+    throw new Error(t('engine.error.invalidFprg'))
   }
 
   return {
@@ -353,7 +356,7 @@ export function splitDeclareNames(name: string): string[] {
 export function statementToLabel(stmt: Statement): string {
   switch (stmt.kind) {
     case 'declare': {
-      if (!stmt.name) return '声明'
+      if (!stmt.name) return t('engine.label.declare')
       const names = splitDeclareNames(stmt.name)
       const flowTypeCN = typeNameToCN(stmt.type)
 
@@ -377,13 +380,13 @@ export function statementToLabel(stmt: Statement): string {
       return `${flowTypeCN} ${labeled}`
     }
     case 'assign':
-      if (!stmt.variable) return '赋值'
+      if (!stmt.variable) return t('engine.label.assign')
       return `${stmt.variable} = ${stmt.expression}`
     case 'input':
-      if (!stmt.variable) return '输入'
-      return `输入 ${stmt.variable}`
+      if (!stmt.variable) return t('engine.label.input')
+      return `${t('engine.label.input')} ${stmt.variable}`
     case 'output': {
-      if (!stmt.expression) return '输出'
+      if (!stmt.expression) return t('engine.label.output')
       const expr = stmt.expression
         .replace(/&quot;/g, '"')
         .replace(/&amp;/g, '&')
@@ -391,25 +394,25 @@ export function statementToLabel(stmt: Statement): string {
         .replace(/&gt;/g, '>')
         .replace(/&#13;/g, '')
         .replace(/&#10;/g, '')
-      return `输出 ${expr}`
+      return `${t('engine.label.outputPrefix')}${expr}`
     }
     case 'call':
-      if (!stmt.expression) return '调用'
-      return `调用 ${stmt.expression}`
+      if (!stmt.expression) return t('engine.label.call')
+      return `${t('engine.label.callPrefix')}${stmt.expression}`
     case 'if':
-      return stmt.expression || '判断'
+      return stmt.expression || t('engine.label.if')
     case 'while':
-      return stmt.expression || 'while 循环'
+      return stmt.expression || t('engine.label.while')
     case 'for': {
-      if (!stmt.variable) return 'for 循环'
-      let label = `${stmt.variable} = ${stmt.start} 到 ${stmt.end}`
-      if (stmt.step && stmt.step !== '1') label += ` 步长 ${stmt.step}`
+      if (!stmt.variable) return t('engine.label.for')
+      let label = `${stmt.variable} = ${stmt.start}${t('engine.label.forTo')}${stmt.end}`
+      if (stmt.step && stmt.step !== '1') label += `${t('engine.label.forStep')}${stmt.step}`
       return label
     }
     case 'do':
-      return stmt.expression || 'do 循环'
+      return stmt.expression || t('engine.label.do')
     case 'more':
-      return '...'
+      return t('engine.label.ellipsis')
   }
 }
 
@@ -446,10 +449,10 @@ export function isStatementEmpty(stmt: Statement): boolean {
 // ============================================================
 
 const TYPE_NAME_CN: Record<string, string> = {
-  'Integer': '整数',
-  'Real':    '实数',
-  'Boolean': '布尔',
-  'String':  '字符串',
+  'Integer': t('nodes.typeShort.Integer'),
+  'Real':    t('nodes.typeShort.Real'),
+  'Boolean': t('nodes.typeShort.Boolean'),
+  'String':  t('nodes.typeShort.String'),
 }
 
 export function typeNameToCN(en: string): string {

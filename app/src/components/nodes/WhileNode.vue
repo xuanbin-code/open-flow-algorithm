@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Handle, Position } from '@vue-flow/core'
+
+const { t } = useI18n()
 
 interface WhileNodeProps {
   id: string
@@ -58,7 +61,7 @@ watch(
 
     <!-- 4. 右侧居中：指向循环体内首节点 -->
     <Handle id="loop-body" type="source" :position="Position.Right" />
-    <span class="handle-tag body-tag">下一个</span>
+    <span class="handle-tag body-tag">{{ $t('nodes.handle.next') }}</span>
 
     <span class="while-label">{{ label }}</span>
   </div>

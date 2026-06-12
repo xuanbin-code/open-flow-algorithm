@@ -41,6 +41,9 @@ import {
 } from './engine/flowchart-engine'
 import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './engine/interpreter'
 import { useSettings } from './composables/useSettings'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // ============================================
 // 布局参数（可实时调试）
@@ -173,10 +176,10 @@ async function initApp() {
       const xml = await readTextFile(lastFile)
       loadProgram(xml, lastFile)
       await refreshRecentFiles()
-      console.log('已恢复上次文件:', lastFile)
+      console.log('[initApp] restored last file:', lastFile)
       return
     } catch {
-      console.warn('上次文件无法打开，回退到空白画布:', lastFile)
+      console.warn('[initApp] cannot open last file, fallback to blank:', lastFile)
     }
   }
 
@@ -190,7 +193,7 @@ async function initApp() {
   // 推迟到下一微任务：等 Vue pre-flush watcher 记录完旧值后再清空历史
   Promise.resolve().then(() => programHistory.clear())
   await refreshRecentFiles()
-  console.log('空白画布已创建')
+  console.log('[initApp] blank canvas created')
 }
 
 async function refreshRecentFiles() {
@@ -241,6 +244,14 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault()
     deleteSelectedNode()
   }
+}
+
+/** 语言切换时重建引擎以更新节点标签 */
+function onLanguageChanged() {
+  engine = new FlowchartEngine(program.value, LP)
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
+  syncSelectionState()
 }
 
 function undo() {
@@ -435,7 +446,7 @@ function stopExecution() {
   resetEdgeAnimation()
 
   executionStatus.value = 'stopped'
-  showToast('执行已终止', 'error')
+  showToast(t('toasts.execTerminated'), 'error')
 }
 
 function pauseExecution() {
@@ -451,8 +462,8 @@ function resumeExecution() {
 
 function setExecutionSpeed(speed: 'slow' | 'normal' | 'fast') {
   executionSpeed.value = speed
-  const labels = { slow: '慢速', normal: '正常', fast: '快速' }
-  showToast(`运行速度：${labels[speed]}`, 'success')
+  const labels: Record<string, string> = { slow: t('menu.speedSlow'), normal: t('menu.speedNormal'), fast: t('menu.speedFast') }
+  showToast(t('toasts.speedChanged', { speed: labels[speed] }), 'success')
 }
 
 /** 核心驱动循环：逐条消费 generator 事件 */
@@ -531,20 +542,20 @@ async function driveInterpreter(mode: 'run' | 'step') {
           break
         }
         case 'error': {
-          executionOutput.value = [...executionOutput.value, `[错误] ${event.message}`]
-          chatMessages.value = [...chatMessages.value, { role: 'system', text: `错误: ${event.message}` }]
+          executionOutput.value = [...executionOutput.value, t('toasts.errorPrefix', { message: event.message })]
+          chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.errorPrefixShort', { message: event.message }) }]
           resetEdgeAnimation()
           executionStatus.value = 'stopped'
-          showToast(`运行错误: ${event.message}`, 'error')
+          showToast(t('toasts.execError', { message: event.message }), 'error')
           syncExecutionHighlight()
           return
         }
         case 'done': {
-          executionOutput.value = [...executionOutput.value, '—— 程序执行完毕 ——']
-          chatMessages.value = [...chatMessages.value, { role: 'system', text: '程序执行完毕' }]
+          executionOutput.value = [...executionOutput.value, t('execution.execDoneDivider')]
+          chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.execDone') }]
           resetEdgeAnimation()
           executionStatus.value = 'idle'
-          showToast('程序执行完毕', 'success')
+          showToast(t('toasts.execDone'), 'success')
           syncExecutionHighlight()
           return
         }
@@ -591,11 +602,11 @@ async function driveInterpreter(mode: 'run' | 'step') {
     executionStatus.value = 'idle'
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
-    executionOutput.value = [...executionOutput.value, `[异常] ${msg}`]
-    chatMessages.value = [...chatMessages.value, { role: 'system', text: `异常: ${msg}` }]
+    executionOutput.value = [...executionOutput.value, t('toasts.exceptionPrefix', { message: msg })]
+    chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.exceptionPrefixShort', { message: msg }) }]
     resetEdgeAnimation()
     executionStatus.value = 'stopped'
-    showToast(`运行异常: ${msg}`, 'error')
+    showToast(t('toasts.execException', { message: msg }), 'error')
     syncExecutionHighlight()
   }
 }
@@ -621,9 +632,11 @@ onMounted(async () => {
   await nextTick()
   fitView()
   window.addEventListener('keydown', onKeydown)
+  window.addEventListener('language-changed', onLanguageChanged)
 })
 onUnmounted(() => {
   window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('language-changed', onLanguageChanged)
 })
 
 // ============================================
@@ -785,7 +798,7 @@ async function onMenuAction(actionId: string) {
     }
     case 'open': {
       const selected = await open({
-        filters: [{ name: 'Flowgorithm 文件', extensions: ['fprg'] }],
+        filters: [{ name: t('fileDialog.flowgorithmFile'), extensions: ['fprg'] }],
         multiple: false,
       })
       if (selected) {
@@ -861,11 +874,11 @@ async function handleSave() {
     loadProgram(verifyXml, currentFilePath.value)
     await addRecentFile(currentFilePath.value)
     await refreshRecentFiles()
-    showToast('保存成功', 'success')
+    showToast(t('toasts.saveSuccess'), 'success')
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
-    console.error('[保存失败]', e)
-    showToast(`保存失败: ${msg}`, 'error')
+    console.error('[save failed]', e)
+    showToast(t('toasts.saveFailed', { message: msg }), 'error')
   }
 }
 
@@ -873,7 +886,7 @@ async function handleSave() {
 async function handleSaveAs() {
   try {
     const savePath = await save({
-      filters: [{ name: 'Flowgorithm 文件', extensions: ['fprg'] }],
+      filters: [{ name: t('fileDialog.flowgorithmFile'), extensions: ['fprg'] }],
     })
     if (savePath) {
       const xml = astToFprgXml(program.value)
@@ -884,12 +897,12 @@ async function handleSaveAs() {
       loadProgram(verifyXml, currentFilePath.value)
       await addRecentFile(savePath as string)
       await refreshRecentFiles()
-      showToast('另存成功', 'success')
+      showToast(t('toasts.saveAsSuccess'), 'success')
     }
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
-    console.error('[另存失败]', e)
-    showToast(`另存失败: ${msg}`, 'error')
+    console.error('[save-as failed]', e)
+    showToast(t('toasts.saveAsFailed', { message: msg }), 'error')
   }
 }
 </script>

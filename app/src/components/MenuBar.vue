@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useSettings } from '../composables/useSettings'
 import { Sun, Moon, Settings, ChevronRight } from './icons'
+
+const { t } = useI18n()
 
 // ============================================================
 // Types
@@ -48,23 +51,23 @@ const emit = defineEmits<{
 
 const menuFileItems = computed<MenuItem[]>(() => {
   const base: MenuItem[] = [
-    { id: 'new', label: '新建' },
-    { id: 'open', label: '打开' },
-    { id: 'save', label: '保存' },
-    { id: 'saveAs', label: '另存为' },
+    { id: 'new', label: t('menu.new') },
+    { id: 'open', label: t('menu.open') },
+    { id: 'save', label: t('menu.save') },
+    { id: 'saveAs', label: t('menu.saveAs') },
   ]
 
   const recents = props.recentFiles ?? []
   if (recents.length > 0) {
     base.push({ id: 'div1', label: '', divider: true })
-    base.push({ id: 'recent-label', label: '最近打开的文件', sublabel: '最近打开的文件', disabled: true })
+    base.push({ id: 'recent-label', label: t('menu.recentFiles'), sublabel: t('menu.recentFiles'), disabled: true })
     for (const entry of recents) {
       base.push({ id: `open-recent:${entry.path}`, label: entry.name })
     }
   }
 
   base.push({ id: 'div-close', label: '', divider: true })
-  base.push({ id: 'exit', label: '退出' })
+  base.push({ id: 'exit', label: t('menu.exit') })
   return base
 })
 
@@ -74,33 +77,33 @@ const menus = computed<TopMenu[]>(() => {
   return [
   {
     id: 'file',
-    label: '文件',
+    label: t('menu.file'),
     items: menuFileItems.value,
   },
   {
     id: 'edit',
-    label: '编辑',
+    label: t('menu.edit'),
     items: [
-      { id: 'delete', label: '删除', disabled: true },
-      { id: 'undo', label: '撤销' },
-      { id: 'redo', label: '重做' },
+      { id: 'delete', label: t('common.delete'), disabled: true },
+      { id: 'undo', label: t('menu.undo') },
+      { id: 'redo', label: t('menu.redo') },
     ],
   },
   {
     id: 'program',
-    label: '程序',
+    label: t('menu.program'),
     items: [
-      { id: 'run', label: '运行', disabled: es === 'running' || es === 'waiting-input' },
-      { id: 'step', label: '步进', disabled: es === 'running' || es === 'waiting-input' },
-      { id: 'stop', label: '终止', disabled: es === 'idle' || es === 'stopped' },
+      { id: 'run', label: t('menu.run'), disabled: es === 'running' || es === 'waiting-input' },
+      { id: 'step', label: t('menu.step'), disabled: es === 'running' || es === 'waiting-input' },
+      { id: 'stop', label: t('menu.stop'), disabled: es === 'idle' || es === 'stopped' },
       { id: 'div3', label: '', divider: true },
       {
         id: 'speed',
-        label: '运行速度',
+        label: t('menu.speed'),
         submenu: [
-          { id: 'speed-slow', label: '慢速' },
-          { id: 'speed-normal', label: '正常' },
-          { id: 'speed-fast', label: '快速' },
+          { id: 'speed-slow', label: t('menu.speedSlow') },
+          { id: 'speed-normal', label: t('menu.speedNormal') },
+          { id: 'speed-fast', label: t('menu.speedFast') },
         ],
       },
     ],
@@ -228,13 +231,13 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
     <div class="menu-bar-right">
       <button
         class="theme-toggle-btn"
-        :title="settings.theme === 'dark' ? '切换浅色模式' : '切换深色模式'"
+        :title="settings.theme === 'dark' ? $t('menu.switchToLight') : $t('menu.switchToDark')"
         @click.stop="toggleTheme"
       >
         <Sun v-if="settings.theme === 'dark'" :size="16" />
         <Moon v-else :size="16" />
       </button>
-      <button class="settings-btn" title="设置" @click.stop="emit('action', 'open-settings')">
+      <button class="settings-btn" :title="$t('common.settings')" @click.stop="emit('action', 'open-settings')">
         <Settings :size="16" />
       </button>
     </div>

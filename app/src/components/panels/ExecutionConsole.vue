@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // ============================================================
 // Types
@@ -90,11 +93,11 @@ function onInputKeydown(e: KeyboardEvent) {
 // ============================================================
 
 const STATUS_LABELS: Record<string, string> = {
-  idle: '就绪',
-  running: '执行中...',
-  paused: '已暂停',
-  'waiting-input': '等待输入',
-  stopped: '已终止',
+  idle: t('execution.status.idle'),
+  running: t('execution.status.running'),
+  paused: t('execution.status.paused'),
+  'waiting-input': t('execution.status.waitingInput'),
+  stopped: t('execution.status.stopped'),
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -111,19 +114,19 @@ const STATUS_COLORS: Record<string, string> = {
   <div class="exec-console">
     <!-- Header -->
     <div class="console-header">
-      <span class="console-title">运行时</span>
+      <span class="console-title">{{ $t('execution.title') }}</span>
       <span class="status-badge" :style="{ background: STATUS_COLORS[executionStatus] }">
         {{ STATUS_LABELS[executionStatus] ?? executionStatus }}
       </span>
-      <button class="clear-btn" title="清空" @click="emit('clear')">清空</button>
+      <button class="clear-btn" :title="$t('execution.clear')" @click="emit('clear')">{{ $t('execution.clear') }}</button>
     </div>
 
     <!-- Chat dialogue -->
     <div class="chat-section">
-      <div class="section-label">对话</div>
+      <div class="section-label">{{ $t('execution.dialogue') }}</div>
       <div ref="chatEl" class="chat-messages">
         <div v-if="chatMessages.length === 0" class="empty-hint">
-          点击「程序 → 运行」开始执行
+          {{ $t('execution.hintRunFirst') }}
         </div>
         <div
           v-for="(msg, i) in chatMessages"
@@ -132,8 +135,8 @@ const STATUS_COLORS: Record<string, string> = {
           :class="[`bubble-${msg.role}`, { 'bubble-clickable': msg.role === 'program' && msg.sourceNodeId }]"
           @click="msg.role === 'program' && msg.sourceNodeId && onOutputClick(msg.sourceNodeId)"
         >
-          <span v-if="msg.role === 'program'" class="bubble-sender">程序</span>
-          <span v-else-if="msg.role === 'user'" class="bubble-sender">你</span>
+          <span v-if="msg.role === 'program'" class="bubble-sender">{{ $t('execution.program') }}</span>
+          <span v-else-if="msg.role === 'user'" class="bubble-sender">{{ $t('execution.you') }}</span>
           <span class="bubble-text">{{ msg.text }}</span>
         </div>
       </div>
@@ -147,8 +150,8 @@ const STATUS_COLORS: Record<string, string> = {
           type="text"
           :placeholder="
             executionStatus === 'waiting-input'
-              ? `输入「${variableName}」的值...`
-              : '等待程序运行...'
+              ? $t('execution.inputPlaceholder', { name: variableName })
+              : $t('execution.waitingForRun')
           "
           :disabled="executionStatus !== 'waiting-input'"
           @keydown="onInputKeydown"
@@ -158,7 +161,7 @@ const STATUS_COLORS: Record<string, string> = {
           :disabled="executionStatus !== 'waiting-input'"
           @click="onSubmit"
         >
-          发送
+          {{ $t('execution.send') }}
         </button>
       </div>
     </div>

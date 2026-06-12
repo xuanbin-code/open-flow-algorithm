@@ -3,6 +3,9 @@
 //
 // 将 Flowgorithm 表达式字符串翻译为 JavaScript 并安全求值。
 // 变量名作为 Function 参数传入，不访问全局作用域。
+
+import { i18n } from '../i18n'
+const t = i18n.global.t
 // ============================================================
 
 /**
@@ -67,8 +70,7 @@ function validateExpression(expr: string): void {
   for (const pattern of DANGEROUS_PATTERNS) {
     if (pattern.test(expr)) {
       throw new Error(
-        `表达式包含不允许的操作: "${expr}"\n` +
-        `  匹配模式: ${String(pattern)}`,
+        t('engine.error.dangerousExpression', { expr, pattern: String(pattern) }),
       )
     }
   }
@@ -139,10 +141,7 @@ export function evaluateExpression(
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
     throw new Error(
-      `表达式求值失败: "${expr}"\n` +
-        `  规范化后: "${jsExpr}"\n` +
-        `  变量: ${JSON.stringify(variables)}\n` +
-        `  原因: ${msg}`,
+      t('engine.error.evalFailed', { expr, normalized: jsExpr, variables: JSON.stringify(variables), reason: msg }),
     )
   }
 }

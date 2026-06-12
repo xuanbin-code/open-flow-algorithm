@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { GripVertical } from '../icons'
+
+const { t } = useI18n()
 
 // ============================================================
 // Types
@@ -89,11 +92,11 @@ const activeTab = ref<'console' | 'variables'>('console')
 // ============================================================
 
 const STATUS_LABELS: Record<string, string> = {
-  idle: '就绪',
-  running: '运行中...',
-  paused: '已暂停',
-  'waiting-input': '等待输入',
-  stopped: '已终止',
+  idle: t('execution.status.idle'),
+  running: t('execution.status.running'),
+  paused: t('execution.status.paused'),
+  'waiting-input': t('execution.status.waitingInput'),
+  stopped: t('execution.status.stopped'),
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -109,16 +112,15 @@ const STATUS_COLORS: Record<string, string> = {
 // ============================================================
 
 function displayValue(value: unknown): string {
-  if (value === null || value === undefined) return '(空)'
-  if (typeof value === 'boolean') return value ? '真' : '假'
+  if (value === null || value === undefined) return t('execution.nullValue')
+  if (typeof value === 'boolean') return value ? t('execution.true') : t('execution.false')
   if (Array.isArray(value)) {
-    if (value.length === 0) return '[空数组]'
+    if (value.length === 0) return t('execution.emptyArray')
     const MAX_SHOW = 10
     const shown = value.slice(0, MAX_SHOW).map(v => displayValue(v)).join(', ')
     return value.length > MAX_SHOW ? `[${shown}, …]` : `[${shown}]`
   }
   if (typeof value === 'number') {
-    // 整数不显示小数点
     return Number.isInteger(value) ? String(value) : String(value)
   }
   return String(value)
@@ -126,10 +128,10 @@ function displayValue(value: unknown): string {
 
 function typeLabel(type: string): string {
   const map: Record<string, string> = {
-    Integer: '整数',
-    Real: '实数',
-    String: '字符串',
-    Boolean: '布尔',
+    Integer: t('nodes.typeShort.Integer'),
+    Real: t('nodes.typeShort.Real'),
+    String: t('nodes.typeShort.String'),
+    Boolean: t('nodes.typeShort.Boolean'),
   }
   return map[type] ?? type
 }
@@ -144,11 +146,11 @@ function typeLabel(type: string): string {
     <!-- Header (drag handle) -->
     <div class="panel-header" @mousedown="onDragStart">
       <GripVertical class="drag-icon" :size="14" />
-      <span class="panel-title">运行时</span>
+      <span class="panel-title">{{ $t('execution.title') }}</span>
       <span class="status-badge" :style="{ background: STATUS_COLORS[executionStatus] }">
         {{ STATUS_LABELS[executionStatus] ?? executionStatus }}
       </span>
-      <button class="clear-btn" title="清空控制台" @click="emit('clear')">清空</button>
+      <button class="clear-btn" :title="$t('execution.clearConsole')" @click="emit('clear')">{{ $t('execution.clear') }}</button>
     </div>
 
     <!-- Tab bar -->
@@ -158,14 +160,14 @@ function typeLabel(type: string): string {
         :class="{ active: activeTab === 'console' }"
         @click="activeTab = 'console'"
       >
-        控制台
+        {{ $t('execution.console') }}
       </button>
       <button
         class="tab-btn"
         :class="{ active: activeTab === 'variables' }"
         @click="activeTab = 'variables'"
       >
-        变量 ({{ variables.length }})
+        {{ $t('execution.variablesTab', { count: variables.length }) }}
       </button>
     </div>
 
@@ -174,7 +176,7 @@ function typeLabel(type: string): string {
       <!-- Console tab -->
       <div v-if="activeTab === 'console'" ref="consoleEl" class="console-output">
         <div v-if="output.length === 0" class="console-placeholder">
-          程序尚未运行。点击「程序 → 运行」开始执行。
+          {{ $t('execution.notRunYet') }}
         </div>
         <div v-for="(line, i) in output" :key="i" class="console-line">{{ line }}</div>
       </div>
@@ -184,9 +186,9 @@ function typeLabel(type: string): string {
         <table v-if="variables.length > 0" class="var-table">
           <thead>
             <tr>
-              <th>变量名</th>
-              <th>类型</th>
-              <th>值</th>
+              <th>{{ $t('execution.varName') }}</th>
+              <th>{{ $t('execution.varType') }}</th>
+              <th>{{ $t('execution.varValue') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -198,7 +200,7 @@ function typeLabel(type: string): string {
           </tbody>
         </table>
         <div v-else class="console-placeholder">
-          暂无变量。程序运行后将在此显示所有变量。
+          {{ $t('execution.noVariables') }}
         </div>
       </div>
     </div>

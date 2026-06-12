@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Keyboard } from '../icons'
+
+const { t } = useI18n()
 
 // ============================================================
 // Props & Emits
@@ -68,29 +71,29 @@ onUnmounted(() => {
       <div class="input-dialog">
         <div class="dialog-header">
           <Keyboard class="dialog-icon" :size="20" />
-          <span class="dialog-title">输入</span>
+          <span class="dialog-title">{{ $t('nodes.kind.input') }}</span>
         </div>
 
         <div class="dialog-body">
           <p class="dialog-prompt">
-            请输入变量「<strong>{{ variableName }}</strong>」的值：
+            {{ $t('execution.inputPlaceholder', { name: variableName }) }}
           </p>
           <input
             ref="inputRef"
             v-model="inputValue"
             class="dialog-input"
             type="text"
-            placeholder="在此输入..."
+            :placeholder="$t('execution.waitingForRun')"
             @keydown="onKeydown"
           />
         </div>
 
         <div class="dialog-footer">
           <button class="dialog-btn dialog-btn-cancel" @click="emit('cancel')">
-            取消
+            {{ $t('common.cancel') }}
           </button>
           <button class="dialog-btn dialog-btn-submit" @click="onSubmit">
-            确定
+            {{ $t('common.ok') }}
           </button>
         </div>
       </div>

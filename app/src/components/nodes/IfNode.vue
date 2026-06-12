@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Handle, Position } from '@vue-flow/core'
+
+const { t } = useI18n()
 
 interface IfNodeProps {
   id: string
@@ -48,9 +51,9 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
     <Handle type="target" :position="Position.Top" />
     <span class="if-label">{{ label }}</span>
     <Handle id="else" type="source" :position="Position.Left" />
-    <span class="handle-tag else-tag">假</span>
+    <span class="handle-tag else-tag">{{ $t('nodes.handle.false') }}</span>
     <Handle id="then" type="source" :position="Position.Right" />
-    <span class="handle-tag then-tag">真</span>
+    <span class="handle-tag then-tag">{{ $t('nodes.handle.true') }}</span>
   </div>
 </template>
 

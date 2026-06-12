@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Handle, Position } from '@vue-flow/core'
+
+const { t } = useI18n()
 
 interface EndNodeProps {
   id: string
@@ -23,7 +26,7 @@ const props = withDefaults(defineProps<EndNodeProps>(), {
 
 const nodeWidth = computed(() => props.data?.width ?? 80)
 const nodeHeight = computed(() => props.data?.height ?? 50)
-const label = computed(() => props.data?.label ?? '结束')
+const label = computed(() => props.data?.label ?? t('nodes.kind.end'))
 const executing = computed(() => props.data?.executing ?? false)
 const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
 </script>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { GripVertical, X, ChevronRight } from '../icons'
+
+const { t } = useI18n()
 
 // ============================================================
 // Types
@@ -78,9 +81,9 @@ function onToggleClick() {
 
 function displayValue(value: unknown): string {
   if (value === null || value === undefined) return '—'
-  if (typeof value === 'boolean') return value ? '真' : '假'
+  if (typeof value === 'boolean') return value ? t('execution.true') : t('execution.false')
   if (Array.isArray(value)) {
-    if (value.length === 0) return '[空数组]'
+    if (value.length === 0) return t('execution.emptyArray')
     const MAX_SHOW = 10
     const shown = value.slice(0, MAX_SHOW).map(v => displayValue(v)).join(', ')
     return value.length > MAX_SHOW ? `[${shown}, …]` : `[${shown}]`
@@ -91,10 +94,10 @@ function displayValue(value: unknown): string {
 
 function typeLabel(type: string): string {
   const map: Record<string, string> = {
-    Integer: '整数',
-    Real: '实数',
-    String: '字符串',
-    Boolean: '布尔',
+    Integer: t('nodes.typeShort.Integer'),
+    Real: t('nodes.typeShort.Real'),
+    String: t('nodes.typeShort.String'),
+    Boolean: t('nodes.typeShort.Boolean'),
   }
   return map[type] ?? type
 }
@@ -200,13 +203,13 @@ watch(
       @click="onToggleClick"
     >
       <span v-if="collapsed" class="collapsed-label">
-        变量监视 <ChevronRight :size="12" class="collapsed-arrow" />
+        {{ $t('panels.variableMonitor.title') }} <ChevronRight :size="12" class="collapsed-arrow" />
       </span>
       <template v-else>
         <GripVertical class="drag-icon" :size="14" />
-        <span class="monitor-title">变量监视</span>
+        <span class="monitor-title">{{ $t('panels.variableMonitor.title') }}</span>
         <span v-if="variables.length" class="var-count">({{ variables.length }})</span>
-        <button class="close-btn" @click.stop="emit('close')" title="关闭">
+        <button class="close-btn" @click.stop="emit('close')" :title="$t('common.close')">
           <X :size="12" />
         </button>
       </template>
@@ -218,9 +221,9 @@ watch(
         <table v-if="variables.length > 0" class="vars-table">
           <thead>
             <tr>
-              <th>变量</th>
-              <th>类型</th>
-              <th>值</th>
+              <th>{{ $t('panels.variableMonitor.variable') }}</th>
+              <th>{{ $t('panels.variableMonitor.type') }}</th>
+              <th>{{ $t('panels.variableMonitor.value') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -233,7 +236,7 @@ watch(
             </tr>
           </tbody>
         </table>
-        <div v-else class="empty-hint">暂无变量</div>
+        <div v-else class="empty-hint">{{ $t('panels.variableMonitor.noVariables') }}</div>
       </div>
     </div>
   </div>

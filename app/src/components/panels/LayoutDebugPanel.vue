@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Ruler, Eye, ChevronLeft, ChevronRight } from '../icons'
+
+const { t } = useI18n()
 
 export interface ParamDef {
   key: string
@@ -92,10 +95,10 @@ const groups = computed(() => {
   }
 
   return [
-    { name: '间距', list: spacing },
-    { name: '节点尺寸', list: nodeSize },
-    { name: '分支间距', list: branch },
-    ...(other.length ? [{ name: '其他', list: other }] : []),
+    { name: t('panels.debug.groups.spacing'), list: spacing },
+    { name: t('panels.debug.groups.nodeSize'), list: nodeSize },
+    { name: t('panels.debug.groups.branchSpacing'), list: branch },
+    ...(other.length ? [{ name: t('panels.debug.groups.other'), list: other }] : []),
   ].filter(g => g.list.length > 0)
 })
 </script>
@@ -113,14 +116,14 @@ const groups = computed(() => {
       @click="onToggleClick"
     >
       <ChevronRight v-if="collapsed" :size="14" />
-      <span v-if="collapsed">调试</span>
-      <span v-else>调试</span>
+      <span v-if="collapsed">{{ $t('panels.debug.label') }}</span>
+      <span v-else>{{ $t('panels.debug.label') }}</span>
       <ChevronLeft v-if="!collapsed" :size="14" />
     </button>
 
     <div v-if="!collapsed" class="panel-body">
       <div class="panel-header" @mousedown="onDragStart">
-        <h3><Ruler :size="16" class="section-icon" /> 布局参数</h3>
+        <h3><Ruler :size="16" class="section-icon" /> {{ $t('panels.debug.layoutParams') }}</h3>
       </div>
 
       <div v-for="group in groups" :key="group.name" class="param-group">
@@ -153,9 +156,9 @@ const groups = computed(() => {
       <!-- 视图参数（不影响 nodes/edges，仅调视口） -->
       <div class="viewport-separator" />
       <div class="param-group">
-        <h4 class="group-title viewport-title"><Eye :size="14" class="section-icon" /> 视图（不重绘）</h4>
+        <h4 class="group-title viewport-title"><Eye :size="14" class="section-icon" /> {{ $t('panels.debug.viewport') }}</h4>
         <div class="param-row">
-          <label class="param-label">缩放 Zoom</label>
+          <label class="param-label">{{ $t('panels.debug.zoom') }}</label>
           <div class="param-controls">
             <input
               type="range"
@@ -178,7 +181,7 @@ const groups = computed(() => {
           </div>
         </div>
         <div class="param-row">
-          <label class="param-label">视口 X</label>
+          <label class="param-label">{{ $t('panels.debug.viewportX') }}</label>
           <div class="param-controls">
             <input
               type="range"
@@ -201,7 +204,7 @@ const groups = computed(() => {
           </div>
         </div>
         <div class="param-row">
-          <label class="param-label">视口 Y</label>
+          <label class="param-label">{{ $t('panels.debug.viewportY') }}</label>
           <div class="param-controls">
             <input
               type="range"
