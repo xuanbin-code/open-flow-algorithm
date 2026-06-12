@@ -142,11 +142,18 @@ const STATUS_COLORS: Record<string, string> = {
       </div>
 
       <!-- Input bar (fixed at bottom of chat) -->
-      <div class="chat-input-bar" :class="{ disabled: executionStatus !== 'waiting-input' }">
+      <div
+        class="chat-input-bar"
+        :class="{
+          disabled: executionStatus !== 'waiting-input',
+          'animate__animated animate__pulse animate__infinite': executionStatus === 'waiting-input',
+        }"
+      >
         <input
           ref="inputRef"
           v-model="inputValue"
           class="chat-input"
+          :class="{ 'input-glow': executionStatus === 'waiting-input' }"
           type="text"
           :placeholder="
             executionStatus === 'waiting-input'
@@ -301,6 +308,7 @@ const STATUS_COLORS: Record<string, string> = {
   padding: 8px 10px;
   border-top: 1px solid var(--border-soft);
   flex-shrink: 0;
+  transition: opacity 0.25s ease;
 }
 .chat-input-bar.disabled {
   opacity: 0.5;
@@ -314,7 +322,7 @@ const STATUS_COLORS: Record<string, string> = {
   color: var(--text-primary);
   font-size: 12px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.25s ease;
 }
 .chat-input:focus {
   border-color: var(--accent);
@@ -325,6 +333,27 @@ const STATUS_COLORS: Record<string, string> = {
 }
 .chat-input::placeholder {
   color: var(--text-placeholder);
+}
+
+/* ---- Waiting-input glow ---- */
+@keyframes input-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79, 195, 247, 0); }
+  50%      { box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.35); }
+}
+.input-glow {
+  animation: input-glow 2s ease-in-out infinite;
+  border-color: var(--accent) !important;
+}
+
+/* ---- Accessibility: respect reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .animate__animated {
+    animation: none !important;
+  }
+  .input-glow {
+    animation: none;
+    box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.25);
+  }
 }
 .send-btn {
   padding: 7px 14px;

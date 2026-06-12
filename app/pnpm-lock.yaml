@@ -38,6 +38,9 @@ importers:
       '@vueuse/core':
         specifier: ^14.3.0
         version: 14.3.0(vue@3.5.35(typescript@6.0.3))
+      animate.css:
+        specifier: ^4.1.1
+        version: 4.1.1
       vue:
         specifier: ^3.5.34
         version: 3.5.35(typescript@6.0.3)
@@ -428,6 +431,9 @@ packages:
 
   alien-signals@3.2.1:
     resolution: {integrity: sha512-I8FjmltrfnDFoZedi5CG8DghVYNhzb/Ijluz7tCSJH0xpd0484Kowhbb1XDYOxfJpU1p5wnM2X54dA+IfGyD1g==}
+
+  animate.css@4.1.1:
+    resolution: {integrity: sha512-+mRmCTv6SbCmtYJCN4faJMNFVNN5EuCTTprDTAo7YzIGji2KADmakjVA3+8mVDkZ2Bf09vayB35lSQIex2+QaQ==}
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
@@ -1020,6 +1026,8 @@ snapshots:
       vue: 3.5.35(typescript@6.0.3)
 
   alien-signals@3.2.1: {}
+
+  animate.css@4.1.1: {}
 
   csstype@3.2.3: {}
 
