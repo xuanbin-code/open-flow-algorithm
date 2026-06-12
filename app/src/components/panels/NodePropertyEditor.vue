@@ -118,6 +118,40 @@ function onExpressionInput(value: string) {
   }
 }
 
+// ============================================================
+// For loop: direction & spin buttons
+// ============================================================
+
+const forDirection = computed(() => {
+  if (!props.statement || props.statement.kind !== 'for') return 'inc'
+  const raw = (props.statement as unknown as Record<string, unknown>).direction
+  if (raw === 'inc' || raw === 'dec') return raw
+  // 根据起始/终止值推断方向
+  const s = parseFloat(props.statement.start)
+  const e = parseFloat(props.statement.end)
+  if (!isNaN(s) && !isNaN(e)) return e >= s ? 'inc' : 'dec'
+  return 'inc'
+})
+
+function setDirection(dir: 'inc' | 'dec') {
+  if (!props.statement || props.statement.kind !== 'for') return
+  const prev = forDirection.value
+  if (dir === prev) return
+  setField('direction', dir)
+  // 交换起始/终止值
+  const start = props.statement.start
+  const end = props.statement.end
+  setField('start', end)
+  setField('end', start)
+}
+
+function spinValue(field: 'start' | 'end' | 'step', delta: number) {
+  if (!props.statement || props.statement.kind !== 'for') return
+  const raw = (props.statement as unknown as Record<string, string>)[field] ?? '0'
+  const num = parseFloat(raw) || 0
+  setField(field, String(num + delta))
+}
+
 function onConfirm() {
   if (!props.statement) return
   emit('update', props.statement)
@@ -312,42 +346,91 @@ function onConfirm() {
 
       <!-- ===== for ===== -->
       <template v-if="statement.kind === 'for'">
+        <div class="for-fields">
+        <!-- Row 1: 循环变量 -->
         <label class="field">
           <span class="field-label">循环变量:</span>
           <input
             class="field-input"
             type="text"
+            placeholder="如 i"
             :value="statement.variable"
             @input="setField('variable', ($event.target as HTMLInputElement).value)"
           />
         </label>
-        <label class="field">
-          <span class="field-label">起始值:</span>
-          <input
-            class="field-input"
-            type="text"
-            :value="statement.start"
-            @input="setField('start', ($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label class="field">
-          <span class="field-label">终止值:</span>
-          <input
-            class="field-input"
-            type="text"
-            :value="statement.end"
-            @input="setField('end', ($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label class="field">
-          <span class="field-label">步长:</span>
-          <input
-            class="field-input"
-            type="text"
-            :value="statement.step"
-            @input="setField('step', ($event.target as HTMLInputElement).value)"
-          />
-        </label>
+
+        <!-- Row 2: 起始值 → 终止值 -->
+        <div class="for-row">
+          <label class="field for-half">
+            <span class="field-label">起始值:</span>
+            <div class="spin-wrap">
+              <input
+                class="field-input spin-input"
+                type="text"
+                placeholder="0"
+                :value="statement.start"
+                @input="setField('start', ($event.target as HTMLInputElement).value)"
+              />
+              <div class="spin-btns">
+                <button class="spin-btn" tabindex="-1" @mousedown.prevent="spinValue('start', 1)">▴</button>
+                <button class="spin-btn" tabindex="-1" @mousedown.prevent="spinValue('start', -1)">▾</button>
+              </div>
+            </div>
+          </label>
+          <span class="for-arrow">→</span>
+          <label class="field for-half">
+            <span class="field-label">终止值:</span>
+            <div class="spin-wrap">
+              <input
+                class="field-input spin-input"
+                type="text"
+                placeholder="10"
+                :value="statement.end"
+                @input="setField('end', ($event.target as HTMLInputElement).value)"
+              />
+              <div class="spin-btns">
+                <button class="spin-btn" tabindex="-1" @mousedown.prevent="spinValue('end', 1)">▴</button>
+                <button class="spin-btn" tabindex="-1" @mousedown.prevent="spinValue('end', -1)">▾</button>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Row 3: 每步变化 + 方向 -->
+        <div class="for-row">
+          <label class="field for-half">
+            <span class="field-label">每步变化:</span>
+            <div class="spin-wrap">
+              <input
+                class="field-input spin-input"
+                type="text"
+                placeholder="1"
+                :value="statement.step"
+                @input="setField('step', ($event.target as HTMLInputElement).value)"
+              />
+              <div class="spin-btns">
+                <button class="spin-btn" tabindex="-1" @mousedown.prevent="spinValue('step', 1)">▴</button>
+                <button class="spin-btn" tabindex="-1" @mousedown.prevent="spinValue('step', -1)">▾</button>
+              </div>
+            </div>
+          </label>
+          <div class="for-direction">
+            <span class="field-label">方向:</span>
+            <div class="direction-toggle">
+              <button
+                class="dir-btn"
+                :class="{ active: forDirection === 'inc' }"
+                @click="setDirection('inc')"
+              >增加</button>
+              <button
+                class="dir-btn"
+                :class="{ active: forDirection === 'dec' }"
+                @click="setDirection('dec')"
+              >减少</button>
+            </div>
+          </div>
+        </div>
+        </div>
       </template>
 
       <!-- ===== more ===== -->
@@ -494,6 +577,125 @@ function onConfirm() {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+/* ---- For layout: 循环变量 / 起始→终止 / 步长+方向 ---- */
+.for-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.for-fields .field-label {
+  width: 70px;
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.for-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.for-half {
+  flex: 1;
+  min-width: 0;
+}
+
+.for-arrow {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  user-select: none;
+  flex-shrink: 0;
+  padding-bottom: 5px;
+}
+
+/* Spin buttons (数字增减) */
+.spin-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+
+.spin-input {
+  padding-right: 24px;
+}
+
+.spin-btns {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  bottom: 1px;
+  display: flex;
+  flex-direction: column;
+  width: 16px;
+}
+
+.spin-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 8px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.12s, background 0.12s;
+}
+
+.spin-btn:hover {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* Direction toggle */
+.for-direction {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding-bottom: 1px;
+}
+
+.for-direction .field-label {
+  min-width: auto;
+}
+
+.direction-toggle {
+  display: flex;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.dir-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  font-family: inherit;
+}
+
+.dir-btn:first-child {
+  border-right: 1px solid var(--border-color);
+}
+
+.dir-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.dir-btn:not(.active):hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 .field-input:focus {
