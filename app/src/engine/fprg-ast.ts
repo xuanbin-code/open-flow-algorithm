@@ -156,6 +156,138 @@ export function createEmptyProgram(name?: string): Program {
 }
 
 // ============================================================
+// Function CRUD helpers
+// ============================================================
+
+/** 按名称查找函数定义 */
+export function getFunctionByName(program: Program, name: string): FunctionDef | undefined {
+  return program.functions.find((f) => f.name === name)
+}
+
+/** 创建一个空函数定义（默认返回类型 None，无参数，空 body） */
+export function createEmptyFunction(name: string): FunctionDef {
+  return {
+    kind: 'function',
+    name,
+    type: 'None',
+    variable: '',
+    parameters: [],
+    body: [],
+  }
+}
+
+/** 添加一个函数到 program 末尾 */
+export function addFunction(program: Program, func: FunctionDef): void {
+  program.functions.push(func)
+}
+
+/** 删除指定名称的函数（Main 不可删除，返回 false 表示拒绝） */
+export function deleteFunction(program: Program, name: string): boolean {
+  if (name === 'Main') return false
+  const idx = program.functions.findIndex((f) => f.name === name)
+  if (idx === -1) return false
+  program.functions.splice(idx, 1)
+  return true
+}
+
+/** 重命名函数并更新所有 call 引用。返回 false 表示拒绝（名称重复或目标为 Main） */
+export function renameFunction(program: Program, oldName: string, newName: string): boolean {
+  if (oldName === 'Main' || newName === 'Main') return false
+  if (oldName === newName) return true
+  // 检查新名称是否已被占用
+  if (program.functions.some((f) => f.name === newName)) return false
+
+  const func = program.functions.find((f) => f.name === oldName)
+  if (!func) return false
+
+  func.name = newName
+
+  // 更新所有函数中引用该函数的 call 表达式
+  for (const f of program.functions) {
+    updateCallReferences(f.body, oldName, newName)
+  }
+
+  return true
+}
+
+/** 递归更新语句体中所有 call 语句的引用函数名 */
+function updateCallReferences(body: Statement[], oldName: string, newName: string): void {
+  for (const stmt of body) {
+    if (stmt.kind === 'call') {
+      // call 表达式可能是 "oldName()" 或 "oldName(args)" 格式
+      stmt.expression = stmt.expression.replace(
+        new RegExp(`\\b${escapeRegExp(oldName)}\\s*\\(`),
+        `${newName}(`,
+      )
+    } else if (stmt.kind === 'if') {
+      updateCallReferences(stmt.thenBranch, oldName, newName)
+      updateCallReferences(stmt.elseBranch, oldName, newName)
+      // 条件表达式中也可能包含函数调用
+      stmt.expression = stmt.expression.replace(
+        new RegExp(`\\b${escapeRegExp(oldName)}\\s*\\(`),
+        `${newName}(`,
+      )
+    } else if (stmt.kind === 'for' || stmt.kind === 'while' || stmt.kind === 'do') {
+      updateCallReferences(stmt.body, oldName, newName)
+      if (stmt.kind === 'while' || stmt.kind === 'do') {
+        stmt.expression = stmt.expression.replace(
+          new RegExp(`\\b${escapeRegExp(oldName)}\\s*\\(`),
+          `${newName}(`,
+        )
+      }
+      if (stmt.kind === 'for') {
+        stmt.start = stmt.start.replace(
+          new RegExp(`\\b${escapeRegExp(oldName)}\\s*\\(`),
+          `${newName}(`,
+        )
+        stmt.end = stmt.end.replace(
+          new RegExp(`\\b${escapeRegExp(oldName)}\\s*\\(`),
+          `${newName}(`,
+        )
+        stmt.step = stmt.step.replace(
+          new RegExp(`\\b${escapeRegExp(oldName)}\\s*\\(`),
+          `${newName}(`,
+        )
+      }
+    } else if (stmt.kind === 'assign' || stmt.kind === 'output') {
+      stmt.expression = stmt.expression.replace(
+        new RegExp(`\\b${escapeRegExp(oldName)}\\s*\\(`),
+        `${newName}(`,
+      )
+    }
+  }
+}
+
+/** 转义正则特殊字符 */
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/** 查找所有引用指定函数的 call 语句 */
+export function findAllCallReferences(program: Program, funcName: string): Statement[] {
+  const result: Statement[] = []
+  for (const f of program.functions) {
+    collectCallReferences(f.body, funcName, result)
+  }
+  return result
+}
+
+function collectCallReferences(body: Statement[], funcName: string, out: Statement[]): void {
+  for (const stmt of body) {
+    if (stmt.kind === 'call') {
+      if (stmt.expression.includes(`${funcName}(`)) {
+        out.push(stmt)
+      }
+    } else if (stmt.kind === 'if') {
+      collectCallReferences(stmt.thenBranch, funcName, out)
+      collectCallReferences(stmt.elseBranch, funcName, out)
+    } else if (stmt.kind === 'for' || stmt.kind === 'while' || stmt.kind === 'do') {
+      collectCallReferences(stmt.body, funcName, out)
+    }
+  }
+}
+
+// ============================================================
 // Parser
 // ============================================================
 

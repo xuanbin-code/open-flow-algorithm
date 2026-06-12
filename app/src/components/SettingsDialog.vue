@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useSettings } from '../composables/useSettings'
 import { ACCENT_PRESETS } from '../utils/color-palette'
-import { Sun, Moon, Settings, Check, Circle } from './icons'
-
-const { t } = useI18n()
+import { Sun, Moon, Settings, Check } from './icons'
 
 // ============================================================
 // Props & Emits

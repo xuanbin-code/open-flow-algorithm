@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import NodePropertyEditor from './NodePropertyEditor.vue'
-import type { Statement } from '../../engine/fprg-ast'
+import type { Statement, FunctionDef } from '../../engine/fprg-ast'
 import { GripVertical, X } from '../icons'
 
 const { t } = useI18n()
@@ -32,6 +32,7 @@ interface Category {
 const props = defineProps<{
   position: { x: number; y: number }
   editingStatement?: Statement | null
+  allFunctions?: FunctionDef[]
 }>()
 
 const emit = defineEmits<{
@@ -131,6 +132,12 @@ const categories: Category[] = [
       { type: 'while', label: t('nodes.kind.while'), category: t('editor.categories.loop'), bg: '#f1c40f', border: '#d4ac0d', shape: 'hexagon' },
     ],
   },
+  {
+    name: t('editor.categories.functions'),
+    nodes: [
+      { type: 'call', label: t('nodes.kind.call'), category: t('editor.categories.functions'), bg: '#8e44ad', border: '#6c3483', shape: 'rect' },
+    ],
+  },
 ]
 
 // ============================================================
@@ -206,6 +213,7 @@ function labelStyle(n: InsertableNode): Record<string, string> {
           <div v-else key="edit" class="edit-view">
             <NodePropertyEditor
               :statement="editingStatement ?? null"
+              :all-functions="allFunctions ?? []"
               @update="(stmt: Statement) => emit('update-property', stmt)"
               @close="emit('close-editor')"
             />

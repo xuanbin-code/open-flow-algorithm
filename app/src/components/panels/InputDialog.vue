@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { Keyboard } from '../icons'
-
-const { t } = useI18n()
 
 // ============================================================
 // Props & Emits

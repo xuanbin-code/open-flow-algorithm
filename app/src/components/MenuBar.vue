@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useSettings } from '../composables/useSettings'
-import { Sun, Moon, Settings, ChevronRight } from './icons'
+import { Sun, Moon, Settings, ChevronRight, Play, StepForward, Pause, Square, Table } from './icons'
 
 const { t } = useI18n()
 
@@ -39,10 +39,19 @@ const props = defineProps<{
   selectedNodeId?: string | null
   recentFiles?: RecentEntry[]
   executionStatus?: 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
+  executionSpeed?: 'slow' | 'normal' | 'fast'
+  showVariableMonitor?: boolean
 }>()
 
 const emit = defineEmits<{
   action: [menuId: string]
+  run: []
+  step: []
+  pause: []
+  resume: []
+  stop: []
+  setSpeed: [speed: 'slow' | 'normal' | 'fast']
+  toggleVariableMonitor: []
 }>()
 
 // ============================================================
@@ -157,6 +166,36 @@ function toggleTheme() {
 }
 
 // ============================================================
+// Execution controls (merged from ExecutionToolbar)
+// ============================================================
+
+type ExecStatus = 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
+
+const es = computed<ExecStatus>(() => props.executionStatus ?? 'idle')
+
+const canRun = computed(() => es.value === 'idle' || es.value === 'stopped')
+const canStep = computed(() => es.value === 'idle' || es.value === 'stopped' || es.value === 'paused')
+const canPause = computed(() => es.value === 'running')
+const canStop = computed(() => es.value === 'running' || es.value === 'paused' || es.value === 'waiting-input')
+const isPaused = computed(() => es.value === 'paused')
+
+const stepLabel = computed(() => isPaused.value ? t('execution.btnContinue') : t('execution.btnStep'))
+
+function onPauseClick() {
+  if (isPaused.value) {
+    emit('resume')
+  } else {
+    emit('pause')
+  }
+}
+
+const SPEEDS = [
+  { id: 'slow' as const, label: t('execution.speedSlow') },
+  { id: 'normal' as const, label: t('execution.speedNormal') },
+  { id: 'fast' as const, label: t('execution.speedFast') },
+]
+
+// ============================================================
 // Click outside → close
 // ============================================================
 
@@ -225,6 +264,81 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
           </div>
         </template>
       </div>
+    </div>
+
+    <!-- Execution toolbar -->
+    <div class="menu-bar-sep" />
+    <div class="menu-bar-toolbar">
+      <!-- Run -->
+      <button
+        class="menu-tb-btn"
+        :disabled="!canRun"
+        :title="$t('execution.btnRun')"
+        @click.stop="emit('run')"
+      >
+        <Play :size="14" />
+        <span>{{ $t('execution.btnRun') }}</span>
+      </button>
+      <!-- Step -->
+      <button
+        class="menu-tb-btn"
+        :disabled="!canStep"
+        :title="stepLabel"
+        @click.stop="emit('step')"
+      >
+        <StepForward :size="14" />
+        <span>{{ stepLabel }}</span>
+      </button>
+      <!-- Pause / Resume -->
+      <button
+        class="menu-tb-btn"
+        :disabled="!canPause && !isPaused"
+        :title="isPaused ? $t('execution.btnResume') : $t('execution.btnPause')"
+        @click.stop="onPauseClick"
+      >
+        <Pause v-if="!isPaused" :size="14" />
+        <Play v-else :size="14" />
+        <span>{{ isPaused ? $t('execution.btnResume') : $t('execution.btnPause') }}</span>
+      </button>
+      <!-- Stop -->
+      <button
+        class="menu-tb-btn"
+        :disabled="!canStop"
+        :title="$t('execution.btnStop')"
+        @click.stop="emit('stop')"
+      >
+        <Square :size="14" />
+        <span>{{ $t('execution.btnStop') }}</span>
+      </button>
+
+      <div class="menu-bar-sep" />
+
+      <!-- Speed selector -->
+      <div class="menu-tb-speed-group">
+        <span class="menu-tb-speed-label">{{ $t('execution.speed') }}</span>
+        <button
+          v-for="s in SPEEDS"
+          :key="s.id"
+          class="menu-tb-speed-btn"
+          :class="{ active: executionSpeed === s.id }"
+          @click.stop="emit('setSpeed', s.id)"
+        >
+          {{ s.label }}
+        </button>
+      </div>
+
+      <div class="menu-bar-sep" />
+
+      <!-- Variable monitor toggle -->
+      <button
+        class="menu-tb-btn"
+        :class="{ active: showVariableMonitor }"
+        :title="showVariableMonitor ? $t('execution.hideVarMonitor') : $t('execution.showVarMonitor')"
+        @click.stop="emit('toggleVariableMonitor')"
+      >
+        <Table :size="14" />
+        <span v-if="showVariableMonitor">{{ $t('execution.hideVarMonitor') }}</span>
+      </button>
     </div>
 
     <!-- Right-aligned buttons -->
@@ -409,5 +523,95 @@ onUnmounted(() => document.removeEventListener('click', onDocumentClick))
 .settings-btn:hover {
   background: var(--bg-menu-hover);
   color: var(--text-primary);
+}
+
+/* ---- Execution toolbar (merged) ---- */
+.menu-bar-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+}
+
+.menu-bar-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border-soft);
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+
+.menu-tb-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+}
+
+.menu-tb-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.menu-tb-btn.active {
+  color: var(--accent);
+}
+
+.menu-tb-btn:disabled {
+  color: var(--text-nav-disabled);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.menu-tb-btn:disabled :deep(svg) {
+  opacity: 0.35;
+}
+
+/* ---- Speed selector ---- */
+.menu-tb-speed-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.menu-tb-speed-label {
+  font-size: 10px;
+  color: var(--text-disabled);
+  margin-right: 4px;
+}
+
+.menu-tb-speed-btn {
+  height: 20px;
+  padding: 0 6px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  color: var(--text-muted-2);
+  font-size: 10px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.menu-tb-speed-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-dim);
+}
+
+.menu-tb-speed-btn.active {
+  background: var(--bg-speed-active, rgba(79, 195, 247, 0.15));
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
 }
 </style>

@@ -11,6 +11,7 @@
 
 import {
   type Program,
+  type FunctionDef,
   type Statement,
   type IfStatement,
   type ForStatement,
@@ -191,12 +192,18 @@ export class FlowchartEngine {
   /** 布局参数引用（外部 reactive 对象，可直接修改触发热更新） */
   params: LayoutParams
 
-  private program: Program
+  /** 当前渲染的函数定义 */
+  readonly funcDef: FunctionDef
+
+  /** 可选的 program 引用（用于 findStatementLocation 等跨函数定位） */
+  private programRef: Program | null
+
   private idCounter = 0
 
-  constructor(program: Program, params: LayoutParams) {
-    this.program = program
+  constructor(funcDef: FunctionDef, params: LayoutParams, options?: { program?: Program }) {
+    this.funcDef = funcDef
     this.params = params
+    this.programRef = options?.program ?? null
     this.initGraph()
     this.layoutFlowchart()
   }
@@ -216,32 +223,35 @@ export class FlowchartEngine {
 
   private initGraph(): void {
     // 始终创建 START 节点
-    let prev: FlowNode = this.createNode('start', t('engine.label.start'), 80)
+    const startLabel = this.funcDef.name === 'Main'
+      ? t('engine.label.start')
+      : this.funcDef.name
+    let prev: FlowNode = this.createNode('start', startLabel, 80)
 
-    // 遍历 Main 函数 body 中的每条语句（递归处理嵌套 if/for）
-    const mainFunc = this.program.functions.find(f => f.name === 'Main')
-    if (mainFunc) {
-      for (const stmt of mainFunc.body) {
-        if (stmt.kind === 'if') {
-          const [, mergeNode] = this.buildIfStatement(stmt, prev)
-          prev = mergeNode
-        } else if (stmt.kind === 'for') {
-          prev = this.buildForStatement(stmt, prev)
-        } else if (stmt.kind === 'while') {
-          prev = this.buildWhileStatement(stmt, prev)
-        } else {
-          const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
-          const label = statementToLabel(stmt)
-          const node = this.createNode(nodeType, label, undefined, stmt)
-          stmt._nodeId = node.id
-          this.connect(prev, node)
-          prev = node
-        }
+    // 遍历函数 body 中的每条语句（递归处理嵌套 if/for）
+    for (const stmt of this.funcDef.body) {
+      if (stmt.kind === 'if') {
+        const [, mergeNode] = this.buildIfStatement(stmt, prev)
+        prev = mergeNode
+      } else if (stmt.kind === 'for') {
+        prev = this.buildForStatement(stmt, prev)
+      } else if (stmt.kind === 'while') {
+        prev = this.buildWhileStatement(stmt, prev)
+      } else {
+        const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
+        const label = statementToLabel(stmt)
+        const node = this.createNode(nodeType, label, undefined, stmt)
+        stmt._nodeId = node.id
+        this.connect(prev, node)
+        prev = node
       }
     }
 
     // 始终创建 END 节点
-    const endNode = this.createNode('end', '结束', 80)
+    const endLabel = this.funcDef.name === 'Main'
+      ? t('engine.label.end')
+      : t('engine.label.return', { var: this.funcDef.variable || this.funcDef.name })
+    const endNode = this.createNode('end', endLabel, 80)
     this.connect(prev, endNode)
   }
 
@@ -324,17 +334,16 @@ export class FlowchartEngine {
     if (!sourceNode || !targetNode) return null
 
     const newStmt = createDefaultStatement(statementKind)
-    const mainFunc = this.program.functions.find(f => f.name === 'Main')
-    if (!mainFunc) return null
+    const body = this.funcDef.body
 
     // ---- 判断 AST 插入位置 ----
 
     if (sourceNode.type === 'start') {
-      // Start → 第一个节点：插入到 Main body 开头
-      mainFunc.body.unshift(newStmt)
+      // Start → 第一个节点：插入到 body 开头
+      body.unshift(newStmt)
     } else if (targetNode.type === 'end') {
-      // 最后一个节点 → End：插入到 Main body 末尾
-      mainFunc.body.push(newStmt)
+      // 最后一个节点 → End：插入到 body 末尾
+      body.push(newStmt)
     } else if (sourceNode.type === 'fg-if') {
       // if 节点 → 空分支：插入到对应分支开头
       const ifStmt = sourceNode.data.statement as IfStatement | undefined
@@ -344,7 +353,7 @@ export class FlowchartEngine {
         } else if (edge.sourceHandle === 'else') {
           ifStmt.elseBranch.unshift(newStmt)
         } else {
-          mainFunc.body.push(newStmt) // 兜底
+          body.push(newStmt) // 兜底
         }
       }
     } else if (sourceNode.type === 'fg-for' && edge.sourceHandle === 'loop-body') {
@@ -361,15 +370,25 @@ export class FlowchartEngine {
       }
     } else if (sourceNode.data.statement) {
       // 普通顺序边：在 source 语句之后插入
-      const loc = findStatementLocation(this.program, sourceNode.data.statement)
-      if (loc) {
-        loc.body.splice(loc.index + 1, 0, newStmt)
+      if (this.programRef) {
+        const loc = findStatementLocation(this.programRef, sourceNode.data.statement)
+        if (loc) {
+          loc.body.splice(loc.index + 1, 0, newStmt)
+        } else {
+          body.push(newStmt) // 兜底
+        }
       } else {
-        mainFunc.body.push(newStmt) // 兜底
+        // 没有 program 引用，直接在当前函数体中查找
+        const idx = body.indexOf(sourceNode.data.statement)
+        if (idx !== -1) {
+          body.splice(idx + 1, 0, newStmt)
+        } else {
+          body.push(newStmt) // 兜底
+        }
       }
     } else {
-      // 兜底：插入到 Main body 末尾
-      mainFunc.body.push(newStmt)
+      // 兜底：插入到 body 末尾
+      body.push(newStmt)
     }
 
     // 重建整个 nodes/edges 图并重新排版
@@ -729,11 +748,10 @@ export class FlowchartEngine {
       startNode.position = { x: startX, y: this.params.START_Y }
     }
 
-    // 递归排版 Main body（可能为空）
-    const mainFunc = this.program.functions.find(f => f.name === 'Main')
+    // 递归排版函数 body
     const bodyStartY = this.params.START_Y + this.params.START_END_H + this.params.SPACING
-    const bodyResult = mainFunc
-      ? this.layoutBlock(mainFunc.body, this.params.FLOW_CENTER_X, bodyStartY)
+    const bodyResult = this.funcDef.body.length > 0
+      ? this.layoutBlock(this.funcDef.body, this.params.FLOW_CENTER_X, bodyStartY)
       : { endY: bodyStartY, width: 0 }
 
     // 放置 END

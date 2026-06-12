@@ -53,18 +53,24 @@ watch(
 
 const inputValue = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
+const hasInteracted = ref(false)
 
-// 等待输入时自动聚焦
+// 等待输入时自动聚焦，并重置交互状态
 watch(
   () => props.executionStatus,
   async (status) => {
     if (status === 'waiting-input') {
+      hasInteracted.value = false
       inputValue.value = ''
       await nextTick()
       inputRef.value?.focus()
     }
   },
 )
+
+function onInputFocus() {
+  hasInteracted.value = true
+}
 
 function onSubmit() {
   const val = inputValue.value
@@ -146,14 +152,14 @@ const STATUS_COLORS: Record<string, string> = {
         class="chat-input-bar"
         :class="{
           disabled: executionStatus !== 'waiting-input',
-          'animate__animated animate__pulse animate__infinite': executionStatus === 'waiting-input',
+          'animate__animated animate__pulse animate__infinite': executionStatus === 'waiting-input' && !hasInteracted,
         }"
       >
         <input
           ref="inputRef"
           v-model="inputValue"
           class="chat-input"
-          :class="{ 'input-glow': executionStatus === 'waiting-input' }"
+          :class="{ 'input-glow': executionStatus === 'waiting-input' && !hasInteracted }"
           type="text"
           :placeholder="
             executionStatus === 'waiting-input'
@@ -161,6 +167,7 @@ const STATUS_COLORS: Record<string, string> = {
               : $t('execution.waitingForRun')
           "
           :disabled="executionStatus !== 'waiting-input'"
+          @focus="onInputFocus"
           @keydown="onInputKeydown"
         />
         <button

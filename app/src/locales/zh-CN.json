@@ -32,7 +32,9 @@
     "speedNormal": "正常",
     "speedFast": "快速",
     "switchToLight": "切换浅色模式",
-    "switchToDark": "切换深色模式"
+    "switchToDark": "切换深色模式",
+    "manageFunctions": "管理函数",
+    "addFunction": "添加函数"
   },
   "settings": {
     "title": "设置",
@@ -95,6 +97,30 @@
     "programDone": "程序执行完毕",
     "execDoneDivider": "—— 程序执行完毕 ——"
   },
+  "functions": {
+    "title": "函数",
+    "newFunction": "新建函数",
+    "renameFunction": "重命名函数",
+    "deleteFunction": "删除函数",
+    "deleteConfirm": "确定删除函数 \"{name}\"？此操作不可撤销。",
+    "cannotDeleteMain": "不能删除 Main 函数。",
+    "nameRequired": "函数名不能为空。",
+    "nameDuplicate": "已存在名为 \"{name}\" 的函数。",
+    "returnType": "返回类型",
+    "returnVariable": "返回变量",
+    "parameters": "参数列表",
+    "addParameter": "添加参数",
+    "paramName": "参数名",
+    "paramType": "类型",
+    "paramArray": "数组?",
+    "noReturn": "无返回值",
+    "noParameters": "暂无参数",
+    "selectFunction": "选择函数...",
+    "editFunction": "编辑函数 \"{name}\"",
+    "tabAddTooltip": "新建函数",
+    "duplicateFunction": "复制函数",
+    "functionName": "函数名"
+  },
   "nodes": {
     "kind": {
       "declare": "声明",
@@ -144,7 +170,8 @@
       "io": "输入/输出",
       "variables": "变量",
       "control": "控制",
-      "loop": "循环"
+      "loop": "循环",
+      "functions": "函数"
     },
     "form": {
       "variableName": "变量名称:",
@@ -161,6 +188,7 @@
       "newlineAfterOutput": "输出后换行",
       "condition": "条件表达式:",
       "functionCall": "函数调用:",
+      "functionCallPlaceholder": "如 MyFunc(参数1, 参数2)",
       "variable": "变量",
       "variablePlaceholder": "变量名",
       "expressionPlaceholder": "表达式",
@@ -236,7 +264,8 @@
       "outputPrefix": "输出 ",
       "callPrefix": "调用 ",
       "forTo": " 到 ",
-      "forStep": " 步长 "
+      "forStep": " 步长 ",
+      "return": "返回 {var}"
     }
   },
   "toasts": {

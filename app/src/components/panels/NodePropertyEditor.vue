@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Statement } from '../../engine/fprg-ast'
+import type { Statement, FunctionDef } from '../../engine/fprg-ast'
 import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard } from '../icons'
 
 const { t } = useI18n()
@@ -13,6 +13,7 @@ const { t } = useI18n()
 
 const props = defineProps<{
   statement: Statement | null
+  allFunctions?: FunctionDef[]
 }>()
 
 const emit = defineEmits<{
@@ -311,12 +312,40 @@ function onConfirm() {
 
       <!-- ===== call ===== -->
       <template v-if="statement.kind === 'call'">
+        <!-- 函数选择下拉框 -->
+        <label v-if="allFunctions && allFunctions.length > 0" class="field">
+          <span class="field-label">{{ $t('functions.selectFunction') }}</span>
+          <select
+            class="field-input field-select"
+            @change="(e: Event) => {
+              const funcName = (e.target as HTMLSelectElement).value
+              if (funcName) {
+                const func = allFunctions?.find(f => f.name === funcName)
+                if (func) {
+                  const paramList = func.parameters.map(p => p.name).join(', ')
+                  setField('expression', funcName + '(' + paramList + ')')
+                }
+              }
+            }"
+          >
+            <option value="">-- {{ $t('functions.selectFunction') }} --</option>
+            <option
+              v-for="func in allFunctions.filter(f => f.name !== 'Main')"
+              :key="func.name"
+              :value="func.name"
+            >
+              {{ func.name }}{{ func.parameters.length ? '(' + func.parameters.map(p => p.name).join(', ') + ')' : '()' }}
+            </option>
+          </select>
+        </label>
+        <!-- 调用表达式输入 -->
         <label class="field">
           <span class="field-label">{{ $t('editor.form.functionCall') }}</span>
           <input
             class="field-input"
             type="text"
             :value="statement.expression"
+            :placeholder="$t('editor.form.functionCallPlaceholder')"
             @input="setField('expression', ($event.target as HTMLInputElement).value)"
           />
         </label>

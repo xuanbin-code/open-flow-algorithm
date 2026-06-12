@@ -32,7 +32,9 @@
     "speedNormal": "Normal",
     "speedFast": "Fast",
     "switchToLight": "Switch to Light Mode",
-    "switchToDark": "Switch to Dark Mode"
+    "switchToDark": "Switch to Dark Mode",
+    "manageFunctions": "Manage Functions",
+    "addFunction": "Add Function"
   },
   "settings": {
     "title": "Settings",
@@ -95,6 +97,30 @@
     "programDone": "Program finished",
     "execDoneDivider": "—— Program finished ——"
   },
+  "functions": {
+    "title": "Functions",
+    "newFunction": "New Function",
+    "renameFunction": "Rename Function",
+    "deleteFunction": "Delete Function",
+    "deleteConfirm": "Delete function \"{name}\"? This cannot be undone.",
+    "cannotDeleteMain": "Cannot delete the Main function.",
+    "nameRequired": "Function name is required.",
+    "nameDuplicate": "A function named \"{name}\" already exists.",
+    "returnType": "Return Type",
+    "returnVariable": "Return Variable",
+    "parameters": "Parameters",
+    "addParameter": "Add Parameter",
+    "paramName": "Name",
+    "paramType": "Type",
+    "paramArray": "Array?",
+    "noReturn": "No Return",
+    "noParameters": "No parameters",
+    "selectFunction": "Select a function...",
+    "editFunction": "Edit Function \"{name}\"",
+    "tabAddTooltip": "New Function",
+    "duplicateFunction": "Duplicate Function",
+    "functionName": "Function Name"
+  },
   "nodes": {
     "kind": {
       "declare": "Declare",
@@ -144,7 +170,8 @@
       "io": "Input/Output",
       "variables": "Variables",
       "control": "Control",
-      "loop": "Loop"
+      "loop": "Loop",
+      "functions": "Functions"
     },
     "form": {
       "variableName": "Variable Name:",
@@ -161,6 +188,7 @@
       "newlineAfterOutput": "Newline after output",
       "condition": "Condition:",
       "functionCall": "Function Call:",
+      "functionCallPlaceholder": "e.g. MyFunc(arg1, arg2)",
       "variable": "Variable",
       "variablePlaceholder": "Variable name",
       "expressionPlaceholder": "Expression",
@@ -236,7 +264,8 @@
       "outputPrefix": "Output ",
       "callPrefix": "Call ",
       "forTo": " to ",
-      "forStep": " step "
+      "forStep": " step ",
+      "return": "Return {var}"
     }
   },
   "toasts": {

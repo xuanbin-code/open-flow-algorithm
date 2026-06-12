@@ -15,17 +15,28 @@ const t = i18n.global.t
 // Types
 // ============================================================
 
+/** 调用帧：保存调用者作用域，切回时恢复 */
+interface CallFrame {
+  funcName: string
+  variables: Record<string, unknown>
+  variableTypes: Record<string, string>
+}
+
 export interface RuntimeState {
   /** 变量名 → 当前值 */
   variables: Record<string, unknown>
   /** 变量名 → Flowgorithm 类型名 ("Integer"|"Real"|"String"|"Boolean") */
   variableTypes: Record<string, string>
+  /** 调用栈：保存调用者作用域，用于函数返回时恢复 */
+  callFrames: CallFrame[]
   /** 输出行缓冲 */
   output: string[]
   /** 当前执行到的语句（null 表示未开始或已完成） */
   currentStatement: Statement | null
   /** 当前执行节点的 ID */
   currentNodeId: string | null
+  /** program 引用（用于函数查找） */
+  _program?: Program
 }
 
 export type InterpreterEvent =
@@ -42,6 +53,53 @@ export type InterpreterEvent =
 
 const MAX_ITERATIONS = 10000
 
+/**
+ * 解析调用表达式，提取函数名和参数列表。
+ *
+ * 例：
+ *   "MyFunc(x, y+1)"   → { name: "MyFunc", args: ["x", " y+1"] }
+ *   "Random(100)"       → { name: "Random", args: ["100"] }
+ *   "Selections()"      → { name: "Selections", args: [] }
+ *   "x + 1"             → null (非调用表达式)
+ */
+function parseCallExpression(expr: string): { name: string; args: string[] } | null {
+  const trimmed = expr.trim()
+  const match = trimmed.match(/^(\w+)\s*\(([\s\S]*)\)$/)
+  if (!match) return null
+
+  const funcName = match[1]
+  const argsStr = match[2].trim()
+
+  if (!argsStr) {
+    return { name: funcName, args: [] }
+  }
+
+  // 按逗号分割参数，同时考虑括号嵌套（如 max(a, min(b, c))）
+  const args: string[] = []
+  let depth = 0
+  let current = ''
+  for (let i = 0; i < argsStr.length; i++) {
+    const ch = argsStr[i]
+    if (ch === '(') {
+      depth++
+      current += ch
+    } else if (ch === ')') {
+      depth--
+      current += ch
+    } else if (ch === ',' && depth === 0) {
+      args.push(current)
+      current = ''
+    } else {
+      current += ch
+    }
+  }
+  if (current) {
+    args.push(current)
+  }
+
+  return { name: funcName, args }
+}
+
 // ============================================================
 // createInterpreter
 // ============================================================
@@ -53,9 +111,11 @@ export function createInterpreter(program: Program): {
   const state: RuntimeState = {
     variables: {},
     variableTypes: {},
+    callFrames: [],
     output: [],
     currentStatement: null,
     currentNodeId: null,
+    _program: program,
   }
 
   // 预先扫描 Main 函数体中所有 declare 语句，收集类型信息
@@ -396,16 +456,102 @@ async function* executeCall(
   stmt: Statement & { kind: 'call' },
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
-  // call 语句：求值表达式（通常为函数调用，有副作用）
-  // 如 Math.sqrt(x), Random()
-  if (stmt.expression) {
+  if (!stmt.expression) return
+
+  // 尝试解析调用表达式：提取函数名和参数列表
+  const parsed = parseCallExpression(stmt.expression)
+  if (!parsed) {
+    // 无法解析，回退到表达式求值
     try {
       evaluateExpression(stmt.expression, state.variables)
-    } catch {
-      // 忽略 call 的返回值（不赋值给变量）
-      // call 主要用于函数副作用
+    } catch { /* 忽略 */ }
+    return
+  }
+
+  // 查找用户定义的函数
+  const program = state._program
+  const funcDef = program?.functions.find((f) => f.name === parsed.name)
+
+  if (!funcDef || funcDef.name === 'Main') {
+    // 不是用户函数（或不能调用 Main），回退到表达式求值
+    // 用于 Math.sqrt、Random 等内置调用
+    try {
+      evaluateExpression(stmt.expression, state.variables)
+    } catch { /* 忽略 */ }
+    return
+  }
+
+  // ==========================================
+  // 执行用户定义的函数
+  // ==========================================
+
+  // 1. 求值参数表达式（在调用者作用域中）
+  const argValues: unknown[] = []
+  for (const argExpr of parsed.args) {
+    const trimmed = argExpr.trim()
+    if (trimmed) {
+      argValues.push(evaluateExpression(trimmed, state.variables))
+    } else {
+      argValues.push(undefined)
     }
   }
+
+  // 2. 创建新作用域
+  const newVars: Record<string, unknown> = {}
+  const newTypes: Record<string, string> = {}
+
+  // 绑定参数
+  for (let i = 0; i < funcDef.parameters.length; i++) {
+    const param = funcDef.parameters[i]
+    const rawValue = i < argValues.length ? argValues[i] : undefined
+    const value = rawValue !== undefined && rawValue !== null
+      ? coerceValue(rawValue, param.type)
+      : defaultValueForType(param.type)
+
+    newVars[param.name] = param.array ? (Array.isArray(value) ? value : [value]) : value
+    newTypes[param.name] = param.array ? param.type + '[]' : param.type
+  }
+
+  // 预扫描函数体中的 declare
+  collectDeclarations(funcDef.body, { variables: newVars, variableTypes: newTypes } as RuntimeState)
+
+  // 3. 保存调用者作用域，切换到被调用者作用域
+  const callerFrame: CallFrame = {
+    funcName: 'caller',
+    variables: state.variables,
+    variableTypes: state.variableTypes,
+  }
+  state.callFrames.push(callerFrame)
+  state.variables = newVars
+  state.variableTypes = newTypes
+
+  // 4. 执行函数体
+  try {
+    yield* executeBlock(funcDef.body, state)
+  } catch (e: unknown) {
+    // 恢复调用者作用域
+    const frame = state.callFrames.pop()
+    if (frame) {
+      state.variables = frame.variables
+      state.variableTypes = frame.variableTypes
+    }
+    throw e
+  }
+
+  // 5. 捕获返回值
+  const returnValue = funcDef.variable
+    ? state.variables[funcDef.variable]
+    : undefined
+
+  // 6. 恢复调用者作用域
+  const poppedFrame = state.callFrames.pop()
+  if (poppedFrame) {
+    state.variables = poppedFrame.variables
+    state.variableTypes = poppedFrame.variableTypes
+  }
+
+  // 7. 将返回值存回调用者作用域（通过 _lastReturnValue）
+  ;(state as any)._lastReturnValue = returnValue
 }
 
 async function* executeIf(

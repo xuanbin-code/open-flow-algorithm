@@ -20,14 +20,17 @@ import ExecutionConsole from './components/panels/ExecutionConsole.vue'
 import type { ChatMessage } from './components/panels/ExecutionConsole.vue'
 import VariableMonitor from './components/panels/VariableMonitor.vue'
 import type { VariableEntry } from './components/panels/VariableMonitor.vue'
-import ExecutionToolbar from './components/panels/ExecutionToolbar.vue'
+
 import SettingsDialog from './components/SettingsDialog.vue'
+import FunctionTabBar from './components/FunctionTabBar.vue'
+import FunctionDialog from './components/FunctionDialog.vue'
+import CallNode from './components/nodes/CallNode.vue'
 import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 
-import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, type Program, type Statement } from './engine/fprg-ast'
+import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, getFunctionByName, addFunction, deleteFunction, renameFunction, type Program, type Statement, type FunctionDef } from './engine/fprg-ast'
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs'
 import { addRecentFile, loadRecentFiles, getLastFile, type RecentEntry } from './utils/recent-files'
@@ -58,7 +61,18 @@ const LP = reactive<LayoutParams>({ ...DEFAULT_PARAMS })
 
 // 先用空白 Program 初始化，onMounted 中尝试恢复上次文件
 const program = ref<Program>(createEmptyProgram())
-let engine = new FlowchartEngine(program.value, LP)
+
+// 函数管理状态
+const activeFunctionName = ref<string>('Main')
+const showFunctionDialog = ref(false)
+const editingFunction = ref<FunctionDef | null>(null)
+
+/** 获取当前活动函数定义 */
+const activeFunction = computed(() =>
+  getFunctionByName(program.value, activeFunctionName.value) ?? program.value.functions[0],
+)
+
+let engine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
 
 const programHistory = useRefHistory(program, {
   deep: true,
@@ -132,10 +146,19 @@ function syncVariables(state: RuntimeState) {
   }))
 }
 
+/** 根据活动函数重建流程图引擎 */
+function rebuildEngine() {
+  engine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
+  syncSelectionState()
+}
+
 /** 加载 fprg XML → 重建 engine + 更新 VueFlow 响应式数据 */
 function loadProgram(xml: string, filePath?: string) {
   program.value = parseFprgToAst(xml)
-  engine = new FlowchartEngine(program.value, LP)
+  activeFunctionName.value = 'Main'
+  engine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
   nodes.value = [...engine.nodes]
   edges.value = [...engine.edges]
   if (filePath) {
@@ -157,8 +180,7 @@ let layoutTimer: ReturnType<typeof setTimeout> | null = null
 watch(LP, () => {
   if (layoutTimer) clearTimeout(layoutTimer)
   layoutTimer = setTimeout(() => {
-    engine.layout()
-    // 触发 Vue 响应式：engine 绕过 Proxy 修改了原始对象，需手动通知
+    engine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
     nodes.value = [...engine.nodes]
     console.log('Re-layout done, node count:', nodes.value.length)
   }, 30)
@@ -187,7 +209,8 @@ async function initApp() {
 
   // 文件不存在 / 首次启动 → 空白画布
   program.value = createEmptyProgram()
-  engine = new FlowchartEngine(program.value, LP)
+  activeFunctionName.value = 'Main'
+  engine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
   nodes.value = [...engine.nodes]
   edges.value = [...engine.edges]
   currentFilePath.value = null
@@ -250,26 +273,17 @@ function onKeydown(e: KeyboardEvent) {
 
 /** 语言切换时重建引擎以更新节点标签 */
 function onLanguageChanged() {
-  engine = new FlowchartEngine(program.value, LP)
-  nodes.value = [...engine.nodes]
-  edges.value = [...engine.edges]
-  syncSelectionState()
+  rebuildEngine()
 }
 
 function undo() {
   programHistory.undo()
-  engine = new FlowchartEngine(program.value, LP)
-  nodes.value = [...engine.nodes]
-  edges.value = [...engine.edges]
-  syncSelectionState()
+  rebuildEngine()
 }
 
 function redo() {
   programHistory.redo()
-  engine = new FlowchartEngine(program.value, LP)
-  nodes.value = [...engine.nodes]
-  edges.value = [...engine.edges]
-  syncSelectionState()
+  rebuildEngine()
 }
 
 /** 同步 selectedNodeId → nodes 数组中对应节点的 selected 属性 */
@@ -736,6 +750,62 @@ function deleteSelectedNode() {
   edges.value = [...engine.edges]
 }
 
+// ============================================
+// 函数管理
+// ============================================
+
+function onSwitchFunction(name: string) {
+  if (isExecuting.value) return
+  activeFunctionName.value = name
+  rebuildEngine()
+}
+
+function onAddFunction() {
+  editingFunction.value = null
+  showFunctionDialog.value = true
+}
+
+function onSaveFunction(funcDef: FunctionDef) {
+  if (editingFunction.value) {
+    // 编辑已有函数
+    const oldName = editingFunction.value.name
+    if (funcDef.name !== oldName) {
+      if (!renameFunction(program.value, oldName, funcDef.name)) return
+    }
+    // 更新其他属性
+    const existing = getFunctionByName(program.value, funcDef.name)
+    if (existing) {
+      existing.type = funcDef.type
+      existing.variable = funcDef.variable
+      existing.parameters = funcDef.parameters
+    }
+  } else {
+    // 新建函数
+    addFunction(program.value, funcDef)
+    activeFunctionName.value = funcDef.name
+  }
+  showFunctionDialog.value = false
+  editingFunction.value = null
+  rebuildEngine()
+}
+
+function onRenameFunction(oldName: string, newName: string) {
+  if (renameFunction(program.value, oldName, newName)) {
+    if (activeFunctionName.value === oldName) {
+      activeFunctionName.value = newName
+    }
+    rebuildEngine()
+  }
+}
+
+function onDeleteFunction(name: string) {
+  if (!deleteFunction(program.value, name)) return
+  if (activeFunctionName.value === name) {
+    activeFunctionName.value = 'Main'
+  }
+  rebuildEngine()
+}
+
 function onInsertNode(type: string) {
   if (clickedEdgeId.value) {
     const newStmt = engine.insertNodeAtEdge(clickedEdgeId.value, type as Statement['kind'])
@@ -752,11 +822,7 @@ function onInsertNode(type: string) {
 function onUpdateProperty(_stmt: Statement) {
   if (isExecuting.value) return
   // AST statement 已直接修改，重建引擎以更新节点标签和布局
-  engine.rebuild()
-  nodes.value = [...engine.nodes]
-  edges.value = [...engine.edges]
-  // 重建后恢复选中状态
-  syncSelectionState()
+  rebuildEngine()
 }
 
 function onCloseEditor() {
@@ -764,9 +830,7 @@ function onCloseEditor() {
   panelVisible.value = false
   selectedNodeId.value = null
   // 最后一次重建确保最终状态
-  engine.rebuild()
-  nodes.value = [...engine.nodes]
-  edges.value = [...engine.edges]
+  rebuildEngine()
 }
 
 // ============================================
@@ -794,7 +858,8 @@ async function onMenuAction(actionId: string) {
   switch (actionId) {
     case 'new': {
       program.value = createEmptyProgram()
-      engine = new FlowchartEngine(program.value, LP)
+      activeFunctionName.value = 'Main'
+      engine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
       nodes.value = [...engine.nodes]
       edges.value = [...engine.edges]
       currentFilePath.value = null
@@ -864,6 +929,10 @@ async function onMenuAction(actionId: string) {
       showSettingsDialog.value = true
       break
     }
+    case 'manage-functions': {
+      onAddFunction()
+      break
+    }
     default:
       console.log(`Menu action: ${actionId} (未实现)`)
   }
@@ -918,11 +987,12 @@ async function handleSaveAs() {
 
 <template>
   <div class="flowchart-sandbox">
-    <MenuBar :recent-files="recentFiles" :execution-status="executionStatus" @action="onMenuAction" />
-    <ExecutionToolbar
+    <MenuBar
+      :recent-files="recentFiles"
       :execution-status="executionStatus"
       :execution-speed="executionSpeed"
       :show-variable-monitor="showVariableMonitor"
+      @action="onMenuAction"
       @run="startExecution"
       @step="stepExecution"
       @pause="pauseExecution"
@@ -932,8 +1002,17 @@ async function handleSaveAs() {
       @toggle-variable-monitor="showVariableMonitor = !showVariableMonitor"
     />
     <div class="main-area">
+      <FunctionTabBar
+        :functions="program.functions"
+        :active-function="activeFunctionName"
+        @switch-function="onSwitchFunction"
+        @add-function="onAddFunction"
+        @rename-function="onRenameFunction"
+        @delete-function="onDeleteFunction"
+      />
       <div class="flow-container" :class="{ 'flow-ready': isContentReady }">
         <VueFlow
+          :key="activeFunctionName"
           :nodes="nodes"
           :edges="edges"
           :default-viewport="{ zoom: 1, x: 50, y: 20 }"
@@ -980,6 +1059,9 @@ async function handleSaveAs() {
           <template #node-fg-while="nodeProps"
             ><WhileNode v-bind="nodeProps"
           /></template>
+          <template #node-call="nodeProps"
+            ><CallNode v-bind="nodeProps"
+          /></template>
         </VueFlow>
       </div>
       <ExecutionConsole
@@ -1003,10 +1085,18 @@ async function handleSaveAs() {
       v-if="panelVisible"
       :position="panelPosition"
       :editing-statement="editingStatement"
+      :all-functions="program.functions"
       @close="panelVisible = false; editingStatement = null"
       @insert="onInsertNode"
       @update-property="onUpdateProperty"
       @close-editor="onCloseEditor"
+    />
+    <FunctionDialog
+      :visible="showFunctionDialog"
+      :function="editingFunction"
+      :existing-names="program.functions.map(f => f.name)"
+      @close="showFunctionDialog = false; editingFunction = null"
+      @save="onSaveFunction"
     />
     <SettingsDialog :visible="showSettingsDialog" @close="showSettingsDialog = false" />
     <!-- Toast 消息 -->
@@ -1032,6 +1122,8 @@ async function handleSaveAs() {
 .flow-container {
   flex: 1;
   min-width: 0;
+  height: 100%;
+  overflow: hidden;
   opacity: 0;
   transition: opacity 0.15s ease;
 }
@@ -1040,6 +1132,7 @@ async function handleSaveAs() {
 }
 .execution-console {
   width: 380px;
+  height: 100%;
   flex-shrink: 0;
   border-left: 1px solid var(--border-soft);
 }
