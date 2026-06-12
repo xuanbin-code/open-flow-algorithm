@@ -41,9 +41,11 @@ import {
 } from './engine/flowchart-engine'
 import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './engine/interpreter'
 import { useSettings } from './composables/useSettings'
+import { useSound } from './composables/useSound'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+const sound = useSound()
 
 // ============================================
 // 布局参数（可实时调试）
@@ -396,6 +398,7 @@ async function startExecution() {
   interpreterRuntime = state
   interpreterGen = generator
 
+  sound.playStart()
   await driveInterpreter('run')
 }
 
@@ -409,6 +412,7 @@ async function stepExecution() {
     interpreterGen = generator
 
     executionStatus.value = 'running'
+    sound.playStart()
     await driveInterpreter('step')
   } else if (executionStatus.value === 'paused') {
     // 继续步进
@@ -445,6 +449,7 @@ function stopExecution() {
   lastHighlightedIds.value.clear()
   resetEdgeAnimation()
 
+  sound.playStop()
   executionStatus.value = 'stopped'
   showToast(t('toasts.execTerminated'), 'error')
 }
@@ -505,6 +510,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
           previousNodeId.value = event.nodeId
 
           syncVariables(interpreterRuntime)
+          if (mode === 'step') sound.playTick()
           break
         }
         case 'statement-leave': {
@@ -527,6 +533,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         }
         case 'input-request': {
           executionStatus.value = 'waiting-input'
+          sound.playInputPrompt()
           // 等待外部 resolve
           const value = await new Promise<string>((resolve) => {
             inputResolve = resolve
@@ -542,6 +549,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
           break
         }
         case 'error': {
+          sound.playError()
           executionOutput.value = [...executionOutput.value, t('toasts.errorPrefix', { message: event.message })]
           chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.errorPrefixShort', { message: event.message }) }]
           resetEdgeAnimation()
@@ -551,6 +559,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
           return
         }
         case 'done': {
+          sound.playDone()
           executionOutput.value = [...executionOutput.value, t('execution.execDoneDivider')]
           chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.execDone') }]
           resetEdgeAnimation()
