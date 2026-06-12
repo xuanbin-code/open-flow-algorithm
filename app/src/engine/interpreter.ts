@@ -70,6 +70,7 @@ export function createInterpreter(program: Program): {
  * 递归扫描所有 declare 语句，初始化变量类型和默认值
  */
 function collectDeclarations(statements: Statement[], state: RuntimeState): void {
+  if (!statements || !Array.isArray(statements)) return
   for (const stmt of statements) {
     if (stmt.kind === 'declare') {
       const names = splitDeclareNames(stmt.name)
@@ -130,6 +131,7 @@ async function* executeBlock(
   statements: Statement[],
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
+  if (!statements || !Array.isArray(statements)) return
   for (const stmt of statements) {
     yield* executeStatement(stmt, state)
   }
@@ -204,6 +206,10 @@ async function* executeDeclare(
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
   const names = splitDeclareNames(stmt.name)
+  if (names.length === 0 || !names.some((n) => n)) {
+    yield { type: 'error', message: '声明语句缺少变量名称', statement: stmt }
+    return
+  }
   const flowType = stmt.type || 'Integer'
 
   // ----------------------------------------------------------
@@ -272,7 +278,14 @@ async function* executeAssign(
   stmt: Statement & { kind: 'assign' },
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
-  if (!stmt.variable) return
+  if (!stmt.variable) {
+    yield { type: 'error', message: '赋值语句缺少目标变量', statement: stmt }
+    return
+  }
+  if (!stmt.expression) {
+    yield { type: 'error', message: '赋值语句缺少表达式', statement: stmt }
+    return
+  }
 
   const value = evaluateExpression(stmt.expression, state.variables)
 
@@ -399,6 +412,11 @@ async function* executeIf(
 ): AsyncGenerator<InterpreterEvent> {
   const nodeId = (stmt as any)._nodeId as string | undefined
 
+  if (!stmt.expression) {
+    yield { type: 'error', message: '判断语句缺少条件表达式', statement: stmt }
+    return
+  }
+
   // 仅在条件求值时高亮 if 节点
   if (nodeId) {
     state.currentStatement = stmt
@@ -426,6 +444,12 @@ async function* executeWhile(
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
   const nodeId = (stmt as any)._nodeId as string | undefined
+
+  if (!stmt.expression) {
+    yield { type: 'error', message: 'while 循环缺少条件表达式', statement: stmt }
+    return
+  }
+
   let iterations = 0
   while (true) {
     if (++iterations > MAX_ITERATIONS) {
@@ -511,6 +535,12 @@ async function* executeDo(
   state: RuntimeState,
 ): AsyncGenerator<InterpreterEvent> {
   const nodeId = (stmt as any)._nodeId as string | undefined
+
+  if (!stmt.expression) {
+    yield { type: 'error', message: 'do 循环缺少条件表达式', statement: stmt }
+    return
+  }
+
   let iterations = 0
   do {
     if (++iterations > MAX_ITERATIONS) {
