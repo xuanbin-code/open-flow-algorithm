@@ -43,6 +43,7 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
       height: nodeHeight + 'px'
     }"
   >
+    <div class="node-shape-border"></div>
     <div class="node-shape"></div>
     <Handle type="target" :position="Position.Top" />
     <span class="if-label">{{ label }}</span>
@@ -64,17 +65,29 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
   font-weight: 600;
 }
 
-/* 形状层：承载 clip-path / 背景 / 边框 / 阴影，避免裁剪 Handle 与执行光晕 */
+/* 形状层：承载 clip-path / 背景 / 阴影，避免裁剪 Handle 与执行光晕 */
+.node-shape-border,
 .node-shape {
   position: absolute;
-  inset: 0;
   z-index: 0;
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
 }
 
+.node-shape-border {
+  inset: -2px;
+  z-index: -1;
+}
+
+.node-shape {
+  inset: 0;
+}
+
+.if-node .node-shape-border {
+  background: #e67e22;
+}
+
 .if-node .node-shape {
   background: #f39c12;
-  border: 2px solid #e67e22;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
@@ -95,8 +108,8 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
 .if-node.executing {
   animation: exec-pulse 0.8s ease-in-out infinite alternate;
 }
-.if-node.executing .node-shape {
-  border-color: #2ecc71 !important;
+.if-node.executing .node-shape-border {
+  background: #2ecc71 !important;
 }
 
 .if-node.dragging {
@@ -139,8 +152,8 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
 .if-node.flashHighlight {
   animation: flash-pulse 0.5s ease-in-out 3;
 }
-.if-node.flashHighlight .node-shape {
-  border-color: var(--accent-orange, #f39c12) !important;
+.if-node.flashHighlight .node-shape-border {
+  background: var(--accent-orange, #f39c12) !important;
 }
 
 @keyframes flash-pulse {
