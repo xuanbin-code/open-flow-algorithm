@@ -212,24 +212,29 @@ function onConfirm() {
 
       <!-- ===== assign ===== -->
       <template v-if="statement.kind === 'assign'">
-        <label class="field">
-          <span class="field-label">变量:</span>
-          <input
-            class="field-input"
-            type="text"
-            :value="statement.variable"
-            @input="setField('variable', ($event.target as HTMLInputElement).value)"
-          />
-        </label>
-        <label class="field">
-          <span class="field-label">表达式:</span>
-          <input
-            class="field-input"
-            type="text"
-            :value="statement.expression"
-            @input="setField('expression', ($event.target as HTMLInputElement).value)"
-          />
-        </label>
+        <div class="assign-layout">
+          <div class="assign-left">
+            <span class="field-label">变量</span>
+            <input
+              class="field-input"
+              type="text"
+              placeholder="变量名"
+              :value="statement.variable"
+              @input="setField('variable', ($event.target as HTMLInputElement).value)"
+            />
+          </div>
+          <span class="assign-equals">=</span>
+          <div class="assign-right">
+            <span class="field-label">表达式</span>
+            <textarea
+              class="field-input"
+              placeholder="表达式"
+              rows="3"
+              :value="statement.expression"
+              @input="setField('expression', ($event.target as HTMLTextAreaElement).value)"
+            />
+          </div>
+        </div>
       </template>
 
       <!-- ===== input ===== -->
@@ -458,6 +463,37 @@ function onConfirm() {
   transition: border-color 0.15s;
   font-family: inherit;
   min-height: 28px;
+}
+
+/* ---- Assign layout: 变量 = 表达式 ---- */
+.assign-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.assign-left {
+  flex: 0 0 28%;
+  min-width: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.assign-equals {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  user-select: none;
+  flex-shrink: 0;
+  padding-top: 20px;
+}
+
+.assign-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .field-input:focus {
