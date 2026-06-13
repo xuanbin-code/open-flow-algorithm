@@ -313,3 +313,19 @@ textarea {
 :root:not([data-theme="light"]) button:disabled[class*="opacity-50"] {
   opacity: 0.55;
 }
+
+/* ===================================================================
+   下拉菜单背景修正
+   确保 Reka-UI 菜单内容（Menubar / ContextMenu）在浅色/暗色模式
+   下始终有正确的不透明背景色。内容通过 Portal teleport 到 body 下，
+   这里提供 CSS 级别的兜底保证背景色与边框跟随主题。
+
+   注意：preflight:false 下 Tailwind border 仅输出 border-width，
+   border-color 依赖 currentColor（fallback 到 text-popover-foreground），
+   此处显式补上 border-color 以确保边框可见。
+   =================================================================== */
+[data-reka-menu-content] {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  border-color: var(--border);
+}

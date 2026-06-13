@@ -10,7 +10,9 @@
     "language": "语言",
     "comingSoon": "即将推出",
     "on": "开",
-    "off": "关"
+    "off": "关",
+    "draft": "草稿",
+    "untitledFile": "未命名.fprg"
   },
   "menu": {
     "file": "文件",
@@ -74,6 +76,7 @@
     "noVariables": "暂无变量。程序运行后将在此显示所有变量。",
     "noVariablesShort": "暂无变量",
     "console": "控制台",
+    "variables": "变量",
     "variablesTab": "变量 ({count})",
     "btnRun": "运行",
     "btnStep": "步进",
@@ -95,7 +98,18 @@
     "false": "假",
     "emptyArray": "[空数组]",
     "programDone": "程序执行完毕",
-    "execDoneDivider": "—— 程序执行完毕 ——"
+    "execDoneDivider": "—— 程序执行完毕 ——",
+    "runInspector": "运行监视器",
+    "consoleTab": "控制台",
+    "variablesTabLabel": "变量",
+    "historyTab": "历史",
+    "noVariablesDesc": "声明变量并运行程序以观察值变化。",
+    "noStepsRecorded": "暂无步骤记录",
+    "noStepsDesc": "程序输出和输入事件将显示为时间线。",
+    "emptyHintDesc": "运行或步进流程图以在此查看输出。",
+    "nullValueShort": "null",
+    "trueValueShort": "true",
+    "falseValueShort": "false"
   },
   "functions": {
     "title": "函数",
@@ -119,7 +133,17 @@
     "editFunction": "编辑函数 \"{name}\"",
     "tabAddTooltip": "新建函数",
     "duplicateFunction": "复制函数",
-    "functionName": "函数名"
+    "functionName": "函数名",
+    "renamePrompt": "重命名函数：",
+    "duplicatePrompt": "复制为：",
+    "duplicate": "复制",
+    "rename": "重命名",
+    "delete": "删除",
+    "deleteConfirm2": "确定删除函数「{name}」？此操作不可撤销。",
+    "nameNoSpaces": "函数名不能包含空格",
+    "namePlaceholder": "myFunction",
+    "returnVarPlaceholder": "result",
+    "paramNamePlaceholder": "x"
   },
   "nodes": {
     "kind": {
@@ -286,6 +310,10 @@
   },
   "fileDialog": {
     "flowgorithmFile": "Flowgorithm 文件"
+  },
+  "sidebar": {
+    "expand": "展开侧边栏",
+    "collapse": "折叠侧边栏"
   },
   "colorPresets": {
     "blue": "天空蓝",

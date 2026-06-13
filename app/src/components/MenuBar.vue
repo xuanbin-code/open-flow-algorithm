@@ -148,9 +148,9 @@ const isPaused = computed(() => es.value === 'paused')
 const stepLabel = computed(() => isPaused.value ? t('execution.btnContinue') : t('execution.btnStep'))
 
 const fileName = computed(() => {
-  if (!props.currentFilePath) return 'Untitled.fprg'
+  if (!props.currentFilePath) return t('common.untitledFile')
   const parts = props.currentFilePath.split(/[\\/]/)
-  return parts[parts.length - 1] || 'Untitled.fprg'
+  return parts[parts.length - 1] || t('common.untitledFile')
 })
 
 const statusLabel = computed(() => {
@@ -191,7 +191,7 @@ function toggleTheme() {
         <div class="app-name">Open Flow Algorithm</div>
         <div class="file-line">
           <span class="file-name">{{ fileName }}</span>
-          <span v-if="isNewFile" class="file-state">draft</span>
+          <span v-if="isNewFile" class="file-state">{{ $t('common.draft') }}</span>
         </div>
       </div>
     </div>

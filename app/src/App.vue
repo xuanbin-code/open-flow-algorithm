@@ -850,7 +850,7 @@ async function onMenuAction(actionId: string) {
       fitView()
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
-      showToast(`无法打开文件: ${msg}`, 'error')
+      showToast(t('toasts.cannotOpenFile', { message: msg }), 'error')
     }
     return
   }
@@ -934,7 +934,7 @@ async function onMenuAction(actionId: string) {
       break
     }
     default:
-      console.log(`Menu action: ${actionId} (未实现)`)
+      console.log(`Menu action: ${actionId} (not implemented)`)
   }
 }
 

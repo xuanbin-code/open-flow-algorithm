@@ -112,7 +112,7 @@ function validateName() {
     return
   }
   if (/\s/.test(n)) {
-    nameError.value = '函数名不能包含空格'
+    nameError.value = t('functions.nameNoSpaces')
     return
   }
   nameError.value = ''
@@ -182,7 +182,7 @@ function onSave() {
           <Input
             v-model="name"
             :class="{ 'border-destructive': nameError }"
-            placeholder="myFunction"
+            :placeholder="$t('functions.namePlaceholder')"
             :readonly="!isNew && props.function?.name === 'Main'"
             @input="validateName"
             @keydown.enter="onSave"
@@ -212,7 +212,7 @@ function onSave() {
           <label class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {{ $t('functions.returnVariable') }}
           </label>
-          <Input v-model="returnVariable" placeholder="result" />
+          <Input v-model="returnVariable" :placeholder="$t('functions.returnVarPlaceholder')" />
         </div>
 
         <!-- Parameters -->
@@ -239,7 +239,7 @@ function onSave() {
             <TableBody>
               <TableRow v-for="(p, i) in params" :key="i">
                 <TableCell class="py-1">
-                  <Input v-model="p.name" class="h-7 text-xs" placeholder="x" />
+                  <Input v-model="p.name" class="h-7 text-xs" :placeholder="$t('functions.paramNamePlaceholder')" />
                 </TableCell>
                 <TableCell class="py-1">
                   <Select v-model="p.type">

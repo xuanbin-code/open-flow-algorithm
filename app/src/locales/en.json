@@ -10,7 +10,9 @@
     "language": "Language",
     "comingSoon": "Coming Soon",
     "on": "On",
-    "off": "Off"
+    "off": "Off",
+    "draft": "draft",
+    "untitledFile": "Untitled.fprg"
   },
   "menu": {
     "file": "File",
@@ -74,6 +76,7 @@
     "noVariables": "No variables yet. They will appear here when the program runs.",
     "noVariablesShort": "No variables",
     "console": "Console",
+    "variables": "Variables",
     "variablesTab": "Variables ({count})",
     "btnRun": "Run",
     "btnStep": "Step",
@@ -95,7 +98,18 @@
     "false": "False",
     "emptyArray": "[empty array]",
     "programDone": "Program finished",
-    "execDoneDivider": "—— Program finished ——"
+    "execDoneDivider": "—— Program finished ——",
+    "runInspector": "Run Inspector",
+    "consoleTab": "Console",
+    "variablesTabLabel": "Variables",
+    "historyTab": "History",
+    "noVariablesDesc": "Declare variables and run the program to watch values change.",
+    "noStepsRecorded": "No steps recorded",
+    "noStepsDesc": "Program output and input events will appear as a timeline.",
+    "emptyHintDesc": "Run or step through the chart to inspect output here.",
+    "nullValueShort": "null",
+    "trueValueShort": "true",
+    "falseValueShort": "false"
   },
   "functions": {
     "title": "Functions",
@@ -119,7 +133,17 @@
     "editFunction": "Edit Function \"{name}\"",
     "tabAddTooltip": "New Function",
     "duplicateFunction": "Duplicate Function",
-    "functionName": "Function Name"
+    "functionName": "Function Name",
+    "renamePrompt": "Rename function:",
+    "duplicatePrompt": "Duplicate as:",
+    "duplicate": "Duplicate",
+    "rename": "Rename",
+    "delete": "Delete",
+    "deleteConfirm2": "Delete function \"{name}\"? This cannot be undone.",
+    "nameNoSpaces": "Function name cannot contain spaces",
+    "namePlaceholder": "myFunction",
+    "returnVarPlaceholder": "result",
+    "paramNamePlaceholder": "x"
   },
   "nodes": {
     "kind": {
@@ -286,6 +310,10 @@
   },
   "fileDialog": {
     "flowgorithmFile": "Flowgorithm File"
+  },
+  "sidebar": {
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar"
   },
   "colorPresets": {
     "blue": "Sky Blue",

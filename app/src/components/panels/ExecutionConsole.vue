@@ -141,8 +141,8 @@ const variableCount = computed(() => props.variables?.length ?? 0)
 const historyItems = computed(() => props.chatMessages.filter(msg => msg.role !== 'system'))
 
 function formatValue(value: unknown): string {
-  if (value === null || value === undefined) return 'null'
-  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  if (value === null || value === undefined) return t('execution.nullValueShort')
+  if (typeof value === 'boolean') return value ? t('execution.trueValueShort') : t('execution.falseValueShort')
   return String(value)
 }
 </script>
@@ -152,7 +152,7 @@ function formatValue(value: unknown): string {
     <CardHeader class="inspector-header">
       <div class="title-stack">
         <CardTitle class="text-sm font-semibold">
-          Run Inspector
+          {{ $t('execution.runInspector') }}
         </CardTitle>
         <span class="subtitle">{{ $t('execution.title') }}</span>
       </div>
@@ -170,14 +170,14 @@ function formatValue(value: unknown): string {
         :class="{ active: activePanel === 'console' }"
         @click="activePanel = 'console'"
       >
-        Console
+        {{ $t('execution.consoleTab') }}
       </button>
       <button
         class="inspector-tab"
         :class="{ active: activePanel === 'variables' }"
         @click="activePanel = 'variables'"
       >
-        Variables
+        {{ $t('execution.variablesTabLabel') }}
         <span class="tab-count">{{ variableCount }}</span>
       </button>
       <button
@@ -185,7 +185,7 @@ function formatValue(value: unknown): string {
         :class="{ active: activePanel === 'history' }"
         @click="activePanel = 'history'"
       >
-        History
+        {{ $t('execution.historyTab') }}
       </button>
     </div>
 
@@ -194,7 +194,7 @@ function formatValue(value: unknown): string {
         <div class="message-list">
           <div v-if="chatMessages.length === 0" class="empty-state">
             <span class="empty-title">{{ $t('execution.hintRunFirst') }}</span>
-            <span class="empty-copy">Run or step through the chart to inspect output here.</span>
+            <span class="empty-copy">{{ $t('execution.emptyHintDesc') }}</span>
           </div>
           <div
             v-for="(msg, i) in chatMessages"
@@ -232,8 +232,8 @@ function formatValue(value: unknown): string {
             </TableBody>
           </Table>
           <div v-else class="empty-state">
-            <span class="empty-title">No variables yet</span>
-            <span class="empty-copy">Declare variables and run the program to watch values change.</span>
+            <span class="empty-title">{{ $t('execution.noVariablesShort') }}</span>
+            <span class="empty-copy">{{ $t('execution.noVariablesDesc') }}</span>
           </div>
         </div>
       </ScrollArea>
@@ -241,8 +241,8 @@ function formatValue(value: unknown): string {
       <ScrollArea v-else class="flex-1">
         <div class="history-panel">
           <div v-if="historyItems.length === 0" class="empty-state">
-            <span class="empty-title">No steps recorded</span>
-            <span class="empty-copy">Program output and input events will appear as a timeline.</span>
+            <span class="empty-title">{{ $t('execution.noStepsRecorded') }}</span>
+            <span class="empty-copy">{{ $t('execution.noStepsDesc') }}</span>
           </div>
           <button
             v-for="(msg, i) in historyItems"

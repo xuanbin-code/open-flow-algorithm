@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { FunctionDef } from '../engine/fprg-ast'
 import { Clipboard, Plus, ChevronLeft, ChevronRight } from './icons'
+
+const { t } = useI18n()
 import { Button } from '@/components/ui/button'
 import {
   ContextMenu,
@@ -59,20 +62,20 @@ async function onAddClick() {
 // ============================================================
 
 function handleRename(oldName: string) {
-  const newName = prompt('重命名函数:', oldName)
+  const newName = prompt(t('functions.renamePrompt'), oldName)
   if (newName && newName.trim() && newName.trim() !== oldName) {
     emit('renameFunction', oldName, newName.trim())
   }
 }
 
 function handleDelete(name: string) {
-  if (confirm(`确定删除函数 "${name}"？此操作不可撤销。`)) {
+  if (confirm(t('functions.deleteConfirm2', { name }))) {
     emit('deleteFunction', name)
   }
 }
 
 function handleDuplicate(oldName: string) {
-  const newName = prompt('复制为:', `${oldName}_copy`)
+  const newName = prompt(t('functions.duplicatePrompt'), `${oldName}_copy`)
   if (newName && newName.trim()) {
     emit('renameFunction', oldName, newName.trim())
   }
@@ -84,7 +87,7 @@ function handleDuplicate(oldName: string) {
 
 function onDblClickTab(funcName: string) {
   if (funcName === 'Main') return
-  const newName = prompt('重命名函数:', funcName)
+  const newName = prompt(t('functions.renamePrompt'), funcName)
   if (newName && newName.trim() && newName.trim() !== funcName) {
     emit('renameFunction', funcName, newName.trim())
   }
@@ -100,7 +103,7 @@ function onDblClickTab(funcName: string) {
         variant="ghost"
         size="icon-sm"
         class="fn-collapse-btn"
-        :title="collapsed ? '展开侧边栏' : '折叠侧边栏'"
+        :title="collapsed ? $t('sidebar.expand') : $t('sidebar.collapse')"
         @click="onToggleCollapse"
       >
         <ChevronLeft v-if="!collapsed" :size="13" />
@@ -131,11 +134,11 @@ function onDblClickTab(funcName: string) {
         </ContextMenuTrigger>
         <ContextMenuContent class="w-36">
           <ContextMenuItem @select="handleRename(func.name)">
-            重命名
+            {{ $t('functions.rename') }}
           </ContextMenuItem>
           <ContextMenuItem @select="handleDuplicate(func.name)">
             <Clipboard :size="12" class="mr-2" />
-            复制
+            {{ $t('functions.duplicate') }}
           </ContextMenuItem>
           <ContextMenuSeparator />
           <ContextMenuItem
@@ -143,7 +146,7 @@ function onDblClickTab(funcName: string) {
             :disabled="func.name === 'Main'"
             @select="handleDelete(func.name)"
           >
-            删除
+            {{ $t('functions.delete') }}
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

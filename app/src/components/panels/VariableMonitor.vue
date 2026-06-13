@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { GripVertical, X, ChevronRight } from '../icons'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -27,6 +28,8 @@ export interface VariableEntry {
 // ============================================================
 // Props & Emits
 // ============================================================
+
+const { t } = useI18n()
 
 const props = defineProps<{
   variables: VariableEntry[]
@@ -89,8 +92,8 @@ function onToggleClick() {
 // ============================================================
 
 function formatValue(value: unknown): string {
-  if (value === null || value === undefined) return 'null'
-  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  if (value === null || value === undefined) return t('execution.nullValueShort')
+  if (typeof value === 'boolean') return value ? t('execution.trueValueShort') : t('execution.falseValueShort')
   return String(value)
 }
 </script>
@@ -154,7 +157,7 @@ function formatValue(value: unknown): string {
               </TableBody>
             </Table>
             <div v-else class="px-4 py-6 text-center text-xs italic text-muted-foreground">
-              No variables
+              {{ $t('execution.noVariablesShort') }}
             </div>
           </ScrollArea>
         </CardContent>
