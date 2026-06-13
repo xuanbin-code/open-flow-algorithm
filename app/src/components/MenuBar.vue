@@ -425,6 +425,11 @@ function toggleTheme() {
   box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
+.run-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 82%, black) !important;
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--accent) 35%, transparent) !important;
+}
+
 .status-pill {
   min-width: 72px;
   justify-content: center;
@@ -459,5 +464,23 @@ function toggleTheme() {
 
 .right-zone {
   gap: 4px;
+}
+
+/* ===================================================================
+   Menubar trigger — scoped :deep() 穿透到 Reka UI 的 <button>
+   =================================================================== */
+
+/* 默认状态：可见文字 + 透明背景 */
+.menu-bar :deep([role="menuitem"]) {
+  color: var(--text-primary);
+  background: transparent;
+}
+
+/* 悬停/焦点/打开状态：强调色背景 */
+.menu-bar :deep([role="menuitem"]:hover),
+.menu-bar :deep([role="menuitem"]:focus-visible),
+.menu-bar :deep([role="menuitem"][data-state="open"]) {
+  background: var(--accent);
+  color: var(--accent-foreground);
 }
 </style>

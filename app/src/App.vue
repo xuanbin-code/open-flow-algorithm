@@ -1225,4 +1225,25 @@ async function handleSaveAs() {
   opacity: 0.6;
   filter: grayscale(0.7);
 }
+
+/* ---- 深色模式：VueFlow 缩放控件 ---- */
+:root:not([data-theme="light"]) .vue-flow__controls-button {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+:root:not([data-theme="light"]) .vue-flow__controls-button:hover {
+  background: var(--bg-hover-strong);
+  color: var(--text-primary);
+}
+
+:root:not([data-theme="light"]) .vue-flow__controls-button path {
+  fill: var(--text-secondary);
+}
+
+:root:not([data-theme="light"]) .vue-flow__controls-button:hover path {
+  fill: var(--text-primary);
+}
 </style>

@@ -54,6 +54,8 @@ textarea {
   --border: #2a323c;
   --input: #303945;
   --ring: #3dd6b4;
+  --popover: #1c222b;
+  --popover-foreground: #eef2f7;
   --radius: 0.5rem;
   --font-sans: system-ui, -apple-system, sans-serif;
   --font-mono: 'Consolas', 'Monaco', monospace;
@@ -154,6 +156,13 @@ textarea {
 
   /* 速度选择器 */
   --bg-speed-active:    rgba(79, 195, 247, 0.15);
+
+  /* 按钮状态增强 */
+  --btn-ghost-bg:        rgba(255, 255, 255, 0.06);
+  --btn-ghost-text:      #eef2f7;
+  --btn-ghost-hover-bg:  rgba(61, 214, 180, 0.15);
+  --btn-disabled-text:   #6a7482;
+  --btn-border-subtle:   rgba(255, 255, 255, 0.1);
 }
 
 /* ===================================================================
@@ -179,6 +188,8 @@ textarea {
   --border: #d8e0ea;
   --input: #cbd5e1;
   --ring: #0f9f8a;
+  --popover: #ffffff;
+  --popover-foreground: #18202a;
 
   /* ---- 项目特有变量（亮色） ---- */
   --bg-app:            #f5f7fb;
@@ -261,6 +272,12 @@ textarea {
   --handle-label-color: #222;
 
   --bg-speed-active:    rgba(25, 118, 210, 0.15);
+
+  --btn-ghost-bg:        rgba(0, 0, 0, 0.03);
+  --btn-ghost-text:      #18202a;
+  --btn-ghost-hover-bg:  rgba(15, 159, 138, 0.1);
+  --btn-disabled-text:   #a0aec0;
+  --btn-border-subtle:   rgba(0, 0, 0, 0.08);
 }
 
 /* ===================================================================
@@ -287,4 +304,12 @@ textarea {
 @keyframes flash-pulse-filter {
   0%, 100% { filter: drop-shadow(0 0 6px rgba(243, 156, 18, 0.7)); }
   50%      { filter: drop-shadow(0 0 18px rgba(243, 156, 18, 1)); }
+}
+
+/* ===================================================================
+   深色模式：全局禁用按钮可读性保护
+   防止 disabled:opacity-50 在透明背景上让按钮完全不可见
+   =================================================================== */
+:root:not([data-theme="light"]) button:disabled[class*="opacity-50"] {
+  opacity: 0.55;
 }

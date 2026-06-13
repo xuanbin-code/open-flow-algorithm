@@ -315,9 +315,9 @@ function onDblClickTab(funcName: string) {
   gap: 6px;
   height: 34px;
   margin: 8px;
-  border: 1px dashed var(--border-soft) !important;
+  border: 1px dashed var(--border-medium) !important;
   border-radius: 8px;
-  color: var(--text-muted) !important;
+  color: var(--text-dim) !important;
   font-size: 11px;
   transition: margin 0.25s ease;
   flex-shrink: 0;

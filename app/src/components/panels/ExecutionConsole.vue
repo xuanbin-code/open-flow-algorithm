@@ -280,6 +280,7 @@ function formatValue(value: unknown): string {
           @keydown="onInputKeydown"
         />
         <Button
+          class="send-btn"
           size="sm"
           :disabled="executionStatus !== 'waiting-input'"
           @click="onSubmit"
@@ -333,8 +334,8 @@ function formatValue(value: unknown): string {
   gap: 6px;
   height: 30px;
   border-radius: 7px;
-  background: transparent;
-  color: var(--text-muted);
+  background: var(--btn-ghost-bg);
+  color: var(--text-dim);
   font-size: 12px;
   font-weight: 650;
   cursor: pointer;
@@ -498,5 +499,24 @@ function formatValue(value: unknown): string {
   border-top: 1px solid var(--border-soft);
   flex-shrink: 0;
   transition: opacity 0.25s ease;
+}
+
+/* Send button — filled accent style for clear affordance */
+.send-btn {
+  background: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+  font-weight: 600;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.send-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 85%, black) !important;
+}
+
+.send-btn:disabled {
+  background: var(--btn-ghost-bg) !important;
+  color: var(--btn-disabled-text) !important;
+  opacity: 1 !important;
+  box-shadow: none;
 }
 </style>

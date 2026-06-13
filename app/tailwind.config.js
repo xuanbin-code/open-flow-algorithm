@@ -29,6 +29,8 @@ export default {
         border: 'var(--border)',
         input: 'var(--input)',
         ring: 'var(--ring)',
+        popover: 'var(--popover)',
+        'popover-foreground': 'var(--popover-foreground)',
         // 项目特有的语义色
         'accent-green': 'var(--accent-green)',
         'accent-orange': 'var(--accent-orange)',
