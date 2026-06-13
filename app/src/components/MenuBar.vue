@@ -55,6 +55,7 @@ const props = defineProps<{
   recentFiles?: RecentEntry[]
   currentFilePath?: string | null
   isNewFile?: boolean
+  isDirty?: boolean
   executionStatus?: 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
   executionSpeed?: 'slow' | 'normal' | 'fast'
   showVariableMonitor?: boolean
@@ -139,18 +140,32 @@ type ExecStatus = 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
 
 const es = computed<ExecStatus>(() => props.executionStatus ?? 'idle')
 
-const canRun = computed(() => es.value === 'idle' || es.value === 'stopped')
 const canStep = computed(() => es.value === 'idle' || es.value === 'stopped' || es.value === 'paused')
-const canPause = computed(() => es.value === 'running')
 const canStop = computed(() => es.value === 'running' || es.value === 'paused' || es.value === 'waiting-input')
-const isPaused = computed(() => es.value === 'paused')
 
-const stepLabel = computed(() => isPaused.value ? t('execution.btnContinue') : t('execution.btnStep'))
+const stepLabel = computed(() => es.value === 'paused' ? t('execution.btnContinue') : t('execution.btnStep'))
+
+/** 运行/暂停 按钮 */
+const runBtnLabel = computed(() => {
+  if (es.value === 'running') return t('execution.btnPause')
+  return t('execution.btnRun')
+})
+
+const runBtnDisabled = computed(() => es.value === 'waiting-input' || es.value === 'paused')
+
+function onRunBtnClick() {
+  if (es.value === 'running') {
+    emit('pause')
+  } else {
+    emit('run')
+  }
+}
 
 const fileName = computed(() => {
   if (!props.currentFilePath) return t('common.untitledFile')
   const parts = props.currentFilePath.split(/[\\/]/)
-  return parts[parts.length - 1] || t('common.untitledFile')
+  const base = parts[parts.length - 1] || t('common.untitledFile')
+  return props.isDirty ? `* ${base}` : base
 })
 
 const statusLabel = computed(() => {
@@ -163,14 +178,6 @@ const statusLabel = computed(() => {
   }
   return labels[es.value]
 })
-
-function onPauseClick() {
-  if (isPaused.value) {
-    emit('resume')
-  } else {
-    emit('pause')
-  }
-}
 
 // ============================================================
 // Theme toggle
@@ -225,15 +232,17 @@ function toggleTheme() {
     </div>
 
     <div class="run-zone">
+      <!-- Run / Pause / Resume（三态切换） -->
       <Button
-        class="run-primary"
+        variant="ghost"
         size="sm"
-        :disabled="!canRun"
-        :title="$t('execution.btnRun')"
-        @click="emit('run')"
+        :disabled="runBtnDisabled"
+        :title="runBtnLabel"
+        @click="onRunBtnClick"
       >
-        <Play :size="14" />
-        <span>{{ $t('execution.btnRun') }}</span>
+        <Pause v-if="es === 'running' || es === 'waiting-input'" :size="14" />
+        <Play v-else :size="14" />
+        <span>{{ runBtnLabel }}</span>
       </Button>
       <Button
         variant="ghost"
@@ -244,17 +253,6 @@ function toggleTheme() {
       >
         <StepForward :size="14" />
         <span>{{ stepLabel }}</span>
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        :disabled="!canPause && !isPaused"
-        :title="isPaused ? $t('execution.btnResume') : $t('execution.btnPause')"
-        @click="onPauseClick"
-      >
-        <Pause v-if="!isPaused" :size="14" />
-        <Play v-else :size="14" />
-        <span>{{ isPaused ? $t('execution.btnResume') : $t('execution.btnPause') }}</span>
       </Button>
       <Button
         variant="ghost"

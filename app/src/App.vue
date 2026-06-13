@@ -79,6 +79,9 @@ const programHistory = useRefHistory(program, {
   capacity: 50,
 })
 
+/** 是否有未保存的修改（undo 栈非空表示自上次保存后有变更） */
+const isDirty = computed(() => programHistory.undoStack.value.length > 0)
+
 /** 当前打开的文件路径（null 表示尚未关联文件） */
 const currentFilePath = ref<string | null>(null)
 
@@ -991,6 +994,7 @@ async function handleSaveAs() {
       :recent-files="recentFiles"
       :current-file-path="currentFilePath"
       :is-new-file="isNewFile"
+      :is-dirty="isDirty"
       :execution-status="executionStatus"
       :execution-speed="executionSpeed"
       :show-variable-monitor="showVariableMonitor"
