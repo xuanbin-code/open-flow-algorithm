@@ -9,9 +9,13 @@
     <function name="Main" type="" variable="">
         <parameters/>
         <body>
-            <declare name="a" type="Integer" array="True" size="3" expression="[10,20,30]"/>
-            <input variable="a[0]"/>
-            <output expression="a[0]" newline="True"/>
+            <declare name="res" type="Integer" array="False" size=""/>
+            <declare name="a" type="Integer" array="False" size=""/>
+            <declare name="b" type="Integer" array="False" size=""/>
+            <input variable="a"/>
+            <input variable="b"/>
+            <call expression="add(a, b)" result="res"/>
+            <output expression="res" newline="True"/>
         </body>
     </function>
     <function name="add" type="Integer" variable="res">

@@ -231,7 +231,15 @@
       "direction": "方向:",
       "increment": "增加",
       "decrement": "减少",
-      "noProperties": "此节点无属性可编辑"
+      "noProperties": "此节点无属性可编辑",
+      "callEditor": {
+        "guidedMode": "引导模式",
+        "freeMode": "自由模式",
+        "noParams": "此函数无参数。",
+        "pickFunction": "请先选择一个函数。",
+        "resultVar": "返回值存到 (选填):",
+        "resultVarPlaceholder": "变量名，如 result"
+      }
     }
   },
   "panels": {

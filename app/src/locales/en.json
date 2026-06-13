@@ -231,7 +231,15 @@
       "direction": "Direction:",
       "increment": "Increment",
       "decrement": "Decrement",
-      "noProperties": "This node has no editable properties"
+      "noProperties": "This node has no editable properties",
+      "callEditor": {
+        "guidedMode": "Guided",
+        "freeMode": "Free",
+        "noParams": "This function has no parameters.",
+        "pickFunction": "Please select a function first.",
+        "resultVar": "Store return to (optional):",
+        "resultVarPlaceholder": "Variable name, e.g. result"
+      }
     }
   },
   "panels": {

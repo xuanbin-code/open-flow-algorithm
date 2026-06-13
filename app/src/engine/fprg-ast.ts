@@ -66,6 +66,7 @@ export interface OutputStatement {
 export interface CallStatement {
   kind: 'call'
   expression: string
+  result?: string  // 可选：接收返回值的变量名
 }
 
 export interface IfStatement {
@@ -418,11 +419,14 @@ function parseStatement(el: Element): Statement | null {
         newline: attr(el, 'newline') !== 'False',
       }
 
-    case 'call':
+    case 'call': {
+      const resultVal = attr(el, 'result')
       return {
         kind: 'call',
         expression: attr(el, 'expression'),
+        ...(resultVal ? { result: resultVal } : {}),
       }
+    }
 
     case 'if': {
       const thenEl = el.querySelector(':scope > then')
@@ -544,9 +548,14 @@ export function statementToLabel(stmt: Statement): string {
         .replace(/&#10;/g, '')
       return `${t('engine.label.outputPrefix')}${expr}`
     }
-    case 'call':
+    case 'call': {
       if (!stmt.expression) return t('engine.label.call')
-      return `${t('engine.label.callPrefix')}${stmt.expression}`
+      const callText = `${t('engine.label.callPrefix')}${stmt.expression}`
+      if (stmt.result) {
+        return `${stmt.result} = ${callText}`
+      }
+      return callText
+    }
     case 'if':
       return stmt.expression || t('engine.label.if')
     case 'while':
@@ -625,7 +634,7 @@ export function createDefaultStatement(kind: Statement['kind']): Statement {
     case 'output':
       return { kind: 'output', expression: '', newline: true }
     case 'call':
-      return { kind: 'call', expression: '' }
+      return { kind: 'call', expression: '', result: '' }
     case 'if':
       return { kind: 'if', expression: '', thenBranch: [], elseBranch: [] }
     case 'while':
@@ -719,8 +728,10 @@ function stmtToXml(stmt: Statement, indent: string): string {
     case 'output':
       return `${indent}<output expression="${escapeAttr(stmt.expression)}" newline="${stmt.newline ? 'True' : 'False'}"/>`
 
-    case 'call':
-      return `${indent}<call expression="${escapeAttr(stmt.expression)}"/>`
+    case 'call': {
+      const resultAttr = stmt.result ? ` result="${escapeAttr(stmt.result)}"` : ''
+      return `${indent}<call expression="${escapeAttr(stmt.expression)}"${resultAttr}/>`
+    }
 
     case 'if': {
       const thenXml = stmt.thenBranch.length > 0

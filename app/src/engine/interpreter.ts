@@ -550,8 +550,11 @@ async function* executeCall(
     state.variableTypes = poppedFrame.variableTypes
   }
 
-  // 7. 将返回值存回调用者作用域（通过 _lastReturnValue）
-  ;(state as any)._lastReturnValue = returnValue
+  // 7. 将返回值存入调用者作用域的 result 变量（如果指定）
+  if (stmt.result && returnValue !== undefined) {
+    state.variables[stmt.result] = returnValue
+    state.variableTypes[stmt.result] = funcDef.type
+  }
 }
 
 async function* executeIf(

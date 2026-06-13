@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Statement, FunctionDef, DeclareStatement } from '../../engine/fprg-ast'
 import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Import } from '../icons'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
 
 const { t } = useI18n()
 
@@ -188,6 +190,141 @@ function spinValue(field: 'start' | 'end' | 'step', delta: number) {
   setField(field, String(num + delta))
 }
 
+// ============================================================
+// Call editor: dual-mode state & helpers
+// ============================================================
+
+const callMode = ref<'guided' | 'free'>('guided')
+const callSelectedFuncName = ref('')
+const callParamValues = ref<string[]>([])
+const callResultVar = ref('')
+const isCallSyncing = ref(false)
+
+const availableCallFunctions = computed(() =>
+  props.allFunctions?.filter(f => f.name !== 'Main') ?? [],
+)
+
+const callSelectedFunc = computed(() =>
+  props.allFunctions?.find(f => f.name === callSelectedFuncName.value),
+)
+
+const callParsedFuncType = computed(() => {
+  if (!props.statement || props.statement.kind !== 'call') return undefined
+  const parsed = parseCallExpression(props.statement.expression)
+  if (!parsed) return undefined
+  const func = props.allFunctions?.find(f => f.name === parsed.name)
+  return func?.type
+})
+
+const callShowResultField = computed(() => {
+  if (callMode.value === 'guided') {
+    return callSelectedFunc.value?.type !== 'None'
+  }
+  const ft = callParsedFuncType.value
+  return ft !== undefined && ft !== 'None'
+})
+
+/** 解析 "FuncName(arg1, arg2, ...)" 格式的调用表达式 */
+function parseCallExpression(expr: string): { name: string; args: string[] } | null {
+  const trimmed = expr.trim()
+  const match = trimmed.match(/^(\w+)\s*\(([\s\S]*)\)$/)
+  if (!match) return null
+
+  const funcName = match[1]
+  const argsStr = match[2].trim()
+  if (!argsStr) return { name: funcName, args: [] }
+
+  const args: string[] = []
+  let depth = 0, current = ''
+  for (const ch of argsStr) {
+    if (ch === '(') { depth++; current += ch }
+    else if (ch === ')') { depth--; current += ch }
+    else if (ch === ',' && depth === 0) { args.push(current); current = '' }
+    else { current += ch }
+  }
+  if (current) args.push(current)
+  return { name: funcName, args }
+}
+
+function buildCallExpression(): string {
+  const func = callSelectedFunc.value
+  if (!func) return ''
+  return func.name + '(' + callParamValues.value.join(', ') + ')'
+}
+
+function syncFromExpression() {
+  if (!props.statement || props.statement.kind !== 'call') return
+  isCallSyncing.value = true
+
+  const expr = props.statement.expression
+  if (!expr) {
+    callMode.value = 'guided'
+    callSelectedFuncName.value = ''
+    callParamValues.value = []
+    callResultVar.value = props.statement.result || ''
+    isCallSyncing.value = false
+    return
+  }
+
+  const parsed = parseCallExpression(expr)
+  const func = parsed ? props.allFunctions?.find(f => f.name === parsed.name) : undefined
+
+  if (!parsed || !func) {
+    callMode.value = 'free'
+    callResultVar.value = props.statement.result || ''
+    isCallSyncing.value = false
+    return
+  }
+
+  callMode.value = 'guided'
+  callSelectedFuncName.value = parsed.name
+  const values = new Array(func.parameters.length).fill('')
+  for (let i = 0; i < Math.min(func.parameters.length, parsed.args.length); i++) {
+    values[i] = parsed.args[i].trim()
+  }
+  callParamValues.value = values
+  callResultVar.value = props.statement.result || ''
+  isCallSyncing.value = false
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function onCallFuncChange(value: any) {
+  const name = String(value ?? '')
+  if (!name || !props.statement || props.statement.kind !== 'call' || isCallSyncing.value) return
+  const func = props.allFunctions?.find(f => f.name === name)
+  if (!func) return
+  callSelectedFuncName.value = name
+  callParamValues.value = new Array(func.parameters.length).fill('')
+  callResultVar.value = ''
+  setField('result', undefined)
+  setField('expression', func.name + '(' + func.parameters.map(() => '').join(', ') + ')')
+}
+
+function onCallParamInput(index: number, value: string) {
+  if (!props.statement || props.statement.kind !== 'call') return
+  const newValues = [...callParamValues.value]
+  newValues[index] = value
+  callParamValues.value = newValues
+  setField('expression', buildCallExpression())
+}
+
+function onCallResultVarInput(value: string) {
+  if (!props.statement || props.statement.kind !== 'call') return
+  callResultVar.value = value
+  setField('result', value || undefined)
+}
+
+function switchCallMode(target: 'guided' | 'free') {
+  if (target === 'guided') {
+    syncFromExpression()
+  } else {
+    callMode.value = 'free'
+  }
+}
+
+// 每次打开编辑面板（statement 变化）时，从当前表达式同步状态
+watch(() => props.statement, () => syncFromExpression(), { immediate: true })
+
 function onConfirm() {
   if (!props.statement) return
   emit('update', props.statement)
@@ -346,45 +483,118 @@ function onConfirm() {
         </label>
       </template>
 
-      <!-- ===== call ===== -->
+      <!-- ===== call (dual-mode) ===== -->
       <template v-if="statement.kind === 'call'">
-        <!-- 函数选择下拉框 -->
-        <label v-if="allFunctions && allFunctions.length > 0" class="field">
-          <span class="field-label">{{ $t('functions.selectFunction') }}</span>
-          <select
-            class="field-input field-select"
-            @change="(e: Event) => {
-              const funcName = (e.target as HTMLSelectElement).value
-              if (funcName) {
-                const func = allFunctions?.find(f => f.name === funcName)
-                if (func) {
-                  const paramList = func.parameters.map(p => p.name).join(', ')
-                  setField('expression', funcName + '(' + paramList + ')')
-                }
-              }
-            }"
+        <!-- 模式切换条 -->
+        <div v-if="availableCallFunctions.length > 0" class="call-mode-bar">
+          <button
+            class="mode-btn"
+            :class="{ active: callMode === 'guided' }"
+            @click="switchCallMode('guided')"
           >
-            <option value="">-- {{ $t('functions.selectFunction') }} --</option>
-            <option
-              v-for="func in allFunctions.filter(f => f.name !== 'Main')"
-              :key="func.name"
-              :value="func.name"
+            {{ $t('editor.form.callEditor.guidedMode') }}
+          </button>
+          <button
+            class="mode-btn"
+            :class="{ active: callMode === 'free' }"
+            @click="switchCallMode('free')"
+          >
+            {{ $t('editor.form.callEditor.freeMode') }}
+          </button>
+        </div>
+
+        <!-- ===== 引导模式 ===== -->
+        <template v-if="callMode === 'guided' && availableCallFunctions.length > 0">
+          <label class="field">
+            <span class="field-label">{{ $t('functions.selectFunction') }}</span>
+            <Select :model-value="callSelectedFuncName" @update:model-value="onCallFuncChange">
+              <SelectTrigger class="field-input call-select-trigger">
+                <SelectValue :placeholder="$t('functions.selectFunction')" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>{{ $t('functions.title') }}</SelectLabel>
+                  <SelectItem
+                    v-for="f in availableCallFunctions"
+                    :key="f.name"
+                    :value="f.name"
+                  >
+                    {{ f.name }}
+                    <Badge v-if="f.parameters.length" variant="secondary" class="param-count-badge">
+                      {{ f.parameters.length }}
+                    </Badge>
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </label>
+
+          <!-- 参数表单 -->
+          <template v-if="callSelectedFunc">
+            <label
+              v-for="(p, i) in callSelectedFunc.parameters"
+              :key="i"
+              class="field"
             >
-              {{ func.name }}{{ func.parameters.length ? '(' + func.parameters.map(p => p.name).join(', ') + ')' : '()' }}
-            </option>
-          </select>
-        </label>
-        <!-- 调用表达式输入 -->
-        <label class="field">
-          <span class="field-label">{{ $t('editor.form.functionCall') }}</span>
-          <input
-            class="field-input"
-            type="text"
-            :value="statement.expression"
-            :placeholder="$t('editor.form.functionCallPlaceholder')"
-            @input="setField('expression', ($event.target as HTMLInputElement).value)"
-          />
-        </label>
+              <span class="field-label">
+                {{ p.name }}
+                <Badge variant="outline" class="type-badge">
+                  {{ p.type }}{{ p.array ? '[]' : '' }}
+                </Badge>
+              </span>
+              <input
+                class="field-input"
+                type="text"
+                :placeholder="p.name"
+                :value="callParamValues[i] ?? ''"
+                @input="onCallParamInput(i, ($event.target as HTMLInputElement).value)"
+              />
+            </label>
+            <div v-if="callSelectedFunc.parameters.length === 0" class="call-hint">
+              {{ $t('editor.form.callEditor.noParams') }}
+            </div>
+
+            <!-- 返回值变量（仅当函数有返回类型） -->
+            <label v-if="callShowResultField" class="field">
+              <span class="field-label">{{ $t('editor.form.callEditor.resultVar') }}</span>
+              <input
+                class="field-input"
+                type="text"
+                :placeholder="$t('editor.form.callEditor.resultVarPlaceholder')"
+                :value="callResultVar"
+                @input="onCallResultVarInput(($event.target as HTMLInputElement).value)"
+              />
+            </label>
+          </template>
+          <div v-else class="call-hint">
+            {{ $t('editor.form.callEditor.pickFunction') }}
+          </div>
+        </template>
+
+        <!-- ===== 自由模式 ===== -->
+        <template v-else>
+          <label class="field">
+            <span class="field-label">{{ $t('editor.form.functionCall') }}</span>
+            <input
+              class="field-input"
+              type="text"
+              :value="statement.expression"
+              :placeholder="$t('editor.form.functionCallPlaceholder')"
+              @input="setField('expression', ($event.target as HTMLInputElement).value)"
+            />
+          </label>
+          <!-- 自由模式下：如果表达式匹配到有返回类型的函数，也显示返回值字段 -->
+          <label v-if="callShowResultField" class="field">
+            <span class="field-label">{{ $t('editor.form.callEditor.resultVar') }}</span>
+            <input
+              class="field-input"
+              type="text"
+              :placeholder="$t('editor.form.callEditor.resultVarPlaceholder')"
+              :value="callResultVar"
+              @input="onCallResultVarInput(($event.target as HTMLInputElement).value)"
+            />
+          </label>
+        </template>
       </template>
 
       <!-- ===== if ===== -->
@@ -942,5 +1152,90 @@ input[type="checkbox"] {
 
 .btn-confirm:hover {
   background: var(--btn-primary-hover, #2980b9);
+}
+
+/* ============================================
+   Call editor: dual-mode
+   ============================================ */
+
+/* 模式切换条 */
+.call-mode-bar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  font-family: inherit;
+}
+
+.mode-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.mode-btn:not(.active):hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+/* shadcn Select 触发器覆写 — 匹配 .field-input 风格 */
+.call-select-trigger {
+  height: auto !important;
+  min-height: 28px !important;
+  padding: 6px 8px !important;
+  font-size: 12px !important;
+  font-family: inherit !important;
+  background: var(--bg-hover) !important;
+  border: 1px solid var(--dialog-border) !important;
+  border-radius: 4px !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+}
+
+.call-select-trigger:focus {
+  border-color: var(--accent) !important;
+}
+
+/* 下拉面板内选项字体 */
+:deep(.call-select-content) {
+  font-size: 12px;
+}
+
+/* 参数 badge */
+.param-count-badge {
+  margin-left: auto;
+  font-size: 10px;
+  padding: 0 5px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.type-badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 0 5px;
+  line-height: 16px;
+  margin-left: 6px;
+  flex-shrink: 0;
+}
+
+/* 提示文字 */
+.call-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: 8px 0;
 }
 </style>
