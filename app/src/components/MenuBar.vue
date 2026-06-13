@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useSettings } from '../composables/useSettings'
 import { Sun, Moon, Settings, Play, StepForward, Pause, Square, Table } from './icons'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   ToggleGroup,
@@ -52,6 +53,8 @@ interface RecentEntry {
 const props = defineProps<{
   selectedNodeId?: string | null
   recentFiles?: RecentEntry[]
+  currentFilePath?: string | null
+  isNewFile?: boolean
   executionStatus?: 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
   executionSpeed?: 'slow' | 'normal' | 'fast'
   showVariableMonitor?: boolean
@@ -144,6 +147,23 @@ const isPaused = computed(() => es.value === 'paused')
 
 const stepLabel = computed(() => isPaused.value ? t('execution.btnContinue') : t('execution.btnStep'))
 
+const fileName = computed(() => {
+  if (!props.currentFilePath) return 'Untitled.fprg'
+  const parts = props.currentFilePath.split(/[\\/]/)
+  return parts[parts.length - 1] || 'Untitled.fprg'
+})
+
+const statusLabel = computed(() => {
+  const labels: Record<ExecStatus, string> = {
+    idle: t('execution.status.idle'),
+    running: t('execution.status.running'),
+    paused: t('execution.status.paused'),
+    'waiting-input': t('execution.status.waitingInput'),
+    stopped: t('execution.status.stopped'),
+  }
+  return labels[es.value]
+})
+
 function onPauseClick() {
   if (isPaused.value) {
     emit('resume')
@@ -165,43 +185,49 @@ function toggleTheme() {
 
 <template>
   <div class="menu-bar">
-    <!-- Menus -->
-    <Menubar class="border-0 bg-transparent p-0">
-      <MenubarMenu v-for="menu in menus" :key="menu.id">
-        <MenubarTrigger class="text-xs h-7">
-          {{ menu.label }}
-        </MenubarTrigger>
-        <MenubarContent>
-          <template v-for="item in menu.items" :key="item.id">
-            <!-- Sublabel -->
-            <div
-              v-if="item.sublabel && item.disabled"
-              class="px-2 py-1 text-[11px] text-muted-foreground"
-            >
-              {{ item.sublabel }}
-            </div>
-            <!-- Divider -->
-            <MenubarSeparator v-else-if="item.divider" />
-            <!-- Normal item -->
-            <MenubarItem
-              v-else
-              :disabled="item.disabled"
-              @click="emit('action', item.id)"
-            >
-              {{ item.label }}
-            </MenubarItem>
-          </template>
-        </MenubarContent>
-      </MenubarMenu>
-    </Menubar>
+    <div class="brand-zone">
+      <div class="app-mark">OF</div>
+      <div class="file-stack">
+        <div class="app-name">Open Flow Algorithm</div>
+        <div class="file-line">
+          <span class="file-name">{{ fileName }}</span>
+          <span v-if="isNewFile" class="file-state">draft</span>
+        </div>
+      </div>
+    </div>
 
-    <Separator orientation="vertical" class="mx-1 h-4" />
+    <div class="menu-zone">
+      <Menubar class="border-0 bg-transparent p-0">
+        <MenubarMenu v-for="menu in menus" :key="menu.id">
+          <MenubarTrigger class="h-8 text-xs">
+            {{ menu.label }}
+          </MenubarTrigger>
+          <MenubarContent>
+            <template v-for="item in menu.items" :key="item.id">
+              <div
+                v-if="item.sublabel && item.disabled"
+                class="px-2 py-1 text-[11px] text-muted-foreground"
+              >
+                {{ item.sublabel }}
+              </div>
+              <MenubarSeparator v-else-if="item.divider" />
+              <MenubarItem
+                v-else
+                :disabled="item.disabled"
+                @click="emit('action', item.id)"
+              >
+                {{ item.label }}
+              </MenubarItem>
+            </template>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
+    </div>
 
-    <!-- Execution toolbar -->
-    <div class="flex items-center gap-0.5">
+    <div class="run-zone">
       <Button
-        variant="ghost"
-        size="xs"
+        class="run-primary"
+        size="sm"
         :disabled="!canRun"
         :title="$t('execution.btnRun')"
         @click="emit('run')"
@@ -211,7 +237,7 @@ function toggleTheme() {
       </Button>
       <Button
         variant="ghost"
-        size="xs"
+        size="sm"
         :disabled="!canStep"
         :title="stepLabel"
         @click="emit('step')"
@@ -221,7 +247,7 @@ function toggleTheme() {
       </Button>
       <Button
         variant="ghost"
-        size="xs"
+        size="sm"
         :disabled="!canPause && !isPaused"
         :title="isPaused ? $t('execution.btnResume') : $t('execution.btnPause')"
         @click="onPauseClick"
@@ -232,7 +258,7 @@ function toggleTheme() {
       </Button>
       <Button
         variant="ghost"
-        size="xs"
+        size="sm"
         :disabled="!canStop"
         :title="$t('execution.btnStop')"
         @click="emit('stop')"
@@ -240,10 +266,13 @@ function toggleTheme() {
         <Square :size="14" />
         <span>{{ $t('execution.btnStop') }}</span>
       </Button>
+    </div>
 
-      <Separator orientation="vertical" class="mx-1 h-4" />
+    <Badge variant="secondary" class="status-pill" :class="`status-${es}`">
+      {{ statusLabel }}
+    </Badge>
 
-      <!-- Speed -->
+    <div class="tool-zone">
       <ToggleGroup
         type="single"
         size="sm"
@@ -261,23 +290,21 @@ function toggleTheme() {
         </ToggleGroupItem>
       </ToggleGroup>
 
-      <Separator orientation="vertical" class="mx-1 h-4" />
+      <Separator orientation="vertical" class="h-5" />
 
-      <!-- Variable monitor toggle -->
       <Button
         variant="ghost"
-        size="xs"
-        :class="{ 'text-accent': showVariableMonitor }"
+        size="sm"
+        :class="{ 'is-active': showVariableMonitor }"
         :title="showVariableMonitor ? $t('execution.hideVarMonitor') : $t('execution.showVarMonitor')"
         @click="emit('toggleVariableMonitor')"
       >
         <Table :size="14" />
-        <span v-if="showVariableMonitor">{{ $t('execution.hideVarMonitor') }}</span>
+        <span>{{ $t('execution.variables') }}</span>
       </Button>
     </div>
 
-    <!-- Right-aligned buttons -->
-    <div class="ml-auto flex items-center gap-1">
+    <div class="right-zone">
       <Button
         variant="ghost"
         size="icon-sm"
@@ -303,11 +330,134 @@ function toggleTheme() {
 .menu-bar {
   display: flex;
   align-items: center;
-  height: 32px;
-  padding: 0 6px;
+  gap: 10px;
+  min-height: 58px;
+  padding: 8px 10px;
   background: var(--bg-menu);
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-soft);
   user-select: none;
   flex-shrink: 0;
+}
+
+.brand-zone,
+.run-zone,
+.tool-zone,
+.right-zone,
+.menu-zone {
+  display: flex;
+  align-items: center;
+}
+
+.brand-zone {
+  min-width: 248px;
+  gap: 10px;
+}
+
+.app-mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.file-stack {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.app-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.file-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.file-name {
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-state {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.menu-zone {
+  padding-right: 2px;
+}
+
+.run-zone {
+  gap: 4px;
+  margin-left: auto;
+  padding: 3px;
+  border: 1px solid var(--border-soft);
+  border-radius: 9px;
+  background: var(--bg-toolbar);
+}
+
+.run-primary {
+  background: var(--accent) !important;
+  color: var(--accent-foreground) !important;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.status-pill {
+  min-width: 72px;
+  justify-content: center;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+
+.status-running,
+.status-waiting-input {
+  background: color-mix(in srgb, var(--accent-green) 14%, transparent);
+  color: var(--accent-green);
+}
+
+.status-paused {
+  background: color-mix(in srgb, var(--accent-orange) 14%, transparent);
+  color: var(--accent-orange);
+}
+
+.status-stopped {
+  background: color-mix(in srgb, var(--accent-red) 14%, transparent);
+  color: var(--accent-red);
+}
+
+.tool-zone {
+  gap: 8px;
+}
+
+.is-active {
+  color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 10%, transparent) !important;
+}
+
+.right-zone {
+  gap: 4px;
 }
 </style>

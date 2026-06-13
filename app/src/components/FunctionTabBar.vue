@@ -167,20 +167,21 @@ function onDblClickTab(funcName: string) {
 .fn-sidebar {
   display: flex;
   flex-direction: column;
-  width: 150px;
-  min-width: 150px;
+  width: 190px;
+  min-width: 190px;
   height: 100%;
   flex-shrink: 0;
-  background: var(--bg-panel);
-  border-right: 1px solid var(--border-soft);
+  background: var(--bg-rail);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
   user-select: none;
   overflow: hidden;
-  transition: width 0.25s ease, min-width 0.25s ease;
+  transition: width 0.25s ease, min-width 0.25s ease, background 0.2s ease;
 }
 
 .fn-sidebar.collapsed {
-  width: 48px;
-  min-width: 48px;
+  width: 54px;
+  min-width: 54px;
 }
 
 /* ---- Header ---- */
@@ -188,20 +189,20 @@ function onDblClickTab(funcName: string) {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  height: 28px;
-  padding: 0 4px;
+  height: 44px;
+  padding: 0 8px;
   border-bottom: 1px solid var(--border-soft);
   flex-shrink: 0;
 }
 
 .fn-sidebar-title {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 800;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
   margin-right: auto;
-  padding-left: 10px;
+  padding-left: 8px;
 }
 
 .fn-collapse-btn {
@@ -214,7 +215,8 @@ function onDblClickTab(funcName: string) {
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
-  padding: 4px 0;
+  gap: 3px;
+  padding: 8px;
 }
 
 .fn-tab-list::-webkit-scrollbar {
@@ -231,11 +233,11 @@ function onDblClickTab(funcName: string) {
   display: flex;
   align-items: center;
   gap: 6px;
-  height: 30px;
+  height: 34px;
   padding: 0 10px;
   background: transparent;
   border: none;
-  border-left: 3px solid transparent;
+  border-radius: 7px;
   color: var(--text-muted);
   font-size: 12px;
   font-family: inherit;
@@ -254,8 +256,8 @@ function onDblClickTab(funcName: string) {
 
 .fn-tab.active {
   color: var(--text-primary);
-  border-left-color: var(--accent);
   background: var(--bg-hover-strong);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 .fn-tab-icon {
@@ -290,7 +292,6 @@ function onDblClickTab(funcName: string) {
   padding: 0 6px;
   gap: 0;
   justify-content: center;
-  border-left-width: 0;
   font-size: 11px;
 }
 
@@ -303,8 +304,7 @@ function onDblClickTab(funcName: string) {
 }
 
 .fn-sidebar.collapsed .fn-tab.active {
-  border-left: none;
-  border-right: 2px solid var(--accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 24%, transparent);
 }
 
 /* ---- Add button ---- */
@@ -313,10 +313,10 @@ function onDblClickTab(funcName: string) {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 30px;
-  margin: 4px 8px;
+  height: 34px;
+  margin: 8px;
   border: 1px dashed var(--border-soft) !important;
-  border-radius: 4px;
+  border-radius: 8px;
   color: var(--text-muted) !important;
   font-size: 11px;
   transition: margin 0.25s ease;

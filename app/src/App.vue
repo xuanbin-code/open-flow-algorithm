@@ -989,6 +989,8 @@ async function handleSaveAs() {
   <div class="flowchart-sandbox">
     <MenuBar
       :recent-files="recentFiles"
+      :current-file-path="currentFilePath"
+      :is-new-file="isNewFile"
       :execution-status="executionStatus"
       :execution-speed="executionSpeed"
       :show-variable-monitor="showVariableMonitor"
@@ -1067,6 +1069,7 @@ async function handleSaveAs() {
       <ExecutionConsole
         class="execution-console"
         :chat-messages="chatMessages"
+        :variables="varEntries"
         :execution-status="executionStatus"
         :variable-name="inputVariableName"
         @clear="clearOutput"
@@ -1112,29 +1115,44 @@ async function handleSaveAs() {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg-app);
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 10%, transparent), transparent 30%),
+    var(--bg-app);
+  color: var(--text-primary);
 }
 .main-area {
   flex: 1;
   display: flex;
+  gap: 0;
   overflow: hidden;
+  padding: 10px;
+  padding-top: 0;
 }
 .flow-container {
+  position: relative;
   flex: 1;
   min-width: 0;
   height: 100%;
   overflow: hidden;
   opacity: 0;
   transition: opacity 0.15s ease;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  box-shadow: var(--shadow-canvas);
 }
 .flow-container.flow-ready {
   opacity: 1;
 }
 .execution-console {
-  width: 380px;
+  width: 400px;
   height: 100%;
   flex-shrink: 0;
-  border-left: 1px solid var(--border-soft);
+  margin-left: 10px;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow-panel-soft);
 }
 </style>
 

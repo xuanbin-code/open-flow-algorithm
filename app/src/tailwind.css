@@ -37,23 +37,23 @@ textarea {
 :root,
 [data-theme="dark"] {
   /* ---- 语义色（shadcn 标准命名） ---- */
-  --background: #1a1a2e;
-  --foreground: #eee;
-  --card: #12122a;
-  --card-foreground: #eee;
-  --primary: #4fc3f7;
-  --primary-foreground: #0a0a0a;
-  --secondary: #2a2a3e;
-  --secondary-foreground: #ccc;
-  --muted: #2a2a3e;
-  --muted-foreground: #999;
-  --accent: #4fc3f7;
-  --accent-foreground: #0a0a0a;
+  --background: #111318;
+  --foreground: #eef2f7;
+  --card: #171b22;
+  --card-foreground: #eef2f7;
+  --primary: #3dd6b4;
+  --primary-foreground: #071311;
+  --secondary: #20262e;
+  --secondary-foreground: #d8dee8;
+  --muted: #20262e;
+  --muted-foreground: #8f9aa8;
+  --accent: #3dd6b4;
+  --accent-foreground: #071311;
   --destructive: #e74c3c;
   --destructive-foreground: #fff;
-  --border: #333;
-  --input: #444;
-  --ring: #4fc3f7;
+  --border: #2a323c;
+  --input: #303945;
+  --ring: #3dd6b4;
   --radius: 0.5rem;
   --font-sans: system-ui, -apple-system, sans-serif;
   --font-mono: 'Consolas', 'Monaco', monospace;
@@ -61,44 +61,46 @@ textarea {
   /* ---- 项目特有变量（保留，不映射到 shadcn 语义） ---- */
 
   /* 页面镶边 */
-  --bg-app:            #1a1a2e;
-  --bg-panel:          #12122a;
-  --bg-menu:           #16162a;
-  --bg-toolbar:        #12122a;
-  --bg-dropdown:       #1e1e32;
+  --bg-app:            #111318;
+  --bg-panel:          #171b22;
+  --bg-menu:           rgba(17, 19, 24, 0.92);
+  --bg-toolbar:        #13171d;
+  --bg-rail:           #151920;
+  --bg-canvas:         #0f1217;
+  --bg-dropdown:       #1c222b;
   --bg-input:          rgba(255, 255, 255, 0.06);
   --bg-input-alt:      rgba(255, 255, 255, 0.05);
   --bg-hover:          rgba(255, 255, 255, 0.08);
   --bg-hover-strong:   rgba(255, 255, 255, 0.12);
-  --bg-float-panel:    rgba(30, 30, 50, 0.97);
-  --bg-float-panel-95: rgba(30, 30, 50, 0.95);
-  --bg-float-collapsed: rgba(30, 30, 50, 0.85);
-  --bg-menu-hover:     #3a3a5c;
-  --bg-toggle-btn:     #3a3a5c;
-  --bg-toggle-btn-hover: #555;
+  --bg-float-panel:    rgba(28, 34, 43, 0.97);
+  --bg-float-panel-95: rgba(28, 34, 43, 0.95);
+  --bg-float-collapsed: rgba(28, 34, 43, 0.85);
+  --bg-menu-hover:     #26303a;
+  --bg-toggle-btn:     #26303a;
+  --bg-toggle-btn-hover: #34414f;
 
   /* 文本（shadcn 覆盖后保留扩展层级） */
-  --text-primary:      #eee;
-  --text-secondary:    #ccc;
-  --text-dim:          #bbb;
-  --text-muted:        #999;
-  --text-muted-2:      #888;
-  --text-muted-3:      #777;
-  --text-disabled:     #666;
-  --text-placeholder:  #555;
-  --text-nav-disabled: #555;
-  --text-bubble:       #ddd;
+  --text-primary:      #eef2f7;
+  --text-secondary:    #cdd6e1;
+  --text-dim:          #b7c0cc;
+  --text-muted:        #8f9aa8;
+  --text-muted-2:      #778391;
+  --text-muted-3:      #66717f;
+  --text-disabled:     #56606c;
+  --text-placeholder:  #56606c;
+  --text-nav-disabled: #56606c;
+  --text-bubble:       #e2e8f0;
 
   /* 边框（保留非标准层级） */
-  --border-color:      #333;
-  --border-soft:       #2a2a3e;
-  --border-medium:     #444;
-  --border-strong:     #555;
-  --border-table:      #1e1e36;
+  --border-color:      #2a323c;
+  --border-soft:       #232a33;
+  --border-medium:     #35404c;
+  --border-strong:     #465464;
+  --border-table:      #202832;
 
   /* 语义强调色 */
-  --accent-green:      #2ecc71;
-  --accent-orange:     #f39c12;
+  --accent-green:      #35d07f;
+  --accent-orange:     #f6b44b;
   --accent-red:        #e74c3c;
 
   /* 按钮 */
@@ -111,11 +113,13 @@ textarea {
 
   /* 对话框 */
   --overlay-bg:        rgba(0, 0, 0, 0.6);
-  --dialog-bg:         #1e1e32;
-  --dialog-border:     #555;
+  --dialog-bg:         #1c222b;
+  --dialog-border:     #465464;
 
   /* 阴影 */
-  --shadow-panel:      0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-panel:      0 18px 48px rgba(0, 0, 0, 0.45);
+  --shadow-panel-soft: 0 10px 28px rgba(0, 0, 0, 0.24);
+  --shadow-canvas:     inset 0 1px 0 rgba(255, 255, 255, 0.03);
   --shadow-dialog:     0 12px 48px rgba(0, 0, 0, 0.7);
   --shadow-debug:      0 4px 20px rgba(0, 0, 0, 0.5);
 
@@ -140,7 +144,7 @@ textarea {
   --accent-blue:         #3498db;
 
   /* VueFlow */
-  --vf-pattern-color:   #aaa;
+  --vf-pattern-color:   #34404c;
 
   /* 滚动条 */
   --scrollbar-thumb:    #555;
@@ -158,29 +162,31 @@ textarea {
 
 [data-theme="light"] {
   /* ---- 语义色 ---- */
-  --background: #f0f0f5;
-  --foreground: #222;
-  --card: #e8e8ee;
-  --card-foreground: #222;
-  --primary: #1976d2;
+  --background: #f5f7fb;
+  --foreground: #18202a;
+  --card: #ffffff;
+  --card-foreground: #18202a;
+  --primary: #0f9f8a;
   --primary-foreground: #fff;
-  --secondary: #ddd;
-  --secondary-foreground: #444;
-  --muted: #ddd;
-  --muted-foreground: #777;
-  --accent: #1976d2;
+  --secondary: #e8edf3;
+  --secondary-foreground: #334155;
+  --muted: #e8edf3;
+  --muted-foreground: #64748b;
+  --accent: #0f9f8a;
   --accent-foreground: #fff;
   --destructive: #c0392b;
   --destructive-foreground: #fff;
-  --border: #ccc;
-  --input: #ccc;
-  --ring: #1976d2;
+  --border: #d8e0ea;
+  --input: #cbd5e1;
+  --ring: #0f9f8a;
 
   /* ---- 项目特有变量（亮色） ---- */
-  --bg-app:            #f0f0f5;
-  --bg-panel:          #e8e8ee;
-  --bg-menu:           #e0e0e8;
-  --bg-toolbar:        #e8e8ee;
+  --bg-app:            #f5f7fb;
+  --bg-panel:          #ffffff;
+  --bg-menu:           rgba(245, 247, 251, 0.94);
+  --bg-toolbar:        #eef3f7;
+  --bg-rail:           #ffffff;
+  --bg-canvas:         #f9fbfd;
   --bg-dropdown:       #ffffff;
   --bg-input:          rgba(0, 0, 0, 0.04);
   --bg-input-alt:      rgba(0, 0, 0, 0.03);
@@ -193,46 +199,48 @@ textarea {
   --bg-toggle-btn:     #d0d0e0;
   --bg-toggle-btn-hover: #c0c0d0;
 
-  --text-primary:      #222;
-  --text-secondary:    #444;
-  --text-dim:          #555;
-  --text-muted:        #777;
-  --text-muted-2:      #666;
-  --text-muted-3:      #555;
-  --text-disabled:     #999;
-  --text-placeholder:  #aaa;
-  --text-nav-disabled: #bbb;
-  --text-bubble:       #333;
+  --text-primary:      #18202a;
+  --text-secondary:    #334155;
+  --text-dim:          #475569;
+  --text-muted:        #64748b;
+  --text-muted-2:      #718096;
+  --text-muted-3:      #8492a6;
+  --text-disabled:     #a0aec0;
+  --text-placeholder:  #a0aec0;
+  --text-nav-disabled: #a0aec0;
+  --text-bubble:       #18202a;
 
-  --border-color:      #ccc;
-  --border-soft:       #ddd;
-  --border-medium:     #ccc;
-  --border-strong:     #aaa;
-  --border-table:      #e0e0e8;
+  --border-color:      #d8e0ea;
+  --border-soft:       #e0e7ef;
+  --border-medium:     #cbd5e1;
+  --border-strong:     #aebbc9;
+  --border-table:      #e8edf3;
 
-  --accent-green:      #27ae60;
-  --accent-orange:     #e67e22;
+  --accent-green:      #22a866;
+  --accent-orange:     #d97706;
   --accent-red:        #c0392b;
 
   --btn-disabled-bg:   #bbb;
   --btn-cancel-bg:     rgba(0, 0, 0, 0.06);
   --btn-cancel-hover:  rgba(0, 0, 0, 0.12);
   --btn-clear-bg:      rgba(0, 0, 0, 0.04);
-  --btn-primary-bg:    #1976d2;
-  --btn-primary-hover: #1565c0;
+  --btn-primary-bg:    #0f9f8a;
+  --btn-primary-hover: #0b806f;
 
   --overlay-bg:        rgba(0, 0, 0, 0.3);
   --dialog-bg:         #ffffff;
   --dialog-border:     #ccc;
 
-  --shadow-panel:      0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-panel:      0 18px 48px rgba(15, 23, 42, 0.12);
+  --shadow-panel-soft: 0 10px 28px rgba(15, 23, 42, 0.08);
+  --shadow-canvas:     inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --shadow-dialog:     0 12px 48px rgba(0, 0, 0, 0.2);
   --shadow-debug:      0 4px 20px rgba(0, 0, 0, 0.12);
 
   --status-idle:       #999;
   --status-running:    #27ae60;
   --status-paused:     #e67e22;
-  --status-waiting:    #1976d2;
+  --status-waiting:    #0f9f8a;
   --status-stopped:    #c0392b;
 
   --node-fallback-bg:    #95a5a6;
@@ -242,9 +250,9 @@ textarea {
   --bubble-user-border:  rgba(39, 174, 96, 0.2);
   --bubble-system-bg:    rgba(0, 0, 0, 0.04);
   --bubble-system-border:rgba(0, 0, 0, 0.06);
-  --bubble-program-bg:   rgba(25, 118, 210, 0.08);
-  --bubble-program-border:rgba(25, 118, 210, 0.2);
-  --accent-blue:         #1976d2;
+  --bubble-program-bg:   rgba(15, 159, 138, 0.08);
+  --bubble-program-border:rgba(15, 159, 138, 0.2);
+  --accent-blue:         #0f9f8a;
 
   --vf-pattern-color:   #999;
 
