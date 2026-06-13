@@ -2,7 +2,7 @@
 import { ref, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FunctionDef } from '../engine/fprg-ast'
-import { Clipboard, Plus, ChevronLeft, ChevronRight } from './icons'
+import { SquareFunction, Clipboard, Plus, ChevronLeft, ChevronRight } from './icons'
 
 const { t } = useI18n()
 import { Button } from '@/components/ui/button'
@@ -122,7 +122,7 @@ function onDblClickTab(funcName: string) {
             @click="onTabClick(func.name)"
             @dblclick="onDblClickTab(func.name)"
           >
-            <Clipboard :size="13" class="fn-tab-icon" />
+            <SquareFunction :size="13" class="fn-tab-icon" />
             <span class="fn-tab-name">{{ func.name }}</span>
             <span
               v-if="func.parameters.length > 0"

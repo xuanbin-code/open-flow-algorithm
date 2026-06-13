@@ -2,7 +2,7 @@
 import { ref, reactive, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FunctionDef, Parameter } from '../engine/fprg-ast'
-import { X, Plus, Trash2, Clipboard } from './icons'
+import { X, Plus, Trash2, SquareFunction } from './icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -160,7 +160,7 @@ function onSave() {
     <DialogContent class="sm:max-w-lg max-h-[85vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle class="flex items-center gap-2">
-          <Clipboard :size="18" class="text-accent" />
+          <SquareFunction :size="18" class="text-accent" />
           <span>
             {{ isNew ? $t('functions.newFunction') : $t('functions.editFunction', { name: props.function?.name }) }}
           </span>
