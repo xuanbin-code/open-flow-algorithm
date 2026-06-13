@@ -23,6 +23,7 @@
             <declare name="res" type="Integer" array="False" size="" tag="return"/>
             <declare name="x" type="Integer" array="False" size="" tag="parameter"/>
             <declare name="y" type="Integer" array="False" size="" tag="parameter"/>
+            <assign variable="res" expression="x + y"/>
         </body>
     </function>
 </flowgorithm>

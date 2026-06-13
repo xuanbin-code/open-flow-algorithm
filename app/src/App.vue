@@ -1025,7 +1025,10 @@ async function handleSave() {
     await writeTextFile(currentFilePath.value, xml)
     // 重新读取验证
     const verifyXml = await readTextFile(currentFilePath.value)
+    const savedActiveFunction = activeFunctionName.value
     loadProgram(verifyXml, currentFilePath.value)
+    activeFunctionName.value = savedActiveFunction
+    rebuildEngine()
     await addRecentFile(currentFilePath.value)
     await refreshRecentFiles()
     showToast(t('toasts.saveSuccess'), 'success')
@@ -1048,7 +1051,10 @@ async function handleSaveAs() {
       currentFilePath.value = savePath as string
       isNewFile.value = false
       const verifyXml = await readTextFile(savePath as string)
+      const savedActiveFunction = activeFunctionName.value
       loadProgram(verifyXml, currentFilePath.value)
+      activeFunctionName.value = savedActiveFunction
+      rebuildEngine()
       await addRecentFile(savePath as string)
       await refreshRecentFiles()
       showToast(t('toasts.saveAsSuccess'), 'success')
