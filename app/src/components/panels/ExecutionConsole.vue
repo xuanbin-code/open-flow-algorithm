@@ -91,10 +91,6 @@ watch(
   },
 )
 
-function onInputFocus() {
-  hasInteracted.value = true
-}
-
 function onSubmit() {
   const val = inputValue.value
   if (!val && props.executionStatus === 'waiting-input') return
@@ -107,6 +103,7 @@ function onOutputClick(nodeId: string) {
 }
 
 function onInputKeydown(e: KeyboardEvent) {
+  hasInteracted.value = true
   if (e.key === 'Enter') {
     e.preventDefault()
     onSubmit()
@@ -261,25 +258,26 @@ function formatValue(value: unknown): string {
         class="chat-input-bar"
         :class="{
           'opacity-50': executionStatus !== 'waiting-input',
-          'animate-pulse': executionStatus === 'waiting-input' && !hasInteracted,
+          'input-waiting': executionStatus === 'waiting-input' && !hasInteracted,
         }"
       >
         <Input
           v-model="inputValue"
           data-console-input
           class="flex-1"
-          :class="{ 'ring-2 ring-ring': executionStatus === 'waiting-input' && !hasInteracted }"
+          :class="{ 'ring-2 ring-ring input-glow': executionStatus === 'waiting-input' && !hasInteracted }"
           :placeholder="
             executionStatus === 'waiting-input'
               ? $t('execution.inputPlaceholder', { name: variableName })
               : $t('execution.waitingForRun')
           "
           :disabled="executionStatus !== 'waiting-input'"
-          @focus="onInputFocus"
+          @mousedown="hasInteracted = true"
           @keydown="onInputKeydown"
         />
         <Button
           class="send-btn"
+          :class="{ 'btn-breathe': executionStatus === 'waiting-input' && !hasInteracted }"
           size="sm"
           :disabled="executionStatus !== 'waiting-input'"
           @click="onSubmit"
@@ -487,7 +485,66 @@ function formatValue(value: unknown): string {
   padding: 8px 10px;
   border-top: 1px solid var(--border-soft);
   flex-shrink: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease, border-color 0.4s ease;
+}
+
+/* ---- Input waiting animations ---- */
+
+@keyframes bar-attention {
+  0%, 100% {
+    border-top-color: var(--border-soft);
+    box-shadow: inset 0 1px 0 transparent;
+  }
+  50% {
+    border-top-color: color-mix(in srgb, var(--ring) 55%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--ring) 18%, transparent);
+  }
+}
+
+@keyframes bar-shake {
+  /* 在 2.2s 周期中，前 0.35s (16%) 抖动，剩余时间静止 */
+  0%, 16%, 100% { transform: translateX(0); }
+  2%  { transform: translateX(-4px); }
+  5%  { transform: translateX(4px); }
+  8%  { transform: translateX(-3px); }
+  11% { transform: translateX(2px); }
+  14% { transform: translateX(-1px); }
+}
+
+.input-waiting {
+  animation: bar-attention 2s ease-in-out infinite, bar-shake 2.2s ease-in-out infinite;
+}
+
+@keyframes input-ring-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 20%, transparent),
+                0 0 8px 1px color-mix(in srgb, var(--ring) 10%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 55%, transparent),
+                0 0 18px 3px color-mix(in srgb, var(--ring) 28%, transparent),
+                0 0 36px 6px color-mix(in srgb, var(--ring) 8%, transparent);
+  }
+}
+
+.input-glow {
+  animation: input-ring-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes btn-breathe {
+  0%, 100% {
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 18%, transparent);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 2px 20px color-mix(in srgb, var(--accent) 50%, transparent),
+                0 4px 36px color-mix(in srgb, var(--accent) 22%, transparent);
+    transform: scale(1.03);
+  }
+}
+
+.btn-breathe {
+  animation: btn-breathe 1.6s ease-in-out infinite;
 }
 
 /* Send button — filled accent style for clear affordance */
