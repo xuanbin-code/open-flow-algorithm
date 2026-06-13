@@ -59,13 +59,27 @@ const emit = defineEmits<{
 
 const chatEl = ref<InstanceType<typeof ScrollArea> | null>(null)
 
+function scrollToBottom() {
+  const viewport: HTMLElement | null | undefined = chatEl.value?.$el?.querySelector('[data-reka-scroll-area-viewport]')
+  if (viewport) {
+    viewport.scrollTop = viewport.scrollHeight
+  }
+}
+
 watch(
   () => props.chatMessages.length,
   async () => {
     await nextTick()
-    const viewport = chatEl.value?.$el?.querySelector('[data-scroll-area-viewport]')
-    if (viewport) {
-      viewport.scrollTop = viewport.scrollHeight
+    scrollToBottom()
+  },
+)
+
+watch(
+  () => props.executionStatus,
+  async (status) => {
+    if (status === 'waiting-input') {
+      await nextTick()
+      scrollToBottom()
     }
   },
 )
