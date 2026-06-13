@@ -54,16 +54,29 @@ const emit = defineEmits<{
 }>()
 
 // ============================================================
+// Input state (declared early — used by watches below)
+// ============================================================
+
+const inputValue = ref('')
+const hasInteracted = ref(false)
+const activePanel = ref<'console' | 'variables'>('console')
+
+// ============================================================
 // Chat auto-scroll
 // ============================================================
 
 const chatEl = ref<InstanceType<typeof ScrollArea> | null>(null)
+const savedScrollTop = ref(0)
 
 function scrollToBottom() {
   const viewport: HTMLElement | null | undefined = chatEl.value?.$el?.querySelector('[data-reka-scroll-area-viewport]')
   if (viewport) {
     viewport.scrollTop = viewport.scrollHeight
   }
+}
+
+function getViewport(): HTMLElement | null | undefined {
+  return chatEl.value?.$el?.querySelector('[data-reka-scroll-area-viewport]')
 }
 
 watch(
@@ -78,32 +91,36 @@ watch(
   () => props.executionStatus,
   async (status) => {
     if (status === 'waiting-input') {
-      await nextTick()
-      scrollToBottom()
-    }
-  },
-)
-
-// ============================================================
-// Input state
-// ============================================================
-
-const inputValue = ref('')
-const hasInteracted = ref(false)
-const activePanel = ref<'console' | 'variables'>('console')
-
-watch(
-  () => props.executionStatus,
-  async (status) => {
-    if (status === 'waiting-input') {
       hasInteracted.value = false
       inputValue.value = ''
       await nextTick()
+      scrollToBottom()
       const el = document.querySelector<HTMLInputElement>('[data-console-input]')
       el?.focus()
     }
   },
 )
+
+// 切换 tab 时保存/恢复滚动位置
+watch(activePanel, async (panel) => {
+  if (panel === 'console') {
+    await nextTick()
+    const vp = getViewport()
+    if (vp && savedScrollTop.value > 0) {
+      vp.scrollTop = savedScrollTop.value
+    }
+  }
+})
+
+function switchTab(panel: 'console' | 'variables') {
+  if (activePanel.value === 'console' && panel !== 'console') {
+    const vp = getViewport()
+    if (vp) {
+      savedScrollTop.value = vp.scrollTop
+    }
+  }
+  activePanel.value = panel
+}
 
 function onSubmit() {
   const val = inputValue.value
@@ -188,14 +205,14 @@ function formatValue(value: unknown): string {
       <button
         class="inspector-tab"
         :class="{ active: activePanel === 'console' }"
-        @click="activePanel = 'console'"
+        @click="switchTab('console')"
       >
         {{ $t('execution.consoleTab') }}
       </button>
       <button
         class="inspector-tab"
         :class="{ active: activePanel === 'variables' }"
-        @click="activePanel = 'variables'"
+        @click="switchTab('variables')"
       >
         {{ $t('execution.variablesTabLabel') }}
         <span class="tab-count">{{ variableCount }}</span>
