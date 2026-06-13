@@ -169,7 +169,7 @@ function formatValue(value: unknown): string {
 <style scoped>
 .var-monitor {
   position: fixed;
-  z-index: 9999;
+  z-index: 40;
   width: 350px;
   max-height: 400px;
 }
