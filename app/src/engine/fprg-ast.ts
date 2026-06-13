@@ -42,6 +42,8 @@ export interface DeclareStatement {
   size: string
   /** 初始化表达式（空字符串表示无初始值，使用默认值） */
   expression: string
+  /** 变量标记：return = 函数返回值变量（不可删除），parameter = 函数形参 */
+  tag?: 'return' | 'parameter'
 }
 
 export interface AssignStatement {
@@ -383,7 +385,8 @@ function parseStatement(el: Element): Statement | null {
   const tag = el.tagName.toLowerCase()
 
   switch (tag) {
-    case 'declare':
+    case 'declare': {
+      const tag = attr(el, 'tag') as DeclareStatement['tag'] | ''
       return {
         kind: 'declare',
         name: attr(el, 'name'),
@@ -391,7 +394,9 @@ function parseStatement(el: Element): Statement | null {
         array: attr(el, 'array') === 'True',
         size: attr(el, 'size'),
         expression: attr(el, 'expression') || '',
+        ...(tag ? { tag } : {}),
       }
+    }
 
     case 'assign':
       return {
@@ -492,24 +497,35 @@ export function statementToLabel(stmt: Statement): string {
       const names = splitDeclareNames(stmt.name)
       const flowTypeCN = typeNameToCN(stmt.type)
 
+      // 构建变量标签核心部分
+      let core: string
+
       // 数组 + 数组字面量初始化 → 显示为 name = [elements]
       if (stmt.array && stmt.expression && /^\s*\[.*\]\s*$/.test(stmt.expression)) {
         const labeled = names.map((n) => `${n} = ${stmt.expression}`).join(', ')
-        return `${flowTypeCN} ${labeled}`
+        core = `${flowTypeCN} ${labeled}`
       }
-
       // 数组 + 标量/no 初始化 → 显示 [size]
-      if (stmt.array) {
+      else if (stmt.array) {
         const arrSuffix = `[${stmt.size}]`
         const initPart = stmt.expression ? ` = ${stmt.expression}` : ''
         const labeled = names.map((n) => n + arrSuffix + initPart).join(', ')
-        return `${flowTypeCN} ${labeled}`
+        core = `${flowTypeCN} ${labeled}`
+      }
+      // 标量变量
+      else {
+        const initPart = stmt.expression ? ` = ${stmt.expression}` : ''
+        const labeled = names.map((n) => n + initPart).join(', ')
+        core = `${flowTypeCN} ${labeled}`
       }
 
-      // 标量变量
-      const initPart = stmt.expression ? ` = ${stmt.expression}` : ''
-      const labeled = names.map((n) => n + initPart).join(', ')
-      return `${flowTypeCN} ${labeled}`
+      // 为带 tag 的变量添加标记前缀
+      if (stmt.tag === 'return') {
+        return `⟐ ${core}`
+      } else if (stmt.tag === 'parameter') {
+        return `◎ ${core}`
+      }
+      return core
     }
     case 'assign':
       if (!stmt.variable) return t('engine.label.assign')
@@ -690,7 +706,8 @@ function stmtToXml(stmt: Statement, indent: string): string {
   switch (stmt.kind) {
     case 'declare': {
       const exprAttr = stmt.expression ? ` expression="${escapeAttr(stmt.expression)}"` : ''
-      return `${indent}<declare name="${escapeAttr(stmt.name)}" type="${escapeAttr(stmt.type)}" array="${stmt.array ? 'True' : 'False'}" size="${escapeAttr(stmt.size)}"${exprAttr}/>`
+      const tagAttr = stmt.tag ? ` tag="${stmt.tag}"` : ''
+      return `${indent}<declare name="${escapeAttr(stmt.name)}" type="${escapeAttr(stmt.type)}" array="${stmt.array ? 'True' : 'False'}" size="${escapeAttr(stmt.size)}"${exprAttr}${tagAttr}/>`
     }
 
     case 'assign':

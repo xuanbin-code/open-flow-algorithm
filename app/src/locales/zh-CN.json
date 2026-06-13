@@ -110,7 +110,9 @@
     "emptyHintDesc": "运行或步进流程图以在此查看输出。",
     "nullValueShort": "null",
     "trueValueShort": "true",
-    "falseValueShort": "false"
+    "falseValueShort": "false",
+    "varTagReturn": "返回值",
+    "varTagParameter": "形参"
   },
   "functions": {
     "title": "函数",
@@ -159,7 +161,9 @@
       "do": "do 循环",
       "more": "占位",
       "start": "开始",
-      "end": "结束"
+      "end": "结束",
+      "declareReturn": "返回值",
+      "declareParameter": "形参"
     },
     "description": {
       "declare": "声明，用来创建程序运行中存储数据用的变量或数组。",
@@ -168,7 +172,9 @@
       "output": "输出，将表达式的结果显示给用户。",
       "if": "判断，根据条件表达式的真假选择不同的执行路径。",
       "for": "For 循环，按照指定的次数重复执行一组语句。",
-      "while": "While 循环，当条件为真时重复执行一组语句。"
+      "while": "While 循环，当条件为真时重复执行一组语句。",
+      "declareReturn": "返回值 — 系统自动生成，存储函数返回结果。名称和类型由函数签名决定，不可在此修改。",
+      "declareParameter": "形参 — 系统自动生成，表示函数输入。值由调用者运行时提供，无需初始值。名称、类型和数组属性由函数签名决定。"
     },
     "type": {
       "Integer": "整数值",

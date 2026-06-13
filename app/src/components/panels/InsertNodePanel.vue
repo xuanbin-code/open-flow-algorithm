@@ -242,7 +242,8 @@ function labelStyle(n: InsertableNode): Record<string, string> {
   font-size: 12px;
   box-shadow: var(--shadow-panel);
   backdrop-filter: blur(10px);
-  min-width: 340px;
+  width: 420px;
+  max-width: calc(100vw - 48px);
   user-select: none;
 }
 

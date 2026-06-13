@@ -14,4 +14,15 @@
             <output expression="a[0]" newline="True"/>
         </body>
     </function>
+    <function name="add" type="Integer" variable="res">
+        <parameters>
+            <parameter name="x" type="Integer" array="False"/>
+            <parameter name="y" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="res" type="Integer" array="False" size="" tag="return"/>
+            <declare name="x" type="Integer" array="False" size="" tag="parameter"/>
+            <declare name="y" type="Integer" array="False" size="" tag="parameter"/>
+        </body>
+    </function>
 </flowgorithm>

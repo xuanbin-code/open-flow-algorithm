@@ -33,6 +33,7 @@ export interface VariableEntry {
   name: string
   type: string
   value: unknown
+  tag?: 'return' | 'parameter'
 }
 
 // ============================================================
@@ -272,7 +273,13 @@ function formatValue(value: unknown): string {
             </TableHeader>
             <TableBody>
               <TableRow v-for="(v, i) in variables" :key="i">
-                <TableCell class="py-2 text-xs font-mono">{{ v.name }}</TableCell>
+                <TableCell class="py-2 text-xs font-mono">
+                  <span class="inline-flex items-center gap-1">
+                    {{ v.name }}
+                    <Badge v-if="v.tag === 'return'" variant="default" class="tag-badge tag-badge--return">{{ $t('execution.varTagReturn') }}</Badge>
+                    <Badge v-if="v.tag === 'parameter'" variant="secondary" class="tag-badge tag-badge--param">{{ $t('execution.varTagParameter') }}</Badge>
+                  </span>
+                </TableCell>
                 <TableCell class="py-2 text-xs text-muted-foreground">{{ v.type || '-' }}</TableCell>
                 <TableCell class="py-2 text-xs font-mono">{{ formatValue(v.value) }}</TableCell>
               </TableRow>
@@ -595,5 +602,24 @@ function formatValue(value: unknown): string {
   color: var(--btn-disabled-text) !important;
   opacity: 1 !important;
   box-shadow: none;
+}
+
+/* Tag badges (return / parameter) */
+.tag-badge {
+  font-size: 9px;
+  padding: 0 3px;
+  height: 15px;
+  line-height: 1;
+}
+
+.tag-badge--return {
+  background: color-mix(in srgb, var(--accent-yellow, #f39c12) 75%, transparent) !important;
+  color: #fff !important;
+}
+
+.tag-badge--param {
+  background: color-mix(in srgb, var(--accent, #3498db) 40%, transparent) !important;
+  color: var(--accent, #3498db) !important;
+  border: 1px solid color-mix(in srgb, var(--accent, #3498db) 30%, transparent);
 }
 </style>

@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Statement, FunctionDef } from '../../engine/fprg-ast'
-import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard } from '../icons'
+import type { Statement, FunctionDef, DeclareStatement } from '../../engine/fprg-ast'
+import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Import } from '../icons'
 
 const { t } = useI18n()
 
@@ -58,17 +58,49 @@ const KIND_ICONS: Record<string, Component> = {
   while: RefreshCw,
 }
 
-const kindIcon = computed(() =>
-  props.statement ? (KIND_ICONS[props.statement.kind] ?? Clipboard) : Clipboard
-)
+// 标记声明节点的 tag（仅 declare 类型）
+const declareTag = computed(() => {
+  if (!props.statement || props.statement.kind !== 'declare') return undefined
+  return (props.statement as DeclareStatement).tag
+})
 
-const kindLabel = computed(() =>
-  props.statement ? (KIND_LABELS[props.statement.kind] ?? props.statement.kind) : ''
-)
+const isDeclareReadonly = computed(() => declareTag.value !== undefined)
 
-const kindDescription = computed(() =>
-  props.statement ? (KIND_DESCRIPTIONS[props.statement.kind] ?? '') : ''
-)
+const kindIcon = computed(() => {
+  if (!props.statement) return Clipboard
+  if (props.statement.kind === 'declare') {
+    const tag = declareTag.value
+    if (tag === 'return') return Undo2
+    if (tag === 'parameter') return Import
+  }
+  return KIND_ICONS[props.statement.kind] ?? Clipboard
+})
+
+const kindLabel = computed(() => {
+  if (!props.statement) return ''
+  if (props.statement.kind === 'declare') {
+    const tag = declareTag.value
+    if (tag === 'return') return t('nodes.kind.declareReturn')
+    if (tag === 'parameter') return t('nodes.kind.declareParameter')
+  }
+  return KIND_LABELS[props.statement.kind] ?? props.statement.kind
+})
+
+const kindDescription = computed(() => {
+  if (!props.statement) return ''
+  if (props.statement.kind === 'declare') {
+    const tag = declareTag.value
+    if (tag === 'return') return t('nodes.description.declareReturn')
+    if (tag === 'parameter') return t('nodes.description.declareParameter')
+  }
+  return KIND_DESCRIPTIONS[props.statement.kind] ?? ''
+})
+
+/** 仅普通声明节点显示初始值字段；tag 节点不需要（参数值来自调用者，返回值来自函数体赋值） */
+const showExpression = computed(() => {
+  if (!props.statement || props.statement.kind !== 'declare') return true
+  return declareTag.value === undefined
+})
 
 // ============================================================
 // Declare 类型选项
@@ -182,7 +214,9 @@ function onConfirm() {
           <span class="field-label">{{ $t('editor.form.variableName') }}</span>
           <input
             class="field-input"
+            :class="{ 'field-readonly': isDeclareReadonly }"
             type="text"
+            :disabled="isDeclareReadonly"
             :placeholder="$t('editor.form.namePlaceholder')"
             :value="statement.name"
             @input="setField('name', ($event.target as HTMLInputElement).value)"
@@ -196,12 +230,13 @@ function onConfirm() {
               v-for="dt in DECLARE_TYPES"
               :key="dt.value"
               class="radio-item"
-              :class="{ checked: statement.type === dt.value }"
+              :class="{ checked: statement.type === dt.value, 'radio-readonly': isDeclareReadonly }"
             >
               <input
                 type="radio"
                 :value="dt.value"
                 :checked="statement.type === dt.value"
+                :disabled="isDeclareReadonly"
                 @change="setField('type', dt.value)"
               />
               <span class="radio-mark" />
@@ -214,12 +249,13 @@ function onConfirm() {
           <input
             type="checkbox"
             :checked="statement.array"
+            :disabled="isDeclareReadonly"
             @change="setField('array', ($event.target as HTMLInputElement).checked)"
           />
           <span class="field-label">{{ $t('editor.form.isArray') }}</span>
         </label>
 
-        <label v-if="statement.array" class="field">
+        <label v-if="statement.array && declareTag !== 'parameter'" class="field">
           <span class="field-label">
             {{ $t('editor.form.arraySize') }}
             <span v-if="isArrayLiteral" class="auto-hint">{{ $t('editor.form.auto') }}</span>
@@ -236,7 +272,7 @@ function onConfirm() {
           />
         </label>
 
-        <label class="field">
+        <label v-if="showExpression" class="field">
           <span class="field-label">{{ $t('editor.form.initialValue') }}</span>
           <input
             class="field-input"
@@ -484,7 +520,6 @@ function onConfirm() {
 .prop-editor {
   display: flex;
   flex-direction: column;
-  min-width: 320px;
 }
 
 /* ============================================
@@ -525,6 +560,8 @@ function onConfirm() {
   font-size: 12px;
   color: var(--text-muted);
   line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* ============================================
@@ -744,6 +781,25 @@ function onConfirm() {
   opacity: 0.45;
   cursor: not-allowed;
   background: var(--border-soft);
+}
+
+/* ---- Readonly field (tagged declare nodes) ---- */
+.field-input.field-readonly {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--border-soft);
+  user-select: none;
+}
+
+.radio-item.radio-readonly {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ---- "（自动）" hint ---- */

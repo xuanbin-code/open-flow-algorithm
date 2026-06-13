@@ -30,7 +30,7 @@ import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 
-import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, getFunctionByName, addFunction, deleteFunction, renameFunction, type Program, type Statement, type FunctionDef } from './engine/fprg-ast'
+import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, getFunctionByName, addFunction, deleteFunction, renameFunction, splitDeclareNames, type Program, type Statement, type FunctionDef, type DeclareStatement } from './engine/fprg-ast'
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs'
 import { addRecentFile, loadRecentFiles, getLastFile, type RecentEntry } from './utils/recent-files'
@@ -143,10 +143,21 @@ let stopped = false
 
 /** 从 RuntimeState 同步变量列表到响应式 ref */
 function syncVariables(state: RuntimeState) {
+  // 从活动函数的 declare 语句中提取变量 tag 信息
+  const tagMap: Record<string, 'return' | 'parameter'> = {}
+  for (const stmt of activeFunction.value.body) {
+    if (stmt.kind === 'declare' && stmt.tag) {
+      for (const n of splitDeclareNames(stmt.name)) {
+        tagMap[n] = stmt.tag
+      }
+    }
+  }
+
   varEntries.value = Object.keys(state.variables).map((name) => ({
     name,
     type: state.variableTypes[name] || '',
     value: state.variables[name],
+    tag: tagMap[name],
   }))
 }
 
@@ -768,6 +779,12 @@ function deleteSelectedNode() {
   if (!node?.data?.statement) return  // Start/End/Merge 不可删除
 
   const stmt = node.data.statement
+
+  // 带 tag 标记的声明节点不可删除（返回值变量 / 形参）
+  if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag) {
+    return
+  }
+
   const loc = findStatementLocation(program.value, stmt)
   if (loc) {
     loc.body.splice(loc.index, 1)
@@ -808,7 +825,38 @@ function onSaveFunction(funcDef: FunctionDef) {
       existing.parameters = funcDef.parameters
     }
   } else {
-    // 新建函数
+    // 新建函数：自动生成带 tag 标记的 declare 语句
+    const autoDeclares: Statement[] = []
+
+    // 返回值变量（tag: return，不可删除）
+    if (funcDef.type !== 'None' && funcDef.variable) {
+      autoDeclares.push({
+        kind: 'declare',
+        name: funcDef.variable,
+        type: funcDef.type,
+        array: false,
+        size: '',
+        expression: '',
+        tag: 'return',
+      })
+    }
+
+    // 形参变量（tag: parameter）
+    for (const p of funcDef.parameters) {
+      autoDeclares.push({
+        kind: 'declare',
+        name: p.name,
+        type: p.type,
+        array: p.array,
+        size: '',
+        expression: '',
+        tag: 'parameter',
+      })
+    }
+
+    // 将自动生成的声明前置到函数体开头
+    funcDef.body = [...autoDeclares, ...funcDef.body]
+
     addFunction(program.value, funcDef)
     activeFunctionName.value = funcDef.name
   }
