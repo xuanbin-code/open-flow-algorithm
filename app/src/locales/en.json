@@ -103,6 +103,7 @@
     "consoleTab": "Console",
     "variablesTabLabel": "Variables",
     "historyTab": "History",
+    "runDivider": "Run",
     "noVariablesDesc": "Declare variables and run the program to watch values change.",
     "noStepsRecorded": "No steps recorded",
     "noStepsDesc": "Program output and input events will appear as a timeline.",

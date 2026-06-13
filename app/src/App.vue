@@ -125,6 +125,7 @@ const showVariableMonitor = ref(true)
 
 /** 对话消息列表（程序输出 + 用户输入） */
 const chatMessages = ref<ChatMessage[]>([])
+const runCount = ref(0)
 
 // Interpreter 引用（非响应式）
 let interpreterRuntime: RuntimeState | null = null
@@ -373,7 +374,6 @@ function resetEdgeAnimation() {
 function resetExecution() {
   executionStatus.value = 'idle'
   executionOutput.value = []
-  chatMessages.value = []
   varEntries.value = []
 
   // 基于旧 lastHighlightedIds 显式取消所有高亮，避免 clear 后节点 data.executing 残留
@@ -409,6 +409,18 @@ async function startExecution() {
   if (isExecuting.value) return
 
   resetExecution()
+
+  // 插入运行分隔线
+  if (chatMessages.value.length > 0) {
+    runCount.value++
+    chatMessages.value = [...chatMessages.value, {
+      role: 'system',
+      text: `—— ${t('execution.runDivider')} #${runCount.value} ——`,
+      timestamp: Date.now(),
+      separator: 'run-start',
+    }]
+  }
+
   executionStatus.value = 'running'
 
   const { state, generator } = createInterpreter(program.value)
@@ -423,6 +435,17 @@ async function stepExecution() {
   if (executionStatus.value === 'idle' || executionStatus.value === 'stopped') {
     // 首次步进（或终止后重新步进）：初始化解释器
     resetExecution()
+
+    // 插入运行分隔线
+    if (chatMessages.value.length > 0) {
+      runCount.value++
+      chatMessages.value = [...chatMessages.value, {
+        role: 'system',
+        text: `—— ${t('execution.runDivider')} #${runCount.value} ——`,
+        timestamp: Date.now(),
+        separator: 'run-start',
+      }]
+    }
 
     const { state, generator } = createInterpreter(program.value)
     interpreterRuntime = state
@@ -545,6 +568,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
             role: 'program',
             text: event.text,
             sourceNodeId: event.nodeId,
+            timestamp: Date.now(),
           }]
           break
         }
@@ -568,7 +592,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         case 'error': {
           sound.playError()
           executionOutput.value = [...executionOutput.value, t('toasts.errorPrefix', { message: event.message })]
-          chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.errorPrefixShort', { message: event.message }) }]
+          chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.errorPrefixShort', { message: event.message }), timestamp: Date.now() }]
           resetEdgeAnimation()
           executionStatus.value = 'stopped'
           showToast(t('toasts.execError', { message: event.message }), 'error')
@@ -578,7 +602,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
         case 'done': {
           sound.playDone()
           executionOutput.value = [...executionOutput.value, t('execution.execDoneDivider')]
-          chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.execDone') }]
+          chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.execDone'), timestamp: Date.now() }]
           resetEdgeAnimation()
           executionStatus.value = 'idle'
           showToast(t('toasts.execDone'), 'success')
@@ -629,7 +653,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e)
     executionOutput.value = [...executionOutput.value, t('toasts.exceptionPrefix', { message: msg })]
-    chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.exceptionPrefixShort', { message: msg }) }]
+    chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.exceptionPrefixShort', { message: msg }), timestamp: Date.now() }]
     resetEdgeAnimation()
     executionStatus.value = 'stopped'
     showToast(t('toasts.execException', { message: msg }), 'error')
@@ -638,7 +662,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
 }
 
 function onInputSubmit(value: string) {
-  chatMessages.value = [...chatMessages.value, { role: 'user', text: value }]
+  chatMessages.value = [...chatMessages.value, { role: 'user', text: value, timestamp: Date.now() }]
   inputResolve?.(value)
 }
 
@@ -650,6 +674,7 @@ function onInputCancel() {
 function clearOutput() {
   executionOutput.value = []
   chatMessages.value = []
+  runCount.value = 0
 }
 
 onMounted(async () => {

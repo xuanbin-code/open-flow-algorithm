@@ -10,9 +10,6 @@
         <parameters/>
         <body>
             <declare name="a" type="Integer" array="True" size="3" expression="[10,20,30]"/>
-            <input variable="a[1]"/>
-            <declare name="i" type="Integer" array="False" size=""/>
-            <assign variable="i" expression="0"/>
             <input variable="a[0]"/>
             <output expression="a[0]" newline="True"/>
         </body>

@@ -103,6 +103,7 @@
     "consoleTab": "控制台",
     "variablesTabLabel": "变量",
     "historyTab": "历史",
+    "runDivider": "运行",
     "noVariablesDesc": "声明变量并运行程序以观察值变化。",
     "noStepsRecorded": "暂无步骤记录",
     "noStepsDesc": "程序输出和输入事件将显示为时间线。",

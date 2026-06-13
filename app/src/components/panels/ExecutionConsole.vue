@@ -25,6 +25,8 @@ export interface ChatMessage {
   role: 'program' | 'user' | 'system'
   text: string
   sourceNodeId?: string
+  timestamp?: number
+  separator?: 'run-start'
 }
 
 export interface VariableEntry {
@@ -74,7 +76,7 @@ watch(
 
 const inputValue = ref('')
 const hasInteracted = ref(false)
-const activePanel = ref<'console' | 'variables' | 'history'>('console')
+const activePanel = ref<'console' | 'variables'>('console')
 
 watch(
   () => props.executionStatus,
@@ -138,7 +140,14 @@ const STATUS_VARIANTS: Record<string, BadgeVariants['variant']> = {
 }
 
 const variableCount = computed(() => props.variables?.length ?? 0)
-const historyItems = computed(() => props.chatMessages.filter(msg => msg.role !== 'system'))
+
+function formatTime(ts: number): string {
+  const d = new Date(ts)
+  const hh = String(d.getHours()).padStart(2, '0')
+  const mm = String(d.getMinutes()).padStart(2, '0')
+  const ss = String(d.getSeconds()).padStart(2, '0')
+  return `${hh}:${mm}:${ss}`
+}
 
 function formatValue(value: unknown): string {
   if (value === null || value === undefined) return t('execution.nullValueShort')
@@ -180,13 +189,6 @@ function formatValue(value: unknown): string {
         {{ $t('execution.variablesTabLabel') }}
         <span class="tab-count">{{ variableCount }}</span>
       </button>
-      <button
-        class="inspector-tab"
-        :class="{ active: activePanel === 'history' }"
-        @click="activePanel = 'history'"
-      >
-        {{ $t('execution.historyTab') }}
-      </button>
     </div>
 
     <CardContent class="flex flex-1 flex-col gap-0 overflow-hidden p-0">
@@ -196,20 +198,37 @@ function formatValue(value: unknown): string {
             <span class="empty-title">{{ $t('execution.hintRunFirst') }}</span>
             <span class="empty-copy">{{ $t('execution.emptyHintDesc') }}</span>
           </div>
-          <div
-            v-for="(msg, i) in chatMessages"
-            :key="i"
-            class="chat-bubble"
-            :class="[
-              `bubble-${msg.role}`,
-              { 'cursor-pointer hover:brightness-110': msg.role === 'program' && msg.sourceNodeId },
-            ]"
-            @click="msg.role === 'program' && msg.sourceNodeId && onOutputClick(msg.sourceNodeId)"
-          >
-            <span v-if="msg.role === 'program'" class="bubble-sender">{{ $t('execution.program') }}</span>
-            <span v-else-if="msg.role === 'user'" class="bubble-sender">{{ $t('execution.you') }}</span>
-            <span class="bubble-text">{{ msg.text }}</span>
-          </div>
+          <template v-for="(msg, i) in chatMessages" :key="i">
+            <!-- Run separator -->
+            <div
+              v-if="msg.separator === 'run-start'"
+              class="run-separator"
+            >
+              <span class="run-separator-line" />
+              <span class="run-separator-text">{{ msg.text }}</span>
+              <span class="run-separator-line" />
+            </div>
+            <!-- Normal bubble -->
+            <div
+              v-else
+              class="chat-bubble"
+              :class="[
+                `bubble-${msg.role}`,
+                { 'cursor-pointer hover:brightness-110': msg.role === 'program' && msg.sourceNodeId },
+              ]"
+              @click="msg.role === 'program' && msg.sourceNodeId && onOutputClick(msg.sourceNodeId)"
+            >
+              <span v-if="msg.role === 'program'" class="bubble-sender">
+                {{ $t('execution.program') }}
+                <span v-if="msg.timestamp" class="bubble-time">{{ formatTime(msg.timestamp) }}</span>
+              </span>
+              <span v-else-if="msg.role === 'user'" class="bubble-sender">
+                {{ $t('execution.you') }}
+                <span v-if="msg.timestamp" class="bubble-time">{{ formatTime(msg.timestamp) }}</span>
+              </span>
+              <span class="bubble-text">{{ msg.text }}</span>
+            </div>
+          </template>
         </div>
       </ScrollArea>
 
@@ -235,26 +254,6 @@ function formatValue(value: unknown): string {
             <span class="empty-title">{{ $t('execution.noVariablesShort') }}</span>
             <span class="empty-copy">{{ $t('execution.noVariablesDesc') }}</span>
           </div>
-        </div>
-      </ScrollArea>
-
-      <ScrollArea v-else class="flex-1">
-        <div class="history-panel">
-          <div v-if="historyItems.length === 0" class="empty-state">
-            <span class="empty-title">{{ $t('execution.noStepsRecorded') }}</span>
-            <span class="empty-copy">{{ $t('execution.noStepsDesc') }}</span>
-          </div>
-          <button
-            v-for="(msg, i) in historyItems"
-            :key="i"
-            class="history-row"
-            :class="`history-${msg.role}`"
-            @click="msg.sourceNodeId && onOutputClick(msg.sourceNodeId)"
-          >
-            <span class="history-index">{{ i + 1 }}</span>
-            <span class="history-role">{{ msg.role }}</span>
-            <span class="history-text">{{ msg.text }}</span>
-          </button>
         </div>
       </ScrollArea>
 
@@ -320,7 +319,7 @@ function formatValue(value: unknown): string {
 
 .inspector-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 4px;
   padding: 8px;
   border-bottom: 1px solid var(--border-soft);
@@ -365,8 +364,7 @@ function formatValue(value: unknown): string {
 }
 
 .message-list,
-.variables-panel,
-.history-panel {
+.variables-panel {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -452,43 +450,34 @@ function formatValue(value: unknown): string {
   color: var(--text-bubble);
 }
 
-.history-row {
-  display: grid;
-  grid-template-columns: 28px 64px 1fr;
+.bubble-time {
+  font-size: 9px;
+  opacity: 0.5;
+  margin-left: 6px;
+  font-weight: 400;
+}
+
+/* Run separator */
+.run-separator {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 36px;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 6px 8px;
-  text-align: left;
+  gap: 10px;
+  padding: 6px 0;
 }
 
-.history-row:hover {
-  background: var(--bg-hover);
+.run-separator-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-soft);
 }
 
-.history-index {
+.run-separator-text {
+  font-size: 10px;
+  font-weight: 600;
   color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-}
-
-.history-role {
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.history-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 /* Input bar */
