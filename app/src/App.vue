@@ -1123,10 +1123,9 @@ async function handleSaveAs() {
 .main-area {
   flex: 1;
   display: flex;
-  gap: 0;
+  gap: 10px;
   overflow: hidden;
   padding: 10px;
-  padding-top: 0;
 }
 .flow-container {
   position: relative;
@@ -1148,7 +1147,6 @@ async function handleSaveAs() {
   width: 400px;
   height: 100%;
   flex-shrink: 0;
-  margin-left: 10px;
   border: 1px solid var(--border-soft);
   border-radius: 10px;
   overflow: hidden;
