@@ -41,19 +41,19 @@ textarea {
   --foreground: #eef2f7;
   --card: #171b22;
   --card-foreground: #eef2f7;
-  --primary: #3dd6b4;
+  --primary: #4fc3f7;
   --primary-foreground: #071311;
   --secondary: #20262e;
   --secondary-foreground: #d8dee8;
   --muted: #20262e;
   --muted-foreground: #8f9aa8;
-  --accent: #3dd6b4;
+  --accent: #4fc3f7;
   --accent-foreground: #071311;
   --destructive: #e74c3c;
   --destructive-foreground: #fff;
   --border: #2a323c;
   --input: #303945;
-  --ring: #3dd6b4;
+  --ring: #4fc3f7;
   --popover: #1c222b;
   --popover-foreground: #eef2f7;
   --radius: 0.5rem;
@@ -175,19 +175,19 @@ textarea {
   --foreground: #18202a;
   --card: #ffffff;
   --card-foreground: #18202a;
-  --primary: #0f9f8a;
-  --primary-foreground: #fff;
+  --primary: #1976d2;
+  --primary-foreground: #ffffff;
   --secondary: #e8edf3;
   --secondary-foreground: #334155;
   --muted: #e8edf3;
   --muted-foreground: #64748b;
-  --accent: #0f9f8a;
-  --accent-foreground: #fff;
+  --accent: #1976d2;
+  --accent-foreground: #ffffff;
   --destructive: #c0392b;
   --destructive-foreground: #fff;
   --border: #d8e0ea;
   --input: #cbd5e1;
-  --ring: #0f9f8a;
+  --ring: #1976d2;
   --popover: #ffffff;
   --popover-foreground: #18202a;
 
@@ -325,6 +325,17 @@ textarea {
    此处显式补上 border-color 以确保边框可见。
    =================================================================== */
 [data-reka-menu-content] {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+  border-color: var(--border);
+}
+
+/* ===================================================================
+   Reka-UI Select/Popper 内容背景修正
+   SelectContent 通过 Portal teleport 到 body 下，其 Popper 包装器
+   需要显式背景色以避免在暗色模式下透明。
+   =================================================================== */
+[data-reka-popper-content-wrapper] {
   background-color: var(--popover);
   color: var(--popover-foreground);
   border-color: var(--border);

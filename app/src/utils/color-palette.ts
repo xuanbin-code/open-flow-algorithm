@@ -100,12 +100,43 @@ export function hexToRgba(hex: string, alpha: number): string {
 }
 
 // ============================================================
+// 颜色亮度计算（用于自动选择前景色）
+// ============================================================
+
+/** 计算 hex 颜色的相对亮度 (WCAG 2.0) */
+export function getRelativeLuminance(hex: string): number {
+  const h = hex.replace('#', '')
+  let r: number, g: number, b: number
+  if (h.length === 3) {
+    r = parseInt(h[0] + h[0], 16) / 255
+    g = parseInt(h[1] + h[1], 16) / 255
+    b = parseInt(h[2] + h[2], 16) / 255
+  } else {
+    r = parseInt(h.substring(0, 2), 16) / 255
+    g = parseInt(h.substring(2, 4), 16) / 255
+    b = parseInt(h.substring(4, 6), 16) / 255
+  }
+  const linearize = (c: number) =>
+    c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+  return 0.2126 * linearize(r) + 0.7152 * linearize(g) + 0.0722 * linearize(b)
+}
+
+/** 根据背景色亮度返回合适的前景色（白 / 深色） */
+export function getContrastForeground(bgHex: string): string {
+  return getRelativeLuminance(bgHex) > 0.5 ? '#071311' : '#ffffff'
+}
+
+// ============================================================
 // 调色板生成
 // ============================================================
 
 export interface AccentPalette {
   '--accent': string
+  '--accent-foreground': string
   '--accent-blue': string
+  '--primary': string
+  '--primary-foreground': string
+  '--ring': string
   '--btn-primary-bg': string
   '--btn-primary-hover': string
   '--bubble-program-bg': string
@@ -115,6 +146,9 @@ export interface AccentPalette {
 
 /**
  * 根据 accentColor 值和当前 theme 生成完整调色板
+ * 同时覆盖项目特有变量与 shadcn-vue 语义 CSS 变量，
+ * 确保 shadcn 组件（Button、focus ring 等）与用户所选主题色一致。
+ *
  * @param accentColor - preset id 或 '#hex' 值
  * @param theme - 当前明暗主题
  */
@@ -139,13 +173,21 @@ export function generateAccentPalette(accentColor: string, theme: 'dark' | 'ligh
     ? adjustLightness(baseHex, -12)
     : adjustLightness(baseHex, -8)
 
+  const foreground = getContrastForeground(baseHex)
+
   return {
+    // ---- 项目特有 ----
     '--accent': baseHex,
+    '--accent-foreground': foreground,
     '--accent-blue': baseHex,
     '--btn-primary-bg': baseHex,
     '--btn-primary-hover': hoverHex,
     '--bubble-program-bg': hexToRgba(baseHex, 0.15),
     '--bubble-program-border': hexToRgba(baseHex, 0.30),
     '--bg-speed-active': hexToRgba(baseHex, 0.20),
+    // ---- shadcn-vue 语义变量 ----
+    '--primary': baseHex,
+    '--primary-foreground': foreground,
+    '--ring': baseHex,
   }
 }

@@ -128,15 +128,15 @@ const languageValue = computed({
             <button
               v-for="preset in ACCENT_PRESETS"
               :key="preset.id"
-              class="flex flex-col items-center gap-1 rounded-lg p-2 transition-colors hover:bg-accent/10"
-              :class="{ 'bg-accent/15': activePresetId === preset.id }"
+              class="preset-btn flex flex-col items-center gap-1 rounded-lg p-2 transition-colors"
+              :data-active="activePresetId === preset.id ? '' : undefined"
               :title="preset.name"
               @click="selectPreset(preset.id)"
             >
               <span
                 class="flex size-7 items-center justify-center rounded-full border-2 transition-all"
                 :class="activePresetId === preset.id ? 'border-foreground scale-110' : 'border-transparent'"
-                :style="{ background: preset.dark }"
+                :style="{ background: settings.theme === 'dark' ? preset.dark : preset.light }"
               >
                 <Check v-if="activePresetId === preset.id" class="size-3.5 text-white drop-shadow" />
               </span>
@@ -204,3 +204,18 @@ const languageValue = computed({
     </DialogContent>
   </Dialog>
 </template>
+
+<style scoped>
+/* 预设色块 hover / active 背景
+   Tailwind bg-accent/15 无法对 CSS 变量颜色生效（透明度修饰符被忽略），
+   此处用 color-mix() 显式处理 */
+.preset-btn:hover {
+  background-color: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.preset-btn[data-active]:hover {
+  background-color: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.preset-btn[data-active] {
+  background-color: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+</style>
