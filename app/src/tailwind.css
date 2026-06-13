@@ -1,0 +1,282 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================================================
+   Minimal CSS Reset
+   preflight 已关闭以避免与 VueFlow 冲突，这里提供最基础的 reset
+   - margin/padding 归零：消除浏览器默认间距（body 8px margin 等）
+   - border 归零：消除浏览器默认按钮边框（2px outset buttonface）
+   - 表单元素继承字体：消除浏览器默认的等宽/小字体
+   =================================================================== */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* ===================================================================
+   shadcn-vue 语义变量 — 暗色主题（默认）
+   映射自项目原有变量体系，与 shadcn 的 CSS 变量命名对齐
+   =================================================================== */
+
+:root,
+[data-theme="dark"] {
+  /* ---- 语义色（shadcn 标准命名） ---- */
+  --background: #1a1a2e;
+  --foreground: #eee;
+  --card: #12122a;
+  --card-foreground: #eee;
+  --primary: #4fc3f7;
+  --primary-foreground: #0a0a0a;
+  --secondary: #2a2a3e;
+  --secondary-foreground: #ccc;
+  --muted: #2a2a3e;
+  --muted-foreground: #999;
+  --accent: #4fc3f7;
+  --accent-foreground: #0a0a0a;
+  --destructive: #e74c3c;
+  --destructive-foreground: #fff;
+  --border: #333;
+  --input: #444;
+  --ring: #4fc3f7;
+  --radius: 0.5rem;
+  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-mono: 'Consolas', 'Monaco', monospace;
+
+  /* ---- 项目特有变量（保留，不映射到 shadcn 语义） ---- */
+
+  /* 页面镶边 */
+  --bg-app:            #1a1a2e;
+  --bg-panel:          #12122a;
+  --bg-menu:           #16162a;
+  --bg-toolbar:        #12122a;
+  --bg-dropdown:       #1e1e32;
+  --bg-input:          rgba(255, 255, 255, 0.06);
+  --bg-input-alt:      rgba(255, 255, 255, 0.05);
+  --bg-hover:          rgba(255, 255, 255, 0.08);
+  --bg-hover-strong:   rgba(255, 255, 255, 0.12);
+  --bg-float-panel:    rgba(30, 30, 50, 0.97);
+  --bg-float-panel-95: rgba(30, 30, 50, 0.95);
+  --bg-float-collapsed: rgba(30, 30, 50, 0.85);
+  --bg-menu-hover:     #3a3a5c;
+  --bg-toggle-btn:     #3a3a5c;
+  --bg-toggle-btn-hover: #555;
+
+  /* 文本（shadcn 覆盖后保留扩展层级） */
+  --text-primary:      #eee;
+  --text-secondary:    #ccc;
+  --text-dim:          #bbb;
+  --text-muted:        #999;
+  --text-muted-2:      #888;
+  --text-muted-3:      #777;
+  --text-disabled:     #666;
+  --text-placeholder:  #555;
+  --text-nav-disabled: #555;
+  --text-bubble:       #ddd;
+
+  /* 边框（保留非标准层级） */
+  --border-color:      #333;
+  --border-soft:       #2a2a3e;
+  --border-medium:     #444;
+  --border-strong:     #555;
+  --border-table:      #1e1e36;
+
+  /* 语义强调色 */
+  --accent-green:      #2ecc71;
+  --accent-orange:     #f39c12;
+  --accent-red:        #e74c3c;
+
+  /* 按钮 */
+  --btn-disabled-bg:   #555;
+  --btn-cancel-bg:     rgba(255, 255, 255, 0.08);
+  --btn-cancel-hover:  rgba(255, 255, 255, 0.15);
+  --btn-clear-bg:      rgba(255, 255, 255, 0.06);
+  --btn-primary-bg:    #3498db;
+  --btn-primary-hover: #2980b9;
+
+  /* 对话框 */
+  --overlay-bg:        rgba(0, 0, 0, 0.6);
+  --dialog-bg:         #1e1e32;
+  --dialog-border:     #555;
+
+  /* 阴影 */
+  --shadow-panel:      0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-dialog:     0 12px 48px rgba(0, 0, 0, 0.7);
+  --shadow-debug:      0 4px 20px rgba(0, 0, 0, 0.5);
+
+  /* 执行状态 */
+  --status-idle:       #666;
+  --status-running:    #2ecc71;
+  --status-paused:     #f39c12;
+  --status-waiting:    #3498db;
+  --status-stopped:    #e74c3c;
+
+  /* 节点 */
+  --node-fallback-bg:    #7f8c8d;
+  --node-fallback-border:#6c7a7a;
+
+  /* 对话气泡 */
+  --bubble-user-bg:      rgba(46, 204, 113, 0.12);
+  --bubble-user-border:  rgba(46, 204, 113, 0.25);
+  --bubble-system-bg:    rgba(255, 255, 255, 0.05);
+  --bubble-system-border:rgba(255, 255, 255, 0.08);
+  --bubble-program-bg:   rgba(52, 152, 219, 0.12);
+  --bubble-program-border:rgba(52, 152, 219, 0.25);
+  --accent-blue:         #3498db;
+
+  /* VueFlow */
+  --vf-pattern-color:   #aaa;
+
+  /* 滚动条 */
+  --scrollbar-thumb:    #555;
+
+  /* Handle 标签 */
+  --handle-label-color: #fff;
+
+  /* 速度选择器 */
+  --bg-speed-active:    rgba(79, 195, 247, 0.15);
+}
+
+/* ===================================================================
+   shadcn-vue 语义变量 — 亮色主题
+   =================================================================== */
+
+[data-theme="light"] {
+  /* ---- 语义色 ---- */
+  --background: #f0f0f5;
+  --foreground: #222;
+  --card: #e8e8ee;
+  --card-foreground: #222;
+  --primary: #1976d2;
+  --primary-foreground: #fff;
+  --secondary: #ddd;
+  --secondary-foreground: #444;
+  --muted: #ddd;
+  --muted-foreground: #777;
+  --accent: #1976d2;
+  --accent-foreground: #fff;
+  --destructive: #c0392b;
+  --destructive-foreground: #fff;
+  --border: #ccc;
+  --input: #ccc;
+  --ring: #1976d2;
+
+  /* ---- 项目特有变量（亮色） ---- */
+  --bg-app:            #f0f0f5;
+  --bg-panel:          #e8e8ee;
+  --bg-menu:           #e0e0e8;
+  --bg-toolbar:        #e8e8ee;
+  --bg-dropdown:       #ffffff;
+  --bg-input:          rgba(0, 0, 0, 0.04);
+  --bg-input-alt:      rgba(0, 0, 0, 0.03);
+  --bg-hover:          rgba(0, 0, 0, 0.06);
+  --bg-hover-strong:   rgba(0, 0, 0, 0.10);
+  --bg-float-panel:    rgba(250, 250, 255, 0.97);
+  --bg-float-panel-95: rgba(250, 250, 255, 0.95);
+  --bg-float-collapsed: rgba(250, 250, 255, 0.85);
+  --bg-menu-hover:     #d0d0e0;
+  --bg-toggle-btn:     #d0d0e0;
+  --bg-toggle-btn-hover: #c0c0d0;
+
+  --text-primary:      #222;
+  --text-secondary:    #444;
+  --text-dim:          #555;
+  --text-muted:        #777;
+  --text-muted-2:      #666;
+  --text-muted-3:      #555;
+  --text-disabled:     #999;
+  --text-placeholder:  #aaa;
+  --text-nav-disabled: #bbb;
+  --text-bubble:       #333;
+
+  --border-color:      #ccc;
+  --border-soft:       #ddd;
+  --border-medium:     #ccc;
+  --border-strong:     #aaa;
+  --border-table:      #e0e0e8;
+
+  --accent-green:      #27ae60;
+  --accent-orange:     #e67e22;
+  --accent-red:        #c0392b;
+
+  --btn-disabled-bg:   #bbb;
+  --btn-cancel-bg:     rgba(0, 0, 0, 0.06);
+  --btn-cancel-hover:  rgba(0, 0, 0, 0.12);
+  --btn-clear-bg:      rgba(0, 0, 0, 0.04);
+  --btn-primary-bg:    #1976d2;
+  --btn-primary-hover: #1565c0;
+
+  --overlay-bg:        rgba(0, 0, 0, 0.3);
+  --dialog-bg:         #ffffff;
+  --dialog-border:     #ccc;
+
+  --shadow-panel:      0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-dialog:     0 12px 48px rgba(0, 0, 0, 0.2);
+  --shadow-debug:      0 4px 20px rgba(0, 0, 0, 0.12);
+
+  --status-idle:       #999;
+  --status-running:    #27ae60;
+  --status-paused:     #e67e22;
+  --status-waiting:    #1976d2;
+  --status-stopped:    #c0392b;
+
+  --node-fallback-bg:    #95a5a6;
+  --node-fallback-border:#7f8c8d;
+
+  --bubble-user-bg:      rgba(39, 174, 96, 0.08);
+  --bubble-user-border:  rgba(39, 174, 96, 0.2);
+  --bubble-system-bg:    rgba(0, 0, 0, 0.04);
+  --bubble-system-border:rgba(0, 0, 0, 0.06);
+  --bubble-program-bg:   rgba(25, 118, 210, 0.08);
+  --bubble-program-border:rgba(25, 118, 210, 0.2);
+  --accent-blue:         #1976d2;
+
+  --vf-pattern-color:   #999;
+
+  --scrollbar-thumb:    #ccc;
+
+  --handle-label-color: #222;
+
+  --bg-speed-active:    rgba(25, 118, 210, 0.15);
+}
+
+/* ===================================================================
+   全局节点动画
+   box-shadow 版（矩形节点）：Start, End, Declare, Assign, Input, Output, Merge, Call
+   filter drop-shadow 版（异形节点）：IfNode, ForNode, WhileNode
+   =================================================================== */
+
+@keyframes exec-pulse {
+  from { box-shadow: 0 0 8px rgba(46, 204, 113, 0.6), 0 0 16px rgba(46, 204, 113, 0.3); }
+  to   { box-shadow: 0 0 16px rgba(46, 204, 113, 0.9), 0 0 32px rgba(46, 204, 113, 0.5); }
+}
+
+@keyframes exec-pulse-filter {
+  from { filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.7)); }
+  to   { filter: drop-shadow(0 0 18px rgba(46, 204, 113, 1)); }
+}
+
+@keyframes flash-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(243, 156, 18, 0.4); }
+  50%      { box-shadow: 0 0 20px rgba(243, 156, 18, 0.9), 0 0 36px rgba(243, 156, 18, 0.4); }
+}
+
+@keyframes flash-pulse-filter {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(243, 156, 18, 0.7)); }
+  50%      { filter: drop-shadow(0 0 18px rgba(243, 156, 18, 1)); }
+}

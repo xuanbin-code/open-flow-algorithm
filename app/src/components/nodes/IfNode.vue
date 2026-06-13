@@ -106,7 +106,7 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
 }
 
 .if-node.executing {
-  animation: exec-pulse 0.8s ease-in-out infinite alternate;
+  animation: exec-pulse-filter 0.8s ease-in-out infinite alternate;
 }
 .if-node.executing .node-shape-border {
   background: #2ecc71 !important;
@@ -144,20 +144,12 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
   transform: translate(-100%, -50%);
 }
 
-@keyframes exec-pulse {
-  from { filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.7)); }
-  to   { filter: drop-shadow(0 0 18px rgba(46, 204, 113, 1)); }
-}
 
 .if-node.flashHighlight {
-  animation: flash-pulse 0.5s ease-in-out 3;
+  animation: flash-pulse-filter 0.5s ease-in-out 3;
 }
 .if-node.flashHighlight .node-shape-border {
   background: var(--accent-orange, #f39c12) !important;
 }
 
-@keyframes flash-pulse {
-  0%, 100% { filter: drop-shadow(0 0 6px rgba(243, 156, 18, 0.7)); }
-  50%      { filter: drop-shadow(0 0 18px rgba(243, 156, 18, 1)); }
-}
 </style>

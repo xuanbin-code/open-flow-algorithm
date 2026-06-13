@@ -116,7 +116,7 @@ watch(
 }
 
 .for-node.executing {
-  animation: exec-pulse 0.8s ease-in-out infinite alternate;
+  animation: exec-pulse-filter 0.8s ease-in-out infinite alternate;
 }
 .for-node.executing .node-shape-border {
   background: #2ecc71 !important;
@@ -132,22 +132,14 @@ watch(
   filter: grayscale(0.7);
 }
 
-@keyframes exec-pulse {
-  from { filter: drop-shadow(0 0 6px rgba(46, 204, 113, 0.7)); }
-  to   { filter: drop-shadow(0 0 18px rgba(46, 204, 113, 1)); }
-}
 
 .for-node.flashHighlight {
-  animation: flash-pulse 0.5s ease-in-out 3;
+  animation: flash-pulse-filter 0.5s ease-in-out 3;
 }
 .for-node.flashHighlight .node-shape-border {
   background: var(--accent-orange, #f39c12) !important;
 }
 
-@keyframes flash-pulse {
-  0%, 100% { filter: drop-shadow(0 0 6px rgba(243, 156, 18, 0.7)); }
-  50%      { filter: drop-shadow(0 0 18px rgba(243, 156, 18, 1)); }
-}
 
 /* handle 旁标签 */
 .handle-tag {
