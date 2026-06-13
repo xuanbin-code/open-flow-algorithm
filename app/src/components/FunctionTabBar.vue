@@ -320,7 +320,6 @@ function onDblClickTab(funcName: string) {
   margin: 8px;
   border: 1px dashed var(--border-medium) !important;
   border-radius: 8px;
-  color: var(--text-dim) !important;
   font-size: 11px;
   transition: margin 0.25s ease;
   flex-shrink: 0;
@@ -328,7 +327,6 @@ function onDblClickTab(funcName: string) {
 
 .fn-add-btn:hover {
   border-color: var(--accent) !important;
-  color: var(--accent) !important;
 }
 
 .fn-add-label {
