@@ -1287,20 +1287,17 @@ async function handleSaveAs() {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   height: 100%;
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: var(--shadow-panel-soft);
 }
 .execution-console {
   flex: 1;
   min-height: 0;
   height: auto;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
+  border: 1px solid var(--border-soft) !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-panel-soft) !important;
 }
 </style>
 

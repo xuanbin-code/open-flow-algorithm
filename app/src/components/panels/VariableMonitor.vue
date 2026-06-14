@@ -105,8 +105,9 @@ function formatValue(value: unknown): string {
   >
     <Card
       :class="[
-        'border-0',
-        mode === 'window' ? 'shadow-lg backdrop-blur-sm' : 'shadow-none rounded-none',
+        mode === 'window'
+          ? 'border-0 shadow-lg backdrop-blur-sm'
+          : 'border-0 shadow-none',
         collapsed ? 'p-1' : '',
       ]"
     >
@@ -182,10 +183,6 @@ function formatValue(value: unknown): string {
 </template>
 
 <style scoped>
-.var-monitor {
-  /* base styles — positioning is controlled by mode classes */
-}
-
 .var-monitor--window {
   position: fixed;
   z-index: 40;
@@ -200,6 +197,9 @@ function formatValue(value: unknown): string {
   max-height: 250px;
   flex-shrink: 0;
   overflow: hidden;
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  background: var(--bg-panel);
 }
 
 .var-monitor--embedded .var-monitor-scroll {
@@ -208,6 +208,10 @@ function formatValue(value: unknown): string {
 
 .var-monitor.collapsed {
   width: auto;
+}
+
+.var-monitor--embedded.collapsed {
+  min-height: auto;
 }
 
 .var-monitor--window.collapsed {
