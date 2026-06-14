@@ -2,7 +2,7 @@
 import { ref, reactive, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FunctionDef, Parameter } from '../engine/fprg-ast'
-import { X, Plus, Trash2, SquareFunction } from './icons'
+import { Plus, Trash2, SquareFunction } from './icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -165,12 +165,6 @@ function onSave() {
             {{ isNew ? $t('functions.newFunction') : $t('functions.editFunction', { name: props.function?.name }) }}
           </span>
         </DialogTitle>
-        <button
-          class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-          @click="emit('close')"
-        >
-          <X :size="14" />
-        </button>
       </DialogHeader>
 
       <div class="flex flex-col gap-4">
