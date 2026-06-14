@@ -140,7 +140,7 @@
     "paramArray": "Array?",
     "noReturn": "No Return",
     "noParameters": "No parameters",
-    "selectFunction": "Select a function...",
+    "selectFunction": "Select a function",
     "editFunction": "Edit Function \"{name}\"",
     "tabAddTooltip": "New Function",
     "duplicateFunction": "Duplicate Function",

@@ -140,7 +140,7 @@
     "paramArray": "数组?",
     "noReturn": "无返回值",
     "noParameters": "暂无参数",
-    "selectFunction": "选择函数...",
+    "selectFunction": "选择函数",
     "editFunction": "编辑函数 \"{name}\"",
     "tabAddTooltip": "新建函数",
     "duplicateFunction": "复制函数",

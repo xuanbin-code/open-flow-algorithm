@@ -511,7 +511,7 @@ function onConfirm() {
               <SelectTrigger class="field-input call-select-trigger">
                 <SelectValue :placeholder="$t('functions.selectFunction')" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent :portal="false">
                 <SelectGroup>
                   <SelectLabel>{{ $t('functions.title') }}</SelectLabel>
                   <SelectItem

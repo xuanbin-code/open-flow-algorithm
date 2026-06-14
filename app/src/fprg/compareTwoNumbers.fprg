@@ -9,25 +9,24 @@
     <function name="Main" type="None" variable="">
         <parameters/>
         <body>
-            <declare name="a, b" type="Integer" array="False" size=""/>
+            <declare name="a, b,sum" type="Integer" array="False" size=""/>
             <output expression="&quot;请输入两个整数：&quot;" newline="True"/>
             <assign variable="a" expression="10"/>
             <assign variable="b" expression="20"/>
-            <if expression="a &gt; b">
-                <then>
-                    <output expression="a &amp; &quot; 大于 &quot; &amp; b" newline="True"/>
-                </then>
-                <else>
-                    <if expression="a &lt; b">
-                        <then>
-                            <output expression="b &amp; &quot; 大于 &quot; &amp; a" newline="True"/>
-                        </then>
-                        <else>
-                            <output expression="&quot;两数相等&quot;" newline="True"/>
-                        </else>
-                    </if>
-                </else>
-            </if>
+            <call expression="add(a, b)" result="sum"/>
+            <output expression="sum" newline="True"/>
+        </body>
+    </function>
+    <function name="add" type="Integer" variable="res">
+        <parameters>
+            <parameter name="a" type="Integer" array="False"/>
+            <parameter name="b" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="res" type="Integer" array="False" size="" tag="return"/>
+            <declare name="a" type="Integer" array="False" size="" tag="parameter"/>
+            <declare name="b" type="Integer" array="False" size="" tag="parameter"/>
+            <assign variable="res" expression="a + b"/>
         </body>
     </function>
 </flowgorithm>
