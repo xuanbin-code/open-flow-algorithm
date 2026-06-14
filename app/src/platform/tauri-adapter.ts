@@ -8,6 +8,8 @@ import type { PlatformFileSystem, FileDialogFilter, RecentEntry } from './types'
 
 const RECENT_FILE_NAME = 'recent-files.json'
 
+console.log('[platform] 使用 Tauri 原生文件系统适配器')
+
 export const tauriFileSystem: PlatformFileSystem = {
   async showOpenDialog(filters?: FileDialogFilter[]) {
     const selected = await open({

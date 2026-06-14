@@ -14,10 +14,22 @@ export type { FileDialogFilter, FileOpenResult, RecentEntry }
 // ============================================================
 
 export function isTauri(): boolean {
-  return typeof window !== 'undefined' && '__TAURI__' in window
+  if (typeof window === 'undefined') return false
+  // Tauri v2 同时注入 __TAURI__ 和 __TAURI_INTERNALS__；
+  // 有些版本可能只有 __TAURI_INTERNALS__，两者都检测更稳健
+  return '__TAURI__' in window || '__TAURI_INTERNALS__' in window
 }
 
-const fs: PlatformFileSystem = isTauri() ? tauriFileSystem : webFileSystem
+const _isTauri = isTauri()
+console.log(
+  `[platform] 平台检测: ${_isTauri ? 'Tauri 桌面应用' : '浏览器'}`,
+  {
+    __TAURI__: typeof window !== 'undefined' && '__TAURI__' in window,
+    __TAURI_INTERNALS__: typeof window !== 'undefined' && '__TAURI_INTERNALS__' in (window as any),
+  },
+)
+
+const fs: PlatformFileSystem = _isTauri ? tauriFileSystem : webFileSystem
 
 // ============================================================
 // 导出平台无关的 API
