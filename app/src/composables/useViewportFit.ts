@@ -41,20 +41,19 @@ export function useViewportFit(nodes: Ref<FlowNode[]>) {
     // 夹紧 zoom 到合法范围
     const zoom = Math.max(0.1, Math.min(4.0, options.zoom))
 
-    // Start 节点中心在流程图坐标中的位置
+    // Start 节点在流程图坐标中的参考点
     const nodeW = (startNode as any).data?.width ?? 80
-    const nodeH = (startNode as any).data?.height ?? 50
-    const flowCenterX = startNode.position.x + nodeW / 2
-    const flowCenterY = startNode.position.y + nodeH / 2
+    const flowCenterX = startNode.position.x + nodeW / 2  // 水平居中用中心
+    const flowTopY = startNode.position.y                   // 垂直用顶部边缘
 
     // 目标屏幕位置：X = 容器宽度 / 2（水平居中），Y = yOffset（距顶部）
     const targetScreenX = rect.width / 2
     const targetScreenY = options.yOffset
 
-    // 反算视口坐标：screenXY = (flowXY + viewportXY) * zoom
-    //          →  viewportXY = screenXY / zoom - flowXY
-    const vpX = targetScreenX / zoom - flowCenterX
-    const vpY = targetScreenY / zoom - flowCenterY
+    // 反算视口坐标：VueFlow 变换 → screenXY = flowXY * zoom + viewportXY
+    //          →  viewportXY = screenXY - flowXY * zoom
+    const vpX = targetScreenX - flowCenterX * zoom
+    const vpY = targetScreenY - flowTopY * zoom
 
     await nextTick()
     setViewport({ zoom, x: Math.round(vpX), y: Math.round(vpY) }, { duration: 0 })

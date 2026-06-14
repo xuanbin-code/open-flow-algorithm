@@ -114,13 +114,13 @@ const derivedViewport = computed(() => {
   const zoom = props.defaultZoom ?? 0.9
   const targetScreenX = props.containerRect.width / 2  // X 轴居中
   const targetScreenY = props.yOffset ?? 30            // 距顶部 yOffset px
-  // Start 节点中心在流程图坐标中的位置（与 engine 的 DEFAULT_PARAMS 保持一致）
-  const flowCenterX = 400   // FLOW_CENTER_X
-  const flowCenterY = 70    // START_Y + START_END_H / 2 = 50 + 20
+  // Start 节点参考点在流程图坐标中的位置（与 engine 的 DEFAULT_PARAMS 保持一致）
+  const flowCenterX = 400   // FLOW_CENTER_X，水平用中心
+  const flowTopY = 50       // START_Y，垂直用顶部边缘
   return {
     zoom,
-    vpX: targetScreenX / zoom - flowCenterX,
-    vpY: targetScreenY / zoom - flowCenterY,
+    vpX: targetScreenX - flowCenterX * zoom,
+    vpY: targetScreenY - flowTopY * zoom,
   }
 })
 </script>
