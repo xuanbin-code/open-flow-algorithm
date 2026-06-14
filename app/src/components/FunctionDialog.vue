@@ -178,7 +178,7 @@ function onSave() {
             :class="{ 'border-destructive': nameError }"
             :placeholder="$t('functions.namePlaceholder')"
             :readonly="!isNew && props.function?.name === 'Main'"
-            @input="validateName"
+            @update:model-value="validateName"
             @keydown.enter="onSave"
           />
           <span v-if="nameError" class="text-xs text-destructive">{{ nameError }}</span>
