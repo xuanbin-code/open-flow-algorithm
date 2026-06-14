@@ -694,12 +694,13 @@ async function driveInterpreter(mode: 'run' | 'step') {
           const frame = executionCallStack.pop()
           if (frame?.instanceKey && subWindows.value[frame.instanceKey]) {
             const key = frame.instanceKey
-            // 延迟删除，让用户看到最后一个高亮节点
+            // 先触发出场动画，动画结束后再删除
+            subWindows.value[key].visible = false
             setTimeout(() => {
               const updated = { ...subWindows.value }
               delete updated[key]
               subWindows.value = updated
-            }, 300)
+            }, 350)
           }
           break
         }
@@ -1020,6 +1021,12 @@ function onToggleExecution(funcName: string, enabled: boolean) {
 function handleCloseSubWindow(key: string) {
   if (subWindows.value[key]) {
     subWindows.value[key].visible = false
+    // 等出场动画播完后再从列表中移除
+    setTimeout(() => {
+      const updated = { ...subWindows.value }
+      delete updated[key]
+      subWindows.value = updated
+    }, 350)
   }
 }
 
