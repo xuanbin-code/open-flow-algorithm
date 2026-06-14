@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface AssignNodeProps {
   id: string
@@ -39,7 +40,14 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
     }"
   >
     <Handle type="target" :position="Position.Top" />
-    <span class="node-label">{{ label }}</span>
+    <Tooltip :delay-duration="500">
+      <TooltipTrigger as-child>
+        <span class="node-label">{{ label }}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        {{ label }}
+      </TooltipContent>
+    </Tooltip>
     <Handle type="source" :position="Position.Bottom" />
   </div>
 </template>

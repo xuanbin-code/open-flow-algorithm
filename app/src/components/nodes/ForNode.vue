@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface ForNodeProps {
   id: string
@@ -60,7 +61,14 @@ watch(
     <Handle id="loop-body" type="source" :position="Position.Right" />
     <span class="handle-tag body-tag">{{ $t('nodes.handle.next') }}</span>
 
-    <span class="for-label">{{ label }}</span>
+    <Tooltip :delay-duration="500">
+      <TooltipTrigger as-child>
+        <span class="for-label">{{ label }}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        {{ label }}
+      </TooltipContent>
+    </Tooltip>
   </div>
 </template>
 

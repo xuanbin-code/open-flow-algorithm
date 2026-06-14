@@ -47,6 +47,7 @@ import { useRecentFilesStore } from './stores/recentFiles'
 import { useViewportFit } from './composables/useViewportFit'
 import { useSound } from './composables/useSound'
 import { useI18n } from 'vue-i18n'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const { t } = useI18n()
 const sound = useSound()
@@ -1244,6 +1245,7 @@ async function handleSaveAs() {
         @toggle-execution="onToggleExecution"
       />
       <div class="flow-container" :class="{ 'flow-ready': isContentReady }">
+        <TooltipProvider :delay-duration="500">
         <VueFlow
           :key="activeFunctionName"
           :nodes="nodes"
@@ -1307,6 +1309,7 @@ async function handleSaveAs() {
             ><CallNode v-bind="nodeProps"
           /></template>
         </VueFlow>
+        </TooltipProvider>
       </div>
       <div class="right-panel">
         <VariableMonitor

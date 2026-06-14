@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface IfNodeProps {
   id: string
@@ -46,7 +47,14 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
     <div class="node-shape-border"></div>
     <div class="node-shape"></div>
     <Handle type="target" :position="Position.Top" />
-    <span class="if-label">{{ label }}</span>
+    <Tooltip :delay-duration="500">
+      <TooltipTrigger as-child>
+        <span class="if-label">{{ label }}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        {{ label }}
+      </TooltipContent>
+    </Tooltip>
     <Handle id="else" type="source" :position="Position.Left" />
     <span class="handle-tag else-tag">{{ $t('nodes.handle.false') }}</span>
     <Handle id="then" type="source" :position="Position.Right" />

@@ -15,6 +15,7 @@ import ForNode from './nodes/ForNode.vue'
 import WhileNode from './nodes/WhileNode.vue'
 import CallNode from './nodes/CallNode.vue'
 import { X } from './icons'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 // ============================================================
 // Types (also used by App.vue)
@@ -165,6 +166,7 @@ function onClose() {
 
       <!-- VueFlow -->
       <div class="sub-fn-flow">
+        <TooltipProvider :delay-duration="500">
         <VueFlow
           :id="flowId"
           :nodes="props.windowState.nodes"
@@ -227,6 +229,7 @@ function onClose() {
             <CallNode v-bind="nodeProps" />
           </template>
         </VueFlow>
+        </TooltipProvider>
       </div>
     </div>
   </div>

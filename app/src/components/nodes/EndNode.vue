@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Handle, Position } from '@vue-flow/core'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 const { t } = useI18n()
 
@@ -40,7 +41,14 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
       height: nodeHeight + 'px',
     }"
   >
-    <span class="node-label">{{ label }}</span>
+    <Tooltip :delay-duration="500">
+      <TooltipTrigger as-child>
+        <span class="node-label">{{ label }}</span>
+      </TooltipTrigger>
+      <TooltipContent>
+        {{ label }}
+      </TooltipContent>
+    </Tooltip>
     <Handle type="target" :position="Position.Top" />
   </div>
 </template>
