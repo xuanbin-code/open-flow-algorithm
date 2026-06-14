@@ -4,7 +4,6 @@ import { useI18n } from 'vue-i18n'
 import { useSettings } from '../composables/useSettings'
 import { Sun, Moon, Settings, Play, StepForward, Pause, Square, Table } from './icons'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   ToggleGroup,
@@ -168,17 +167,6 @@ const fileName = computed(() => {
   return props.isDirty ? `* ${base}` : base
 })
 
-const statusLabel = computed(() => {
-  const labels: Record<ExecStatus, string> = {
-    idle: t('execution.status.idle'),
-    running: t('execution.status.running'),
-    paused: t('execution.status.paused'),
-    'waiting-input': t('execution.status.waitingInput'),
-    stopped: t('execution.status.stopped'),
-  }
-  return labels[es.value]
-})
-
 // ============================================================
 // Theme toggle
 // ============================================================
@@ -265,10 +253,6 @@ function toggleTheme() {
         <span>{{ $t('execution.btnStop') }}</span>
       </Button>
     </div>
-
-    <Badge variant="secondary" class="status-pill" :class="`status-${es}`">
-      {{ statusLabel }}
-    </Badge>
 
     <div class="tool-zone">
       <ToggleGroup
@@ -426,29 +410,6 @@ function toggleTheme() {
 .run-primary:hover:not(:disabled) {
   background: color-mix(in srgb, var(--accent) 82%, black) !important;
   box-shadow: 0 6px 22px color-mix(in srgb, var(--accent) 35%, transparent) !important;
-}
-
-.status-pill {
-  min-width: 72px;
-  justify-content: center;
-  border-radius: 999px;
-  text-transform: capitalize;
-}
-
-.status-running,
-.status-waiting-input {
-  background: color-mix(in srgb, var(--accent-green) 14%, transparent);
-  color: var(--accent-green);
-}
-
-.status-paused {
-  background: color-mix(in srgb, var(--accent-orange) 14%, transparent);
-  color: var(--accent-orange);
-}
-
-.status-stopped {
-  background: color-mix(in srgb, var(--accent-red) 14%, transparent);
-  color: var(--accent-red);
 }
 
 .tool-zone {

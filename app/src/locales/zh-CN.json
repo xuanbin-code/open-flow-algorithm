@@ -251,6 +251,10 @@
     }
   },
   "panels": {
+    "variableMonitor": {
+      "popOut": "弹出为浮动窗口",
+      "dockIn": "停靠到面板内"
+    },
     "debug": {
       "label": "调试",
       "layoutParams": "布局参数",

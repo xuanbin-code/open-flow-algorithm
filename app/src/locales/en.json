@@ -251,6 +251,10 @@
     }
   },
   "panels": {
+    "variableMonitor": {
+      "popOut": "Pop out to floating window",
+      "dockIn": "Dock back to panel"
+    },
     "debug": {
       "label": "Debug",
       "layoutParams": "Layout Parameters",

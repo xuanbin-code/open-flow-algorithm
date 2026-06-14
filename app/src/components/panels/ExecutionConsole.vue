@@ -1,40 +1,14 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { ChatMessage } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 
 const { t } = useI18n()
-
-// ============================================================
-// Types
-// ============================================================
-
-export interface ChatMessage {
-  role: 'program' | 'user' | 'system'
-  text: string
-  sourceNodeId?: string
-  timestamp?: number
-  separator?: 'run-start'
-}
-
-export interface VariableEntry {
-  name: string
-  type: string
-  value: unknown
-  tag?: 'return' | 'parameter'
-}
 
 // ============================================================
 // Props & Emits
@@ -42,7 +16,6 @@ export interface VariableEntry {
 
 const props = defineProps<{
   chatMessages: ChatMessage[]
-  variables?: VariableEntry[]
   executionStatus: 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
   variableName: string
 }>()
@@ -55,29 +28,23 @@ const emit = defineEmits<{
 }>()
 
 // ============================================================
-// Input state (declared early — used by watches below)
+// Input state
 // ============================================================
 
 const inputValue = ref('')
 const hasInteracted = ref(false)
-const activePanel = ref<'console' | 'variables'>('console')
 
 // ============================================================
 // Chat auto-scroll
 // ============================================================
 
 const chatEl = ref<InstanceType<typeof ScrollArea> | null>(null)
-const savedScrollTop = ref(0)
 
 function scrollToBottom() {
   const viewport: HTMLElement | null | undefined = chatEl.value?.$el?.querySelector('[data-reka-scroll-area-viewport]')
   if (viewport) {
     viewport.scrollTop = viewport.scrollHeight
   }
-}
-
-function getViewport(): HTMLElement | null | undefined {
-  return chatEl.value?.$el?.querySelector('[data-reka-scroll-area-viewport]')
 }
 
 watch(
@@ -101,27 +68,6 @@ watch(
     }
   },
 )
-
-// 切换 tab 时保存/恢复滚动位置
-watch(activePanel, async (panel) => {
-  if (panel === 'console') {
-    await nextTick()
-    const vp = getViewport()
-    if (vp && savedScrollTop.value > 0) {
-      vp.scrollTop = savedScrollTop.value
-    }
-  }
-})
-
-function switchTab(panel: 'console' | 'variables') {
-  if (activePanel.value === 'console' && panel !== 'console') {
-    const vp = getViewport()
-    if (vp) {
-      savedScrollTop.value = vp.scrollTop
-    }
-  }
-  activePanel.value = panel
-}
 
 function onSubmit() {
   const val = inputValue.value
@@ -168,20 +114,12 @@ const STATUS_VARIANTS: Record<string, BadgeVariants['variant']> = {
   stopped: 'destructive',
 }
 
-const variableCount = computed(() => props.variables?.length ?? 0)
-
 function formatTime(ts: number): string {
   const d = new Date(ts)
   const hh = String(d.getHours()).padStart(2, '0')
   const mm = String(d.getMinutes()).padStart(2, '0')
   const ss = String(d.getSeconds()).padStart(2, '0')
   return `${hh}:${mm}:${ss}`
-}
-
-function formatValue(value: unknown): string {
-  if (value === null || value === undefined) return t('execution.nullValueShort')
-  if (typeof value === 'boolean') return value ? t('execution.trueValueShort') : t('execution.falseValueShort')
-  return String(value)
 }
 </script>
 
@@ -202,26 +140,8 @@ function formatValue(value: unknown): string {
       </Button>
     </CardHeader>
 
-    <div class="inspector-tabs">
-      <button
-        class="inspector-tab"
-        :class="{ active: activePanel === 'console' }"
-        @click="switchTab('console')"
-      >
-        {{ $t('execution.consoleTab') }}
-      </button>
-      <button
-        class="inspector-tab"
-        :class="{ active: activePanel === 'variables' }"
-        @click="switchTab('variables')"
-      >
-        {{ $t('execution.variablesTabLabel') }}
-        <span class="tab-count">{{ variableCount }}</span>
-      </button>
-    </div>
-
     <CardContent class="flex flex-1 flex-col gap-0 overflow-hidden p-0">
-      <ScrollArea v-if="activePanel === 'console'" ref="chatEl" class="flex-1">
+      <ScrollArea ref="chatEl" class="flex-1">
         <div class="message-list">
           <div v-if="chatMessages.length === 0" class="empty-state">
             <span class="empty-title">{{ $t('execution.hintRunFirst') }}</span>
@@ -258,37 +178,6 @@ function formatValue(value: unknown): string {
               <span class="bubble-text">{{ msg.text }}</span>
             </div>
           </template>
-        </div>
-      </ScrollArea>
-
-      <ScrollArea v-else-if="activePanel === 'variables'" class="flex-1">
-        <div class="variables-panel">
-          <Table v-if="variableCount > 0">
-            <TableHeader>
-              <TableRow>
-                <TableHead class="h-8 text-xs">{{ $t('execution.varName') }}</TableHead>
-                <TableHead class="h-8 text-xs">{{ $t('execution.varType') }}</TableHead>
-                <TableHead class="h-8 text-xs">{{ $t('execution.varValue') }}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow v-for="(v, i) in variables" :key="i">
-                <TableCell class="py-2 text-xs font-mono">
-                  <span class="inline-flex items-center gap-1">
-                    {{ v.name }}
-                    <Badge v-if="v.tag === 'return'" variant="default" class="tag-badge tag-badge--return">{{ $t('execution.varTagReturn') }}</Badge>
-                    <Badge v-if="v.tag === 'parameter'" variant="secondary" class="tag-badge tag-badge--param">{{ $t('execution.varTagParameter') }}</Badge>
-                  </span>
-                </TableCell>
-                <TableCell class="py-2 text-xs text-muted-foreground">{{ v.type || '-' }}</TableCell>
-                <TableCell class="py-2 text-xs font-mono">{{ formatValue(v.value) }}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-          <div v-else class="empty-state">
-            <span class="empty-title">{{ $t('execution.noVariablesShort') }}</span>
-            <span class="empty-copy">{{ $t('execution.noVariablesDesc') }}</span>
-          </div>
         </div>
       </ScrollArea>
 
@@ -353,54 +242,7 @@ function formatValue(value: unknown): string {
   font-size: 11px;
 }
 
-.inspector-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 4px;
-  padding: 8px;
-  border-bottom: 1px solid var(--border-soft);
-  background: var(--bg-toolbar);
-}
-
-.inspector-tab {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 30px;
-  border-radius: 7px;
-  background: var(--btn-ghost-bg);
-  color: var(--text-dim);
-  font-size: 12px;
-  font-weight: 650;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.inspector-tab:hover,
-.inspector-tab.active {
-  background: var(--bg-hover-strong);
-  color: var(--text-primary);
-}
-
-.inspector-tab.active {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
-}
-
-.tab-count {
-  display: inline-flex;
-  min-width: 18px;
-  height: 18px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-  color: var(--accent);
-  font-size: 10px;
-}
-
-.message-list,
-.variables-panel {
+.message-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -602,24 +444,5 @@ function formatValue(value: unknown): string {
   color: var(--btn-disabled-text) !important;
   opacity: 1 !important;
   box-shadow: none;
-}
-
-/* Tag badges (return / parameter) */
-.tag-badge {
-  font-size: 9px;
-  padding: 0 3px;
-  height: 15px;
-  line-height: 1;
-}
-
-.tag-badge--return {
-  background: color-mix(in srgb, var(--accent-yellow, #f39c12) 75%, transparent) !important;
-  color: #fff !important;
-}
-
-.tag-badge--param {
-  background: color-mix(in srgb, var(--accent, #3498db) 40%, transparent) !important;
-  color: var(--accent, #3498db) !important;
-  border: 1px solid color-mix(in srgb, var(--accent, #3498db) 30%, transparent);
 }
 </style>

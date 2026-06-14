@@ -19,4 +19,4 @@ export { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, R
 export { Ruler, Eye, Crosshair } from '@lucide/vue'
 
 // 变量监控
-export { Table } from '@lucide/vue'
+export { Table, ExternalLink, Pin } from '@lucide/vue'

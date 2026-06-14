@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { GripVertical, X, ChevronRight } from '../icons'
+import type { VariableEntry } from '@/types'
+import { GripVertical, ChevronRight, ExternalLink, Pin } from '../icons'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,17 +17,6 @@ import {
 } from '@/components/ui/table'
 
 // ============================================================
-// Types
-// ============================================================
-
-export interface VariableEntry {
-  name: string
-  type: string
-  value: unknown
-  tag?: 'return' | 'parameter'
-}
-
-// ============================================================
 // Props & Emits
 // ============================================================
 
@@ -35,10 +25,11 @@ const { t } = useI18n()
 const props = defineProps<{
   variables: VariableEntry[]
   visible: boolean
+  mode: 'embedded' | 'window'
 }>()
 
 const emit = defineEmits<{
-  close: []
+  toggleMode: []
 }>()
 
 // ============================================================
@@ -56,6 +47,7 @@ let panelStartX = 0
 let panelStartY = 0
 
 function onDragStart(e: MouseEvent) {
+  if (props.mode !== 'window') return
   dragging.value = true
   hasDragged.value = false
   dragStartX = e.clientX
@@ -103,14 +95,25 @@ function formatValue(value: unknown): string {
   <div
     v-if="visible"
     class="var-monitor"
-    :class="{ collapsed, dragging }"
-    :style="{ left: panelLeft + 'px', top: panelTop + 'px' }"
+    :class="{
+      'var-monitor--embedded': mode === 'embedded',
+      'var-monitor--window': mode === 'window',
+      collapsed,
+      dragging,
+    }"
+    :style="mode === 'window' ? { left: panelLeft + 'px', top: panelTop + 'px' } : undefined"
   >
-    <Card class="border-0 shadow-lg backdrop-blur-sm" :class="collapsed ? 'p-1' : ''">
+    <Card
+      :class="[
+        'border-0',
+        mode === 'window' ? 'shadow-lg backdrop-blur-sm' : 'shadow-none rounded-none',
+        collapsed ? 'p-1' : '',
+      ]"
+    >
       <!-- Header -->
       <CardHeader
         class="flex-row items-center gap-1 space-y-0 px-2 py-1.5"
-        :class="{ 'cursor-grab': !collapsed, 'active:cursor-grabbing': dragging }"
+        :class="{ 'cursor-grab': mode === 'window' && !collapsed, 'active:cursor-grabbing': dragging }"
         @mousedown="onDragStart"
         @click="onToggleClick"
       >
@@ -121,15 +124,20 @@ function formatValue(value: unknown): string {
         <Badge v-if="!collapsed" variant="secondary" class="text-[10px]">
           {{ props.variables.length }}
         </Badge>
+
+        <!-- Mode toggle button (right-aligned, replaces former close button position) -->
         <Button
           v-if="!collapsed"
           variant="ghost"
           size="icon-sm"
           class="ml-auto"
-          @click.stop="emit('close')"
+          :title="mode === 'embedded' ? $t('panels.variableMonitor.popOut') : $t('panels.variableMonitor.dockIn')"
+          @click.stop="emit('toggleMode')"
         >
-          <X :size="13" />
+          <ExternalLink v-if="mode === 'embedded'" :size="13" />
+          <Pin v-else :size="13" />
         </Button>
+
         <ChevronRight
           v-if="collapsed"
           :size="14"
@@ -139,8 +147,8 @@ function formatValue(value: unknown): string {
 
       <!-- Body -->
       <template v-if="!collapsed">
-        <CardContent class="p-0">
-          <ScrollArea class="max-h-64">
+        <CardContent class="p-0 var-monitor-body">
+          <ScrollArea class="max-h-64 var-monitor-scroll">
             <Table v-if="props.variables.length > 0">
               <TableHeader>
                 <TableRow>
@@ -175,13 +183,34 @@ function formatValue(value: unknown): string {
 
 <style scoped>
 .var-monitor {
+  /* base styles — positioning is controlled by mode classes */
+}
+
+.var-monitor--window {
   position: fixed;
   z-index: 40;
   width: 350px;
   max-height: 400px;
 }
 
+.var-monitor--embedded {
+  position: static;
+  width: 100%;
+  min-height: 120px;
+  max-height: 250px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.var-monitor--embedded .var-monitor-scroll {
+  max-height: none !important;
+}
+
 .var-monitor.collapsed {
+  width: auto;
+}
+
+.var-monitor--window.collapsed {
   width: auto;
 }
 

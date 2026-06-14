@@ -18,9 +18,8 @@ import InsertNodePanel from './components/panels/InsertNodePanel.vue'
 import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
 import QuickActionsBar from './components/panels/QuickActionsBar.vue'
 import ExecutionConsole from './components/panels/ExecutionConsole.vue'
-import type { ChatMessage } from './components/panels/ExecutionConsole.vue'
 import VariableMonitor from './components/panels/VariableMonitor.vue'
-import type { VariableEntry } from './components/panels/VariableMonitor.vue'
+import type { ChatMessage, VariableEntry } from '@/types'
 
 import SettingsDialog from './components/SettingsDialog.vue'
 import FunctionTabBar from './components/FunctionTabBar.vue'
@@ -128,6 +127,7 @@ const varEntries = ref<VariableEntry[]>([])
 
 /** 变量监视面板是否可见 */
 const showVariableMonitor = ref(true)
+const variableMonitorMode = ref<'embedded' | 'window'>('embedded')
 
 /** 对话消息列表（程序输出 + 用户输入） */
 const chatMessages = ref<ChatMessage[]>([])
@@ -1185,22 +1185,30 @@ async function handleSaveAs() {
           /></template>
         </VueFlow>
       </div>
-      <ExecutionConsole
-        class="execution-console"
-        :chat-messages="chatMessages"
-        :variables="varEntries"
-        :execution-status="executionStatus"
-        :variable-name="inputVariableName"
-        @clear="clearOutput"
-        @submit-input="onInputSubmit"
-        @cancel-input="onInputCancel"
-        @highlight-node="onHighlightNode"
-      />
+      <div class="right-panel">
+        <VariableMonitor
+          :variables="varEntries"
+          :visible="showVariableMonitor && variableMonitorMode === 'embedded'"
+          mode="embedded"
+          @toggle-mode="variableMonitorMode = 'window'"
+        />
+        <ExecutionConsole
+          class="execution-console"
+          :chat-messages="chatMessages"
+          :execution-status="executionStatus"
+          :variable-name="inputVariableName"
+          @clear="clearOutput"
+          @submit-input="onInputSubmit"
+          @cancel-input="onInputCancel"
+          @highlight-node="onHighlightNode"
+        />
+      </div>
     </div>
     <VariableMonitor
       :variables="varEntries"
-      :visible="showVariableMonitor"
-      @close="showVariableMonitor = false"
+      :visible="showVariableMonitor && variableMonitorMode === 'window'"
+      mode="window"
+      @toggle-mode="variableMonitorMode = 'embedded'"
     />
     <LayoutDebugPanel
       :params="LP"
@@ -1274,14 +1282,25 @@ async function handleSaveAs() {
 .flow-container.flow-ready {
   opacity: 1;
 }
-.execution-console {
+.right-panel {
   width: 400px;
-  height: 100%;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
   border: 1px solid var(--border-soft);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: var(--shadow-panel-soft);
+}
+.execution-console {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 </style>
 
