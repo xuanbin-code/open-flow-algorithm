@@ -31,9 +31,7 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 
 import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, getFunctionByName, addFunction, deleteFunction, renameFunction, splitDeclareNames, type Program, type Statement, type FunctionDef, type DeclareStatement } from './engine/fprg-ast'
-import { open, save } from '@tauri-apps/plugin-dialog'
-import { readTextFile, writeTextFile } from '@tauri-apps/plugin-fs'
-import { addRecentFile, loadRecentFiles, getLastFile, type RecentEntry } from './utils/recent-files'
+import { showOpenDialog, showSaveDialog, readFile, writeFile, loadRecentFiles, addRecentFile, getLastFile, type RecentEntry } from '@/platform'
 import {
   FlowchartEngine,
   DEFAULT_PARAMS,
@@ -212,7 +210,7 @@ async function initApp() {
 
   if (lastFile) {
     try {
-      const xml = await readTextFile(lastFile)
+      const xml = await readFile(lastFile)
       loadProgram(xml, lastFile)
       await refreshRecentFiles()
       console.log('[initApp] restored last file:', lastFile)
@@ -918,7 +916,7 @@ async function onMenuAction(actionId: string) {
   if (actionId.startsWith('open-recent:')) {
     const filePath = actionId.slice('open-recent:'.length)
     try {
-      const xml = await readTextFile(filePath)
+      const xml = await readFile(filePath)
       loadProgram(xml, filePath)
       await addRecentFile(filePath)
       await refreshRecentFiles()
@@ -947,14 +945,12 @@ async function onMenuAction(actionId: string) {
       break
     }
     case 'open': {
-      const selected = await open({
-        filters: [{ name: t('fileDialog.flowgorithmFile'), extensions: ['fprg'] }],
-        multiple: false,
-      })
-      if (selected) {
-        const xml = await readTextFile(selected as string)
-        loadProgram(xml, selected as string)
-        await addRecentFile(selected as string)
+      const result = await showOpenDialog([
+        { name: t('fileDialog.flowgorithmFile'), extensions: ['fprg'] },
+      ])
+      if (result) {
+        loadProgram(result.content, result.filePath)
+        await addRecentFile(result.filePath)
         await refreshRecentFiles()
         await nextTick()
         fitView()
@@ -1022,9 +1018,9 @@ async function handleSave() {
   }
   try {
     const xml = astToFprgXml(program.value)
-    await writeTextFile(currentFilePath.value, xml)
+    await writeFile(currentFilePath.value, xml)
     // 重新读取验证
-    const verifyXml = await readTextFile(currentFilePath.value)
+    const verifyXml = await readFile(currentFilePath.value)
     const savedActiveFunction = activeFunctionName.value
     loadProgram(verifyXml, currentFilePath.value)
     activeFunctionName.value = savedActiveFunction
@@ -1042,20 +1038,20 @@ async function handleSave() {
 /** 另存为新文件 */
 async function handleSaveAs() {
   try {
-    const savePath = await save({
-      filters: [{ name: t('fileDialog.flowgorithmFile'), extensions: ['fprg'] }],
-    })
+    const xml = astToFprgXml(program.value)
+    const savePath = await showSaveDialog(
+      [{ name: t('fileDialog.flowgorithmFile'), extensions: ['fprg'] }],
+      xml,
+    )
     if (savePath) {
-      const xml = astToFprgXml(program.value)
-      await writeTextFile(savePath as string, xml)
-      currentFilePath.value = savePath as string
+      currentFilePath.value = savePath
       isNewFile.value = false
-      const verifyXml = await readTextFile(savePath as string)
+      const verifyXml = await readFile(savePath)
       const savedActiveFunction = activeFunctionName.value
       loadProgram(verifyXml, currentFilePath.value)
       activeFunctionName.value = savedActiveFunction
       rebuildEngine()
-      await addRecentFile(savePath as string)
+      await addRecentFile(savePath)
       await refreshRecentFiles()
       showToast(t('toasts.saveAsSuccess'), 'success')
     }
