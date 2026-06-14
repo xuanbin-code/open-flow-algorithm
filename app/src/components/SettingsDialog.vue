@@ -194,6 +194,28 @@ const languageValue = computed({
             </span>
           </div>
         </div>
+
+        <Separator />
+
+        <!-- 5. Default Zoom -->
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col gap-0.5">
+            <span class="text-sm font-medium leading-none">{{ $t('settings.defaultZoom') }}</span>
+            <span class="text-xs text-muted-foreground">{{ $t('settings.defaultZoomDesc') }}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input
+              type="range"
+              class="zoom-slider"
+              min="0.1" max="4" step="0.1"
+              :value="settings.defaultZoom"
+              @input="(e: Event) => { settings.defaultZoom = Number((e.target as HTMLInputElement).value) }"
+            />
+            <span class="text-xs font-mono text-muted-foreground w-10 text-right">
+              {{ settings.defaultZoom.toFixed(1) }}x
+            </span>
+          </div>
+        </div>
       </div>
 
       <DialogFooter>
@@ -217,5 +239,11 @@ const languageValue = computed({
 }
 .preset-btn[data-active] {
   background-color: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.zoom-slider {
+  width: 100px;
+  height: 4px;
+  accent-color: var(--accent);
+  cursor: pointer;
 }
 </style>

@@ -11,6 +11,8 @@ export interface AppSettings {
   accentColor: string   // preset id (如 'blue') 或 '#hex' (如 '#ff0000')
   language: string
   soundEffects: boolean
+  defaultZoom: number   // 固定缩放比例，范围 0.1-4.0
+  yOffset: number       // Start 节点距顶部屏幕偏移(px)
 }
 
 // ============================================================
@@ -31,12 +33,16 @@ function load(): AppSettings {
           : 'blue',
         language: typeof parsed.language === 'string' ? parsed.language : 'zh-CN',
         soundEffects: parsed.soundEffects === true,
+        defaultZoom: typeof parsed.defaultZoom === 'number' && parsed.defaultZoom >= 0.1 && parsed.defaultZoom <= 4.0
+          ? parsed.defaultZoom : 0.9,
+        yOffset: typeof parsed.yOffset === 'number' && parsed.yOffset >= 0
+          ? parsed.yOffset : 30,
       }
     }
   } catch {
     // ignore corrupt data
   }
-  return { theme: 'dark', accentColor: 'blue', language: 'zh-CN', soundEffects: false }
+  return { theme: 'dark', accentColor: 'blue', language: 'zh-CN', soundEffects: false, defaultZoom: 0.9, yOffset: 30 }
 }
 
 function persist(s: AppSettings) {

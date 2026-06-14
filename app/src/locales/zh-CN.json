@@ -52,7 +52,9 @@
     "dark": "深色",
     "light": "浅色",
     "soundEffects": "音效",
-    "soundEffectsDesc": "运行、结束、报错时播放提示音"
+    "soundEffectsDesc": "运行、结束、报错时播放提示音",
+    "defaultZoom": "默认缩放",
+    "defaultZoomDesc": "打开流程图时的视口缩放比例"
   },
   "execution": {
     "title": "运行时",
@@ -255,7 +257,13 @@
       "viewport": "视图（不重绘）",
       "zoom": "缩放 Zoom",
       "viewportX": "视口 X",
-      "viewportY": "视口 Y"
+      "viewportY": "视口 Y",
+      "fitToStart": "定位到 Start 节点",
+      "defaultZoom": "默认缩放",
+      "yOffset": "垂直偏移",
+      "fitToStartBtn": "立即定位",
+      "calcViewportX": "计算视口 X",
+      "calcViewportY": "计算视口 Y"
     },
     "variableMonitor": {
       "title": "变量监视",

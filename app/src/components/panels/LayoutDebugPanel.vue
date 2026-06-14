@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Ruler, Eye, ChevronLeft, ChevronRight } from '../icons'
+import { Ruler, Eye, ChevronLeft, ChevronRight, Crosshair } from '../icons'
 
 const { t } = useI18n()
 
@@ -19,12 +19,18 @@ const props = defineProps<{
   vpZoom: number
   vpX: number
   vpY: number
+  defaultZoom?: number
+  yOffset?: number
+  containerRect?: DOMRect | null
 }>()
 
 const emit = defineEmits<{
   'update:vpZoom': [value: number]
   'update:vpX': [value: number]
   'update:vpY': [value: number]
+  'update:defaultZoom': [value: number]
+  'update:yOffset': [value: number]
+  'fitToStart': []
 }>()
 
 const collapsed = ref(true)
@@ -100,6 +106,22 @@ const groups = computed(() => {
     { name: t('panels.debug.groups.branchSpacing'), list: branch },
     ...(other.length ? [{ name: t('panels.debug.groups.other'), list: other }] : []),
   ].filter(g => g.list.length > 0)
+})
+
+// 根据 defaultZoom + yOffset 反算 viewport 坐标（供调试显示）
+const derivedViewport = computed(() => {
+  if (!props.containerRect) return null
+  const zoom = props.defaultZoom ?? 0.9
+  const targetScreenX = props.containerRect.width / 2  // X 轴居中
+  const targetScreenY = props.yOffset ?? 30            // 距顶部 yOffset px
+  // Start 节点中心在流程图坐标中的位置（与 engine 的 DEFAULT_PARAMS 保持一致）
+  const flowCenterX = 400   // FLOW_CENTER_X
+  const flowCenterY = 70    // START_Y + START_END_H / 2 = 50 + 20
+  return {
+    zoom,
+    vpX: targetScreenX / zoom - flowCenterX,
+    vpY: targetScreenY / zoom - flowCenterY,
+  }
 })
 </script>
 
@@ -224,6 +246,67 @@ const groups = computed(() => {
               :value="props.vpY"
               @input="(e: Event) => { emit('update:vpY', Number((e.target as HTMLInputElement).value)) }"
             />
+          </div>
+        </div>
+      </div>
+
+      <!-- Fit to Start Node -->
+      <div class="viewport-separator" />
+      <div class="param-group">
+        <h4 class="group-title viewport-title">
+          <Crosshair :size="14" class="section-icon" /> {{ $t('panels.debug.fitToStart') }}
+        </h4>
+        <div class="param-row">
+          <label class="param-label">{{ $t('panels.debug.defaultZoom') }}</label>
+          <div class="param-controls">
+            <input
+              type="range"
+              class="param-slider"
+              min="0.1" max="4" step="0.1"
+              :value="props.defaultZoom"
+              @input="(e: Event) => { emit('update:defaultZoom', Number((e.target as HTMLInputElement).value)) }"
+            />
+            <input
+              type="number"
+              class="param-input"
+              min="0.1" max="4" step="0.1"
+              :value="props.defaultZoom"
+              @input="(e: Event) => { emit('update:defaultZoom', Number((e.target as HTMLInputElement).value)) }"
+            />
+          </div>
+        </div>
+        <div class="param-row">
+          <label class="param-label">{{ $t('panels.debug.yOffset') }}</label>
+          <div class="param-controls">
+            <input
+              type="range"
+              class="param-slider"
+              min="0" max="500" step="10"
+              :value="props.yOffset"
+              @input="(e: Event) => { emit('update:yOffset', Number((e.target as HTMLInputElement).value)) }"
+            />
+            <input
+              type="number"
+              class="param-input"
+              min="0" max="500" step="10"
+              :value="props.yOffset"
+              @input="(e: Event) => { emit('update:yOffset', Number((e.target as HTMLInputElement).value)) }"
+            />
+          </div>
+        </div>
+
+        <button class="fit-btn" @click="emit('fitToStart')">
+          {{ $t('panels.debug.fitToStartBtn') }}
+        </button>
+
+        <div v-if="derivedViewport" class="derived-info">
+          <div class="param-row">
+            <label class="param-label">{{ $t('panels.debug.calcViewportX') }}</label>
+            <span class="text-xs font-mono text-muted-foreground">{{ derivedViewport.vpX.toFixed(0) }}</span>
+          </div>
+          <div class="param-row">
+            <label class="param-label">{{ $t('panels.debug.calcViewportY') }}</label>
+            <span class="text-xs font-mono text-muted-foreground">{{ derivedViewport.vpY.toFixed(0) }}</span>
           </div>
         </div>
       </div>
@@ -370,6 +453,27 @@ const groups = computed(() => {
 }
 .viewport-title {
   color: var(--accent) !important;
+}
+
+.fit-btn {
+  margin-top: 6px;
+  width: 100%;
+  padding: 4px 0;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+.fit-btn:hover {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.derived-info {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-soft);
 }
 
 /* 滚动条 */

@@ -42,6 +42,7 @@ import {
 } from './engine/flowchart-engine'
 import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './engine/interpreter'
 import { useSettings } from './composables/useSettings'
+import { useViewportFit } from './composables/useViewportFit'
 import { useSound } from './composables/useSound'
 import { useI18n } from 'vue-i18n'
 
@@ -199,7 +200,24 @@ watch(LP, () => {
   }, 30)
 })
 
-const { fitView, setViewport, updateNodeData, setCenter, findNode } = useVueFlow()
+const { setViewport, updateNodeData, setCenter, findNode } = useVueFlow()
+
+// 视口定位：使用固定缩放比例将 Start 节点居中在视图中
+const { settings } = useSettings() // 提前捕获 settings（原在 line 722 的独立调用）
+const { fitToStartNode, getContainerRect } = useViewportFit(nodes)
+const containerRect = ref<DOMRect | null>(null)
+
+async function doFitToStartNode() {
+  containerRect.value = getContainerRect()
+  await fitToStartNode({
+    zoom: settings.value.defaultZoom,
+    yOffset: settings.value.yOffset,
+  })
+  // 同步 vpZoom/vpX/vpY 到调试面板滑块（静默更新，不触发 watcher 的 setViewport 重复调用）
+  // 直接用 setViewport 的结果不经过 vp* watcher，所以手动同步
+  const actualZoom = settings.value.defaultZoom
+  vpZoom.value = actualZoom
+}
 
 // ============================================
 // 启动：尝试恢复上次文件
@@ -690,7 +708,7 @@ onMounted(async () => {
   await initApp()
   isContentReady.value = true
   await nextTick()
-  fitView()
+  await doFitToStartNode()
   window.addEventListener('keydown', onKeydown)
   window.addEventListener('language-changed', onLanguageChanged)
 })
@@ -719,7 +737,6 @@ function showToast(message: string, type: 'success' | 'error' = 'success') {
 // 设置对话框
 // ============================================
 
-useSettings() // 初始化主题系统（内部 watch 自动应用主题到 DOM）
 const showSettingsDialog = ref(false)
 
 // ============================================
@@ -797,10 +814,12 @@ function deleteSelectedNode() {
 // 函数管理
 // ============================================
 
-function onSwitchFunction(name: string) {
+async function onSwitchFunction(name: string) {
   if (isExecuting.value) return
   activeFunctionName.value = name
   rebuildEngine()
+  await nextTick()
+  await doFitToStartNode()
 }
 
 function onAddFunction() {
@@ -921,7 +940,7 @@ async function onMenuAction(actionId: string) {
       await addRecentFile(filePath)
       await refreshRecentFiles()
       await nextTick()
-      fitView()
+      await doFitToStartNode()
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
       showToast(t('toasts.cannotOpenFile', { message: msg }), 'error')
@@ -941,7 +960,7 @@ async function onMenuAction(actionId: string) {
       // 推迟到下一微任务：等 Vue pre-flush watcher 记录完旧值后再清空历史
       Promise.resolve().then(() => programHistory.clear())
       await nextTick()
-      fitView()
+      await doFitToStartNode()
       break
     }
     case 'open': {
@@ -953,7 +972,7 @@ async function onMenuAction(actionId: string) {
         await addRecentFile(result.filePath)
         await refreshRecentFiles()
         await nextTick()
-        fitView()
+        await doFitToStartNode()
       }
       break
     }
@@ -1099,7 +1118,6 @@ async function handleSaveAs() {
           :default-viewport="{ zoom: 1, x: 50, y: 20 }"
           :min-zoom="0.1"
           :max-zoom="4"
-          fit-view-on-init
           @edge-click="onEdgeClick"
           @node-click="onNodeClick"
           @node-double-click="onNodeDblClick"
@@ -1162,7 +1180,19 @@ async function handleSaveAs() {
       :visible="showVariableMonitor"
       @close="showVariableMonitor = false"
     />
-    <LayoutDebugPanel :params="LP" :definitions="PARAM_DEFS" v-model:vp-zoom="vpZoom" v-model:vp-x="vpX" v-model:vp-y="vpY" />
+    <LayoutDebugPanel
+      :params="LP"
+      :definitions="PARAM_DEFS"
+      v-model:vp-zoom="vpZoom"
+      v-model:vp-x="vpX"
+      v-model:vp-y="vpY"
+      :default-zoom="settings.defaultZoom"
+      :y-offset="settings.yOffset"
+      :container-rect="containerRect"
+      @update:default-zoom="(val: number) => settings.defaultZoom = val"
+      @update:y-offset="(val: number) => settings.yOffset = val"
+      @fit-to-start="doFitToStartNode()"
+    />
     <InsertNodePanel
       v-if="panelVisible"
       :position="panelPosition"

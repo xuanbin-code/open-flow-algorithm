@@ -52,7 +52,9 @@
     "dark": "Dark",
     "light": "Light",
     "soundEffects": "Sound Effects",
-    "soundEffectsDesc": "Play sounds on run, finish, and error"
+    "soundEffectsDesc": "Play sounds on run, finish, and error",
+    "defaultZoom": "Default Zoom",
+    "defaultZoomDesc": "Viewport zoom when opening a flowchart"
   },
   "execution": {
     "title": "Runtime",
@@ -255,7 +257,13 @@
       "viewport": "Viewport (display only)",
       "zoom": "Zoom",
       "viewportX": "Viewport X",
-      "viewportY": "Viewport Y"
+      "viewportY": "Viewport Y",
+      "fitToStart": "Fit to Start Node",
+      "defaultZoom": "Default Zoom",
+      "yOffset": "Y Offset",
+      "fitToStartBtn": "Fit Now",
+      "calcViewportX": "Calc Viewport X",
+      "calcViewportY": "Calc Viewport Y"
     },
     "variableMonitor": {
       "title": "Variable Monitor",
