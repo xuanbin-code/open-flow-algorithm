@@ -16,6 +16,7 @@ import ForNode from './components/nodes/ForNode.vue'
 import WhileNode from './components/nodes/WhileNode.vue'
 import InsertNodePanel from './components/panels/InsertNodePanel.vue'
 import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
+import QuickActionsBar from './components/panels/QuickActionsBar.vue'
 import ExecutionConsole from './components/panels/ExecutionConsole.vue'
 import type { ChatMessage } from './components/panels/ExecutionConsole.vue'
 import VariableMonitor from './components/panels/VariableMonitor.vue'
@@ -80,6 +81,12 @@ const programHistory = useRefHistory(program, {
 
 /** 是否有未保存的修改（undo 栈非空表示自上次保存后有变更） */
 const isDirty = computed(() => programHistory.undoStack.value.length > 0)
+
+/** 是否有可撤销的操作 */
+const canUndo = computed(() => programHistory.undoStack.value.length > 0)
+
+/** 是否有可重做的操作 */
+const canRedo = computed(() => programHistory.redoStack.value.length > 0)
 
 /** 当前打开的文件路径（null 表示尚未关联文件） */
 const currentFilePath = ref<string | null>(null)
@@ -964,16 +971,7 @@ async function onMenuAction(actionId: string) {
       break
     }
     case 'open': {
-      const result = await showOpenDialog([
-        { name: t('fileDialog.flowgorithmFile'), extensions: ['fprg'] },
-      ])
-      if (result) {
-        loadProgram(result.content, result.filePath)
-        await addRecentFile(result.filePath)
-        await refreshRecentFiles()
-        await nextTick()
-        await doFitToStartNode()
-      }
+      await handleOpen()
       break
     }
     case 'save': {
@@ -1026,6 +1024,20 @@ async function onMenuAction(actionId: string) {
     }
     default:
       console.log(`Menu action: ${actionId} (not implemented)`)
+  }
+}
+
+/** 打开文件 */
+async function handleOpen() {
+  const result = await showOpenDialog([
+    { name: t('fileDialog.flowgorithmFile'), extensions: ['fprg'] },
+  ])
+  if (result) {
+    loadProgram(result.content, result.filePath)
+    await addRecentFile(result.filePath)
+    await refreshRecentFiles()
+    await nextTick()
+    await doFitToStartNode()
   }
 }
 
@@ -1111,6 +1123,15 @@ async function handleSaveAs() {
         @delete-function="onDeleteFunction"
       />
       <div class="flow-container" :class="{ 'flow-ready': isContentReady }">
+        <QuickActionsBar
+          :can-undo="canUndo"
+          :can-redo="canRedo"
+          :is-executing="isExecuting"
+          @save="handleSave"
+          @open="handleOpen"
+          @undo="undo"
+          @redo="redo"
+        />
         <VueFlow
           :key="activeFunctionName"
           :nodes="nodes"

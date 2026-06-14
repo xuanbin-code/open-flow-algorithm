@@ -4,7 +4,7 @@
 // ============================================================
 
 // 导航 / UI 装饰
-export { Sun, Moon, Settings, X, ChevronRight, ChevronLeft, GripVertical, Keyboard, Check, Circle, SquareFunction } from '@lucide/vue'
+export { Sun, Moon, Settings, X, ChevronRight, ChevronLeft, GripVertical, Keyboard, Check, Circle, SquareFunction, Save, FolderOpen } from '@lucide/vue'
 
 // 操作按钮
 export { Plus, Trash2, Copy } from '@lucide/vue'
@@ -13,7 +13,7 @@ export { Plus, Trash2, Copy } from '@lucide/vue'
 export { Play, StepForward, Pause, Square } from '@lucide/vue'
 
 // 节点类型图标 (NodePropertyEditor)
-export { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Import } from '@lucide/vue'
+export { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Redo2, Import } from '@lucide/vue'
 
 // 调试面板
 export { Ruler, Eye, Crosshair } from '@lucide/vue'

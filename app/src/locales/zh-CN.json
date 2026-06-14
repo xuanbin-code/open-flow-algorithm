@@ -38,6 +38,12 @@
     "manageFunctions": "管理函数",
     "addFunction": "添加函数"
   },
+  "quickActions": {
+    "save": "保存 (Ctrl+S)",
+    "open": "打开文件",
+    "undo": "撤销 (Ctrl+Z)",
+    "redo": "重做 (Ctrl+Y)"
+  },
   "settings": {
     "title": "设置",
     "languageLabel": "语言",

@@ -38,6 +38,12 @@
     "manageFunctions": "Manage Functions",
     "addFunction": "Add Function"
   },
+  "quickActions": {
+    "save": "Save (Ctrl+S)",
+    "open": "Open File",
+    "undo": "Undo (Ctrl+Z)",
+    "redo": "Redo (Ctrl+Y)"
+  },
   "settings": {
     "title": "Settings",
     "languageLabel": "Language",
