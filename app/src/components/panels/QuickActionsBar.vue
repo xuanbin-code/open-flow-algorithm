@@ -101,10 +101,6 @@ defineEmits<{
 
 <style scoped>
 .quick-actions-bar {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1000;
   display: flex;
   align-items: center;
   gap: 2px;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRefHistory } from '@vueuse/core'
-import { VueFlow, useVueFlow } from '@vue-flow/core'
+import { VueFlow, useVueFlow, Panel } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import StartNode from './components/nodes/StartNode.vue'
@@ -1121,16 +1121,6 @@ async function handleSaveAs() {
         @delete-function="onDeleteFunction"
       />
       <div class="flow-container" :class="{ 'flow-ready': isContentReady }">
-        <QuickActionsBar
-          :can-save="isDirty"
-          :can-undo="canUndo"
-          :can-redo="canRedo"
-          :is-executing="isExecuting"
-          @save="handleSave"
-          @open="handleOpen"
-          @undo="undo"
-          @redo="redo"
-        />
         <VueFlow
           :key="activeFunctionName"
           :nodes="nodes"
@@ -1143,6 +1133,18 @@ async function handleSaveAs() {
           @node-double-click="onNodeDblClick"
           @pane-click="onPaneClick"
         >
+          <Panel position="top-right">
+            <QuickActionsBar
+              :can-save="isDirty"
+              :can-undo="canUndo"
+              :can-redo="canRedo"
+              :is-executing="isExecuting"
+              @save="handleSave"
+              @open="handleOpen"
+              @undo="undo"
+              @redo="redo"
+            />
+          </Panel>
           <Background pattern-color="#aaa" :gap="20" />
           <Controls />
           <template #node-start="nodeProps"
