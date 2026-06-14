@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator'
 const { t } = useI18n()
 
 defineProps<{
+  canSave: boolean
   canUndo: boolean
   canRedo: boolean
   isExecuting: boolean
@@ -33,7 +34,7 @@ defineEmits<{
         <TooltipTrigger as-child>
           <button
             class="qa-btn"
-            :disabled="isExecuting"
+            :disabled="!canSave || isExecuting"
             @click="$emit('save')"
           >
             <Save :size="16" />

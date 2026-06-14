@@ -1124,6 +1124,7 @@ async function handleSaveAs() {
       />
       <div class="flow-container" :class="{ 'flow-ready': isContentReady }">
         <QuickActionsBar
+          :can-save="isDirty"
           :can-undo="canUndo"
           :can-redo="canRedo"
           :is-executing="isExecuting"
