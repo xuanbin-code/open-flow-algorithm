@@ -25,6 +25,7 @@ import SettingsDialog from './components/SettingsDialog.vue'
 import FunctionTabBar from './components/FunctionTabBar.vue'
 import FunctionDialog from './components/FunctionDialog.vue'
 import CallNode from './components/nodes/CallNode.vue'
+import SubFunctionFlowWindow, { type SubWindowState } from './components/SubFunctionFlowWindow.vue'
 import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
@@ -108,6 +109,13 @@ const executingNodeIds = ref<Set<string>>(new Set())
 const previousNodeId = ref<string | null>(null)
 const executionSpeed = ref<'slow' | 'normal' | 'fast'>('normal')
 const SPEED_DELAYS: Record<string, number> = { slow: 1000, normal: 300, fast: 50 }
+
+// 子函数执行可视化
+const functionExecutionEnabled = reactive<Record<string, boolean>>({})
+const subEngineCache = new Map<string, FlowchartEngine>()
+const subWindows = ref<Record<string, SubWindowState>>({})
+let executionCallStack: { functionName: string; instanceKey: string }[] = []
+let subWindowCounter = 0
 
 /** 视图参数（仅影响视口，不触发 re-layout） */
 const vpZoom = ref(1)
@@ -437,12 +445,34 @@ function resetExecution() {
     clearTimeout(flashTimer)
     flashTimer = null
   }
+
+  // 清理子函数执行窗口
+  executionCallStack = []
+  subWindowCounter = 0
+  subWindows.value = {}
+  subEngineCache.clear()
+}
+
+/** 预构建已勾选的子函数的 FlowchartEngine，确保 _nodeId 在执行前已设置 */
+function preBuildSubEngines() {
+  subEngineCache.clear()
+  for (const func of program.value.functions) {
+    if (func.name !== 'Main' && functionExecutionEnabled[func.name]) {
+      subEngineCache.set(
+        func.name,
+        new FlowchartEngine(func, LP, { program: program.value }),
+      )
+    }
+  }
 }
 
 async function startExecution() {
   if (isExecuting.value) return
 
   resetExecution()
+
+  // 预构建已勾选的子函数流程图（确保 _nodeId 在执行前已设置）
+  preBuildSubEngines()
 
   // 插入运行分隔线
   if (chatMessages.value.length > 0) {
@@ -469,6 +499,9 @@ async function stepExecution() {
   if (executionStatus.value === 'idle' || executionStatus.value === 'stopped') {
     // 首次步进（或终止后重新步进）：初始化解释器
     resetExecution()
+
+    // 预构建已勾选的子函数流程图（确保 _nodeId 在执行前已设置）
+    preBuildSubEngines()
 
     // 插入运行分隔线
     if (chatMessages.value.length > 0) {
@@ -568,20 +601,38 @@ async function driveInterpreter(mode: 'run' | 'step') {
 
       switch (event.type) {
         case 'statement-enter': {
-          executingNodeIds.value.add(event.nodeId)
-          syncExecutionHighlight()
+          const topFrame = executionCallStack[executionCallStack.length - 1]
 
-          // 动画化从上一节点到当前节点的边
-          if (previousNodeId.value) {
-            const edge = edges.value.find(
-              e => e.source === previousNodeId.value && e.target === event.nodeId,
-            )
-            if (edge) {
-              console.log('animating edge', edge)
-              edge.animated = true
+          if (topFrame) {
+            // 在子函数内部
+            if (topFrame.instanceKey && subWindows.value[topFrame.instanceKey]) {
+              // 已勾选的子函数 → 路由到浮动窗口
+              const win = subWindows.value[topFrame.instanceKey]
+              win.executingNodeIds = [...win.executingNodeIds, event.nodeId]
+              if (win.previousNodeId) {
+                const edge = win.edges.find(
+                  e => e.source === win.previousNodeId && e.target === event.nodeId,
+                )
+                if (edge) edge.animated = true
+              }
+              win.previousNodeId = event.nodeId
             }
+            // 未勾选的子函数 → 跳过高亮，不操作主画布
+          } else {
+            // Main 函数执行（原有逻辑）
+            executingNodeIds.value.add(event.nodeId)
+            syncExecutionHighlight()
+
+            if (previousNodeId.value) {
+              const edge = edges.value.find(
+                e => e.source === previousNodeId.value && e.target === event.nodeId,
+              )
+              if (edge) {
+                edge.animated = true
+              }
+            }
+            previousNodeId.value = event.nodeId
           }
-          previousNodeId.value = event.nodeId
 
           syncVariables(interpreterRuntime)
           if (mode === 'step') sound.playTick()
@@ -589,11 +640,67 @@ async function driveInterpreter(mode: 'run' | 'step') {
         }
         case 'statement-leave': {
           console.log(`[eventLoop] statement-leave nodeId=${event.nodeId}`)
-          executingNodeIds.value.delete(event.nodeId)
-          // 显式取消高亮：直接调用 updateNodeData 而非依赖 syncExecutionHighlight 的 lastHighlightedIds 对比
-          // 避免 lastHighlightedIds 与 VueFlow 内部状态漂移导致节点样式残留
-          updateNodeData(event.nodeId, { executing: false })
-          syncExecutionHighlight()
+          const topFrame = executionCallStack[executionCallStack.length - 1]
+
+          if (topFrame) {
+            // 在子函数内部
+            if (topFrame.instanceKey && subWindows.value[topFrame.instanceKey]) {
+              const win = subWindows.value[topFrame.instanceKey]
+              win.executingNodeIds = win.executingNodeIds.filter(id => id !== event.nodeId)
+            }
+            // 未勾选的子函数 → 跳过
+          } else {
+            // Main 函数（原有逻辑）
+            executingNodeIds.value.delete(event.nodeId)
+            updateNodeData(event.nodeId, { executing: false })
+            syncExecutionHighlight()
+          }
+          break
+        }
+        case 'function-enter': {
+          executionCallStack.push({
+            functionName: event.functionName,
+            instanceKey: '',
+          })
+          if (functionExecutionEnabled[event.functionName]) {
+            const cachedEngine = subEngineCache.get(event.functionName)
+            if (cachedEngine) {
+              const instanceId = ++subWindowCounter
+              const key = `${event.functionName}_${instanceId}`
+              executionCallStack[executionCallStack.length - 1].instanceKey = key
+
+              const existingCount = Object.keys(subWindows.value).length
+              subWindows.value = {
+                ...subWindows.value,
+                [key]: {
+                  funcName: event.functionName,
+                  instanceId,
+                  nodes: [...cachedEngine.nodes],
+                  edges: [...cachedEngine.edges],
+                  executingNodeIds: [],
+                  previousNodeId: null,
+                  visible: true,
+                  left: 120 + (existingCount % 5) * 40,
+                  top: 100 + (existingCount % 5) * 40,
+                },
+              }
+            }
+          }
+          // 让 Vue 渲染窗口后再处理后续事件
+          await nextTick()
+          break
+        }
+        case 'function-leave': {
+          const frame = executionCallStack.pop()
+          if (frame?.instanceKey && subWindows.value[frame.instanceKey]) {
+            const key = frame.instanceKey
+            // 延迟删除，让用户看到最后一个高亮节点
+            setTimeout(() => {
+              const updated = { ...subWindows.value }
+              delete updated[key]
+              subWindows.value = updated
+            }, 300)
+          }
           break
         }
         case 'output': {
@@ -906,6 +1013,16 @@ function onDeleteFunction(name: string) {
   rebuildEngine()
 }
 
+function onToggleExecution(funcName: string, enabled: boolean) {
+  functionExecutionEnabled[funcName] = enabled
+}
+
+function handleCloseSubWindow(key: string) {
+  if (subWindows.value[key]) {
+    subWindows.value[key].visible = false
+  }
+}
+
 function onInsertNode(type: string) {
   if (clickedEdgeId.value) {
     const newStmt = engine.insertNodeAtEdge(clickedEdgeId.value, type as Statement['kind'])
@@ -1115,10 +1232,12 @@ async function handleSaveAs() {
       <FunctionTabBar
         :functions="program.functions"
         :active-function="activeFunctionName"
+        :execution-enabled="functionExecutionEnabled"
         @switch-function="onSwitchFunction"
         @add-function="onAddFunction"
         @rename-function="onRenameFunction"
         @delete-function="onDeleteFunction"
+        @toggle-execution="onToggleExecution"
       />
       <div class="flow-container" :class="{ 'flow-ready': isContentReady }">
         <VueFlow
@@ -1209,6 +1328,12 @@ async function handleSaveAs() {
       :visible="showVariableMonitor && variableMonitorMode === 'window'"
       mode="window"
       @toggle-mode="variableMonitorMode = 'embedded'"
+    />
+    <SubFunctionFlowWindow
+      v-for="(win, key) in subWindows"
+      :key="key"
+      :window-state="win"
+      @close="handleCloseSubWindow(key)"
     />
     <LayoutDebugPanel
       :params="LP"

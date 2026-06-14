@@ -35,6 +35,8 @@ export interface RuntimeState {
   currentStatement: Statement | null
   /** 当前执行节点的 ID */
   currentNodeId: string | null
+  /** 当前正在执行的函数名（用于子函数执行可视化） */
+  currentFunctionName: string
   /** program 引用（用于函数查找） */
   _program?: Program
 }
@@ -44,6 +46,8 @@ export type InterpreterEvent =
   | { type: 'statement-leave'; statement: Statement; nodeId: string }
   | { type: 'output'; text: string; nodeId?: string }
   | { type: 'input-request'; variable: string }
+  | { type: 'function-enter'; functionName: string }
+  | { type: 'function-leave'; functionName: string }
   | { type: 'done' }
   | { type: 'error'; message: string; statement?: Statement }
 
@@ -115,6 +119,7 @@ export function createInterpreter(program: Program): {
     output: [],
     currentStatement: null,
     currentNodeId: null,
+    currentFunctionName: 'Main',
     _program: program,
   }
 
@@ -516,8 +521,9 @@ async function* executeCall(
   collectDeclarations(funcDef.body, { variables: newVars, variableTypes: newTypes } as RuntimeState)
 
   // 3. 保存调用者作用域，切换到被调用者作用域
+  const callerName = state.currentFunctionName
   const callerFrame: CallFrame = {
-    funcName: 'caller',
+    funcName: callerName,
     variables: state.variables,
     variableTypes: state.variableTypes,
   }
@@ -525,11 +531,17 @@ async function* executeCall(
   state.variables = newVars
   state.variableTypes = newTypes
 
-  // 4. 执行函数体
+  // 4. 执行函数体（包裹 function-enter / function-leave 事件）
+  state.currentFunctionName = funcDef.name
+  yield { type: 'function-enter', functionName: funcDef.name }
+
   try {
     yield* executeBlock(funcDef.body, state)
+    yield { type: 'function-leave', functionName: funcDef.name }
   } catch (e: unknown) {
-    // 恢复调用者作用域
+    // 异常时也 yield function-leave，确保调用栈正确弹出
+    yield { type: 'function-leave', functionName: funcDef.name }
+    state.currentFunctionName = callerName
     const frame = state.callFrames.pop()
     if (frame) {
       state.variables = frame.variables
@@ -537,6 +549,8 @@ async function* executeCall(
     }
     throw e
   }
+
+  state.currentFunctionName = callerName
 
   // 5. 捕获返回值
   const returnValue = funcDef.variable

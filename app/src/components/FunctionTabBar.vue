@@ -21,6 +21,7 @@ import {
 const props = defineProps<{
   functions: FunctionDef[]
   activeFunction: string
+  executionEnabled: Record<string, boolean>
 }>()
 
 const emit = defineEmits<{
@@ -28,6 +29,7 @@ const emit = defineEmits<{
   addFunction: []
   renameFunction: [oldName: string, newName: string]
   deleteFunction: [name: string]
+  toggleExecution: [funcName: string, enabled: boolean]
 }>()
 
 // ============================================================
@@ -122,6 +124,15 @@ function onDblClickTab(funcName: string) {
             @click="onTabClick(func.name)"
             @dblclick="onDblClickTab(func.name)"
           >
+            <input
+              v-if="func.name !== 'Main'"
+              type="checkbox"
+              class="fn-exec-check"
+              :checked="props.executionEnabled[func.name] ?? false"
+              :title="$t('functions.toggleExecution')"
+              @click.stop
+              @change="emit('toggleExecution', func.name, ($event.target as HTMLInputElement).checked)"
+            />
             <SquareFunction :size="13" class="fn-tab-icon" />
             <span class="fn-tab-name">{{ func.name }}</span>
             <span
@@ -288,6 +299,15 @@ function onDblClickTab(funcName: string) {
   color: var(--text-muted-3);
   font-weight: 400;
   flex-shrink: 0;
+}
+
+.fn-exec-check {
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--accent);
 }
 
 /* ---- Collapsed tab: hide icon & hint, center name ---- */

@@ -140,6 +140,7 @@
     "paramArray": "Array?",
     "noReturn": "No Return",
     "noParameters": "No parameters",
+    "toggleExecution": "Show sub-function execution",
     "selectFunction": "Select a function",
     "editFunction": "Edit Function \"{name}\"",
     "tabAddTooltip": "New Function",
