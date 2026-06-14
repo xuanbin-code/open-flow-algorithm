@@ -1103,7 +1103,6 @@ async function handleSaveAs() {
       :is-dirty="isDirty"
       :execution-status="executionStatus"
       :execution-speed="executionSpeed"
-      :show-variable-monitor="showVariableMonitor"
       @action="onMenuAction"
       @run="startExecution"
       @step="stepExecution"
@@ -1111,7 +1110,6 @@ async function handleSaveAs() {
       @resume="resumeExecution"
       @stop="stopExecution"
       @set-speed="setExecutionSpeed"
-      @toggle-variable-monitor="showVariableMonitor = !showVariableMonitor"
     />
     <div class="main-area">
       <FunctionTabBar

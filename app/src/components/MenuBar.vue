@@ -2,9 +2,8 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useSettings } from '../composables/useSettings'
-import { Sun, Moon, Settings, Play, StepForward, Pause, Square, Table } from './icons'
+import { Sun, Moon, Settings, Play, StepForward, Pause, Square } from './icons'
 import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import {
   ToggleGroup,
   ToggleGroupItem,
@@ -57,7 +56,6 @@ const props = defineProps<{
   isDirty?: boolean
   executionStatus?: 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
   executionSpeed?: 'slow' | 'normal' | 'fast'
-  showVariableMonitor?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -68,7 +66,6 @@ const emit = defineEmits<{
   resume: []
   stop: []
   setSpeed: [speed: 'slow' | 'normal' | 'fast']
-  toggleVariableMonitor: []
 }>()
 
 // ============================================================
@@ -272,18 +269,6 @@ function toggleTheme() {
         </ToggleGroupItem>
       </ToggleGroup>
 
-      <Separator orientation="vertical" class="h-5" />
-
-      <Button
-        variant="ghost"
-        size="sm"
-        :class="{ 'is-active': showVariableMonitor }"
-        :title="showVariableMonitor ? $t('execution.hideVarMonitor') : $t('execution.showVarMonitor')"
-        @click="emit('toggleVariableMonitor')"
-      >
-        <Table :size="14" />
-        <span>{{ $t('execution.variables') }}</span>
-      </Button>
     </div>
 
     <div class="right-zone">
