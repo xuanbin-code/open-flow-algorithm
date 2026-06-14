@@ -5,14 +5,14 @@
 // ============================================================
 
 import { createTiks } from '@rexa-developer/tiks'
-import { useSettings } from './useSettings'
+import { useSettingsStore } from '../stores/settings'
 
 const tik = createTiks({ theme: 'soft' })
 
 export function useSound() {
-  const { settings } = useSettings()
+  const store = useSettingsStore()
 
-  const ok = () => settings.value.soundEffects
+  const ok = () => store.soundEffects
 
   return {
     /** 运行 / 步进开始 */

@@ -1,4 +1,10 @@
+// ============================================================
+// Settings Store — 集中管理所有持久化设置
+// 提供 FOUC 防护：在首次访问 store 时立即应用主题/强调色
+// ============================================================
+
 import { ref, watch } from 'vue'
+import { defineStore } from 'pinia'
 import { generateAccentPalette } from '../utils/color-palette'
 import { setI18nLocale } from '../i18n'
 
@@ -8,15 +14,15 @@ import { setI18nLocale } from '../i18n'
 
 export interface AppSettings {
   theme: 'dark' | 'light'
-  accentColor: string   // preset id (如 'blue') 或 '#hex' (如 '#ff0000')
+  accentColor: string
   language: string
   soundEffects: boolean
-  defaultZoom: number   // 固定缩放比例，范围 0.1-4.0
-  yOffset: number       // Start 节点距顶部屏幕偏移(px)
+  defaultZoom: number
+  yOffset: number
 }
 
 // ============================================================
-// Storage
+// localStorage persistence
 // ============================================================
 
 const STORAGE_KEY = 'flowgorithm-settings'
@@ -54,7 +60,7 @@ function persist(s: AppSettings) {
 }
 
 // ============================================================
-// Theme application (dark / light)
+// Theme / accent DOM helpers
 // ============================================================
 
 function applyTheme(theme: 'dark' | 'light') {
@@ -65,10 +71,6 @@ function applyTheme(theme: 'dark' | 'light') {
   }
 }
 
-// ============================================================
-// Accent color application
-// ============================================================
-
 function applyAccentColor(accentColor: string, theme: 'dark' | 'light') {
   const palette = generateAccentPalette(accentColor, theme)
   const root = document.documentElement
@@ -78,58 +80,74 @@ function applyAccentColor(accentColor: string, theme: 'dark' | 'light') {
 }
 
 // ============================================================
-// Singleton state
+// Store
 // ============================================================
 
-const settings = ref<AppSettings>(load())
+let earlyStore: ReturnType<typeof useSettingsStore> | null = null
 
-// Apply persisted settings immediately (before Vue mounts, prevents FOUC)
-applyTheme(settings.value.theme)
-applyAccentColor(settings.value.accentColor, settings.value.theme)
+export const useSettingsStore = defineStore('settings', () => {
+  // ── State ──
+  const theme = ref<'dark' | 'light'>('dark')
+  const accentColor = ref('blue')
+  const language = ref('zh-CN')
+  const soundEffects = ref(false)
+  const defaultZoom = ref(0.9)
+  const yOffset = ref(30)
 
-// Reactively apply theme changes to DOM
-watch(
-  () => settings.value.theme,
-  (newTheme) => {
+  // ── Init from localStorage ──
+  const saved = load()
+  theme.value = saved.theme
+  accentColor.value = saved.accentColor
+  language.value = saved.language
+  soundEffects.value = saved.soundEffects
+  defaultZoom.value = saved.defaultZoom
+  yOffset.value = saved.yOffset
+
+  // ── FOUC 防护：store 首次创建时立即应用到 DOM ──
+  applyTheme(theme.value)
+  applyAccentColor(accentColor.value, theme.value)
+
+  // ── 持久化 ──
+  function persistAll() {
+    persist({
+      theme: theme.value,
+      accentColor: accentColor.value,
+      language: language.value,
+      soundEffects: soundEffects.value,
+      defaultZoom: defaultZoom.value,
+      yOffset: yOffset.value,
+    })
+  }
+
+  // ── 响应式同步到 DOM / i18n ──
+  watch(theme, (newTheme) => {
     applyTheme(newTheme)
-    // 切换明暗主题时重新计算主题色（亮度自适应）
-    applyAccentColor(settings.value.accentColor, newTheme)
-    persist(settings.value)
-  },
-)
+    applyAccentColor(accentColor.value, newTheme)
+    persistAll()
+  })
 
-// Reactively apply accent color changes
-watch(
-  () => settings.value.accentColor,
-  (newAccent) => {
-    applyAccentColor(newAccent, settings.value.theme)
-    persist(settings.value)
-  },
-)
+  watch(accentColor, (newAccent) => {
+    applyAccentColor(newAccent, theme.value)
+    persistAll()
+  })
 
-// Persist all other settings changes
-watch(
-  settings,
-  (newVal) => {
-    persist(newVal)
-  },
-  { deep: true },
-)
+  watch([language, soundEffects, defaultZoom, yOffset], () => {
+    persistAll()
+  })
 
-// Sync language changes to vue-i18n
-watch(
-  () => settings.value.language,
-  (newLang) => {
+  watch(language, (newLang) => {
     setI18nLocale(newLang)
-    // Notify App.vue to rebuild the flowchart engine (node labels change with locale)
     window.dispatchEvent(new CustomEvent('language-changed', { detail: newLang }))
-  },
-)
+  })
 
-// ============================================================
-// Composable
-// ============================================================
+  return { theme, accentColor, language, soundEffects, defaultZoom, yOffset }
+})
 
-export function useSettings() {
-  return { settings }
+/**
+ * 在 Pinia 挂载前预先访问 store 以触发 FOUC 防护。
+ * 调用方负责传入有效的 Pinia 实例。
+ */
+export function initSettingsStore(pinia: ReturnType<typeof import('pinia').createPinia>) {
+  earlyStore = useSettingsStore(pinia)
+  return earlyStore
 }

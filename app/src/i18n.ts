@@ -34,7 +34,7 @@ export const i18n = createI18n({
   },
 })
 
-/** 运行时切换 locale（由 useSettings watcher 调用） */
+/** 运行时切换 locale（由 useSettingsStore watcher 调用） */
 export function setI18nLocale(locale: string): void {
   ;(i18n.global.locale as any).value = locale
   document.documentElement.lang = locale === 'zh-CN' ? 'zh-CN' : 'en'

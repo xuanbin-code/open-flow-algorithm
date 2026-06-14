@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useSettings } from '../composables/useSettings'
+import { useSettingsStore } from '../stores/settings'
 import { Sun, Moon, Settings, Play, StepForward, Pause, Square } from './icons'
 import { Button } from '@/components/ui/button'
 import {
@@ -168,10 +168,10 @@ const fileName = computed(() => {
 // Theme toggle
 // ============================================================
 
-const { settings } = useSettings()
+const store = useSettingsStore()
 
 function toggleTheme() {
-  settings.value.theme = settings.value.theme === 'dark' ? 'light' : 'dark'
+  store.theme = store.theme === 'dark' ? 'light' : 'dark'
 }
 </script>
 
@@ -275,10 +275,10 @@ function toggleTheme() {
       <Button
         variant="ghost"
         size="icon-sm"
-        :title="settings.theme === 'dark' ? $t('menu.switchToLight') : $t('menu.switchToDark')"
+        :title="store.theme === 'dark' ? $t('menu.switchToLight') : $t('menu.switchToDark')"
         @click="toggleTheme"
       >
-        <Sun v-if="settings.theme === 'dark'" :size="16" />
+        <Sun v-if="store.theme === 'dark'" :size="16" />
         <Moon v-else :size="16" />
       </Button>
       <Button

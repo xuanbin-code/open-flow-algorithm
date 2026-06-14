@@ -32,7 +32,7 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 
 import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, getFunctionByName, addFunction, deleteFunction, renameFunction, splitDeclareNames, type Program, type Statement, type FunctionDef, type DeclareStatement } from './engine/fprg-ast'
-import { showOpenDialog, showSaveDialog, readFile, writeFile, loadRecentFiles, addRecentFile, getLastFile, type RecentEntry } from '@/platform'
+import { showOpenDialog, showSaveDialog, readFile, writeFile, getLastFile } from '@/platform'
 import {
   FlowchartEngine,
   DEFAULT_PARAMS,
@@ -42,7 +42,8 @@ import {
   type FlowEdge,
 } from './engine/flowchart-engine'
 import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './engine/interpreter'
-import { useSettings } from './composables/useSettings'
+import { useSettingsStore } from './stores/settings'
+import { useRecentFilesStore } from './stores/recentFiles'
 import { useViewportFit } from './composables/useViewportFit'
 import { useSound } from './composables/useSound'
 import { useI18n } from 'vue-i18n'
@@ -94,8 +95,8 @@ const currentFilePath = ref<string | null>(null)
 /** 是否为新建空白文件（保存时走另存为） */
 const isNewFile = ref(false)
 
-/** 最近打开的文件列表 */
-const recentFiles = ref<RecentEntry[]>([])
+/** 最近打开的文件列表（Pinia store） */
+const recentFilesStore = useRecentFilesStore()
 
 // ============================================
 // 执行状态（流程图解释器）
@@ -218,19 +219,19 @@ watch(LP, () => {
 const { setViewport, updateNodeData, setCenter, findNode } = useVueFlow()
 
 // 视口定位：使用固定缩放比例将 Start 节点居中在视图中
-const { settings } = useSettings() // 提前捕获 settings（原在 line 722 的独立调用）
+const settingsStore = useSettingsStore()
 const { fitToStartNode, getContainerRect } = useViewportFit(nodes)
 const containerRect = ref<DOMRect | null>(null)
 
 async function doFitToStartNode() {
   containerRect.value = getContainerRect()
   await fitToStartNode({
-    zoom: settings.value.defaultZoom,
-    yOffset: settings.value.yOffset,
+    zoom: settingsStore.defaultZoom,
+    yOffset: settingsStore.yOffset,
   })
   // 同步 vpZoom/vpX/vpY 到调试面板滑块（静默更新，不触发 watcher 的 setViewport 重复调用）
   // 直接用 setViewport 的结果不经过 vp* watcher，所以手动同步
-  const actualZoom = settings.value.defaultZoom
+  const actualZoom = settingsStore.defaultZoom
   vpZoom.value = actualZoom
 }
 
@@ -268,11 +269,7 @@ async function initApp() {
 }
 
 async function refreshRecentFiles() {
-  try {
-    recentFiles.value = await loadRecentFiles()
-  } catch {
-    recentFiles.value = []
-  }
+  await recentFilesStore.load()
 }
 
 // CTRL+S / Ctrl+Z / Ctrl+Y / Delete 快捷键
@@ -1068,7 +1065,7 @@ async function onMenuAction(actionId: string) {
     try {
       const xml = await readFile(filePath)
       loadProgram(xml, filePath)
-      await addRecentFile(filePath)
+      await recentFilesStore.addFile(filePath)
       await refreshRecentFiles()
       await nextTick()
       await doFitToStartNode()
@@ -1158,7 +1155,7 @@ async function handleOpen() {
   ])
   if (result) {
     loadProgram(result.content, result.filePath)
-    await addRecentFile(result.filePath)
+    await recentFilesStore.addFile(result.filePath)
     await refreshRecentFiles()
     await nextTick()
     await doFitToStartNode()
@@ -1180,7 +1177,7 @@ async function handleSave() {
     loadProgram(verifyXml, currentFilePath.value)
     activeFunctionName.value = savedActiveFunction
     rebuildEngine()
-    await addRecentFile(currentFilePath.value)
+    await recentFilesStore.addFile(currentFilePath.value)
     await refreshRecentFiles()
     showToast(t('toasts.saveSuccess'), 'success')
   } catch (e: unknown) {
@@ -1206,7 +1203,7 @@ async function handleSaveAs() {
       loadProgram(verifyXml, currentFilePath.value)
       activeFunctionName.value = savedActiveFunction
       rebuildEngine()
-      await addRecentFile(savePath)
+      await recentFilesStore.addFile(savePath)
       await refreshRecentFiles()
       showToast(t('toasts.saveAsSuccess'), 'success')
     }
@@ -1221,7 +1218,7 @@ async function handleSaveAs() {
 <template>
   <div class="flowchart-sandbox">
     <MenuBar
-      :recent-files="recentFiles"
+      :recent-files="recentFilesStore.files"
       :current-file-path="currentFilePath"
       :is-new-file="isNewFile"
       :is-dirty="isDirty"
@@ -1348,11 +1345,11 @@ async function handleSaveAs() {
       v-model:vp-zoom="vpZoom"
       v-model:vp-x="vpX"
       v-model:vp-y="vpY"
-      :default-zoom="settings.defaultZoom"
-      :y-offset="settings.yOffset"
+      :default-zoom="settingsStore.defaultZoom"
+      :y-offset="settingsStore.yOffset"
       :container-rect="containerRect"
-      @update:default-zoom="(val: number) => settings.defaultZoom = val"
-      @update:y-offset="(val: number) => settings.yOffset = val"
+      @update:default-zoom="(val: number) => settingsStore.defaultZoom = val"
+      @update:y-offset="(val: number) => settingsStore.yOffset = val"
       @fit-to-start="doFitToStartNode()"
     />
     <InsertNodePanel

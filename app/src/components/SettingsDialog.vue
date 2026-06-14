@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useSettings } from '../composables/useSettings'
+import { useSettingsStore } from '../stores/settings'
 import { ACCENT_PRESETS } from '../utils/color-palette'
 import { Sun, Moon, Settings, Check } from './icons'
 import { Button } from '@/components/ui/button'
@@ -38,35 +38,35 @@ const emit = defineEmits<{
 // Settings state
 // ============================================================
 
-const { settings } = useSettings()
+const store = useSettingsStore()
 
 // ============================================================
 // Accent color state
 // ============================================================
 
 const activePresetId = computed(() => {
-  const val = settings.value.accentColor
+  const val = store.accentColor
   if (val.startsWith('#')) return null
   return val
 })
 
 const customColorHex = computed({
   get: () => {
-    const val = settings.value.accentColor
+    const val = store.accentColor
     return val.startsWith('#') ? val : '#4fc3f7'
   },
   set: (hex: string) => {
-    settings.value.accentColor = hex
+    store.accentColor = hex
   },
 })
 
 function selectPreset(presetId: string) {
-  settings.value.accentColor = presetId
+  store.accentColor = presetId
 }
 
 function onCustomColorChange(e: Event) {
   const input = e.target as HTMLInputElement
-  settings.value.accentColor = input.value
+  store.accentColor = input.value
 }
 
 // ============================================================
@@ -74,7 +74,7 @@ function onCustomColorChange(e: Event) {
 // ============================================================
 
 function toggleTheme() {
-  settings.value.theme = settings.value.theme === 'dark' ? 'light' : 'dark'
+  store.theme = store.theme === 'dark' ? 'light' : 'dark'
 }
 
 // ============================================================
@@ -82,8 +82,8 @@ function toggleTheme() {
 // ============================================================
 
 const languageValue = computed({
-  get: () => settings.value.language,
-  set: (val: string) => { settings.value.language = val },
+  get: () => store.language,
+  set: (val: string) => { store.language = val },
 })
 </script>
 
@@ -96,7 +96,7 @@ const languageValue = computed({
           <span>{{ $t('settings.title') }}</span>
         </DialogTitle>
         <DialogDescription>
-          {{ $t('settings.themeColorDesc') }}
+          {{ $t('store.themeColorDesc') }}
         </DialogDescription>
       </DialogHeader>
 
@@ -121,7 +121,7 @@ const languageValue = computed({
         <!-- 2. Theme color -->
         <div class="flex flex-col gap-2">
           <div>
-            <span class="text-sm font-medium leading-none">{{ $t('settings.themeColor') }}</span>
+            <span class="text-sm font-medium leading-none">{{ $t('store.themeColor') }}</span>
           </div>
           <!-- Preset swatches -->
           <div class="flex flex-wrap gap-2">
@@ -136,7 +136,7 @@ const languageValue = computed({
               <span
                 class="flex size-7 items-center justify-center rounded-full border-2 transition-all"
                 :class="activePresetId === preset.id ? 'border-foreground scale-110' : 'border-transparent'"
-                :style="{ background: settings.theme === 'dark' ? preset.dark : preset.light }"
+                :style="{ background: store.theme === 'dark' ? preset.dark : preset.light }"
               >
                 <Check v-if="activePresetId === preset.id" class="size-3.5 text-white drop-shadow" />
               </span>
@@ -170,9 +170,9 @@ const languageValue = computed({
             <span class="text-xs text-muted-foreground">{{ $t('settings.darkLightDesc') }}</span>
           </div>
           <Button variant="outline" @click="toggleTheme">
-            <Moon v-if="settings.theme === 'dark'" :size="16" />
+            <Moon v-if="store.theme === 'dark'" :size="16" />
             <Sun v-else :size="16" />
-            <span>{{ settings.theme === 'dark' ? $t('settings.dark') : $t('settings.light') }}</span>
+            <span>{{ store.theme === 'dark' ? $t('settings.dark') : $t('settings.light') }}</span>
           </Button>
         </div>
 
@@ -181,16 +181,16 @@ const languageValue = computed({
         <!-- 4. Sound effects -->
         <div class="flex items-center justify-between">
           <div class="flex flex-col gap-0.5">
-            <span class="text-sm font-medium leading-none">{{ $t('settings.soundEffects') }}</span>
-            <span class="text-xs text-muted-foreground">{{ $t('settings.soundEffectsDesc') }}</span>
+            <span class="text-sm font-medium leading-none">{{ $t('store.soundEffects') }}</span>
+            <span class="text-xs text-muted-foreground">{{ $t('store.soundEffectsDesc') }}</span>
           </div>
           <div class="flex items-center gap-2">
             <Checkbox
-              :checked="settings.soundEffects"
-              @update:checked="(v: boolean) => settings.soundEffects = v"
+              :checked="store.soundEffects"
+              @update:checked="(v: boolean) => store.soundEffects = v"
             />
             <span class="text-xs text-muted-foreground">
-              {{ settings.soundEffects ? $t('common.on') : $t('common.off') }}
+              {{ store.soundEffects ? $t('common.on') : $t('common.off') }}
             </span>
           </div>
         </div>
@@ -200,19 +200,19 @@ const languageValue = computed({
         <!-- 5. Default Zoom -->
         <div class="flex items-center justify-between">
           <div class="flex flex-col gap-0.5">
-            <span class="text-sm font-medium leading-none">{{ $t('settings.defaultZoom') }}</span>
-            <span class="text-xs text-muted-foreground">{{ $t('settings.defaultZoomDesc') }}</span>
+            <span class="text-sm font-medium leading-none">{{ $t('store.defaultZoom') }}</span>
+            <span class="text-xs text-muted-foreground">{{ $t('store.defaultZoomDesc') }}</span>
           </div>
           <div class="flex items-center gap-2">
             <input
               type="range"
               class="zoom-slider"
               min="0.1" max="4" step="0.1"
-              :value="settings.defaultZoom"
-              @input="(e: Event) => { settings.defaultZoom = Number((e.target as HTMLInputElement).value) }"
+              :value="store.defaultZoom"
+              @input="(e: Event) => { store.defaultZoom = Number((e.target as HTMLInputElement).value) }"
             />
             <span class="text-xs font-mono text-muted-foreground w-10 text-right">
-              {{ settings.defaultZoom.toFixed(1) }}x
+              {{ store.defaultZoom.toFixed(1) }}x
             </span>
           </div>
         </div>
