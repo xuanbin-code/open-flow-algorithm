@@ -254,7 +254,12 @@
   "panels": {
     "variableMonitor": {
       "popOut": "Pop out to floating window",
-      "dockIn": "Dock back to panel"
+      "dockIn": "Dock back to panel",
+      "title": "Variable Monitor",
+      "variable": "Variable",
+      "type": "Type",
+      "value": "Value",
+      "noVariables": "No variables"
     },
     "debug": {
       "label": "Debug",
@@ -275,13 +280,6 @@
       "fitToStartBtn": "Fit Now",
       "calcViewportX": "Calc Viewport X",
       "calcViewportY": "Calc Viewport Y"
-    },
-    "variableMonitor": {
-      "title": "Variable Monitor",
-      "variable": "Variable",
-      "type": "Type",
-      "value": "Value",
-      "noVariables": "No variables"
     }
   },
   "engine": {

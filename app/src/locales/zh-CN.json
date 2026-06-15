@@ -254,7 +254,12 @@
   "panels": {
     "variableMonitor": {
       "popOut": "弹出为浮动窗口",
-      "dockIn": "停靠到面板内"
+      "dockIn": "停靠到面板内",
+      "title": "变量监视",
+      "variable": "变量",
+      "type": "类型",
+      "value": "值",
+      "noVariables": "暂无变量"
     },
     "debug": {
       "label": "调试",
@@ -275,13 +280,6 @@
       "fitToStartBtn": "立即定位",
       "calcViewportX": "计算视口 X",
       "calcViewportY": "计算视口 Y"
-    },
-    "variableMonitor": {
-      "title": "变量监视",
-      "variable": "变量",
-      "type": "类型",
-      "value": "值",
-      "noVariables": "暂无变量"
     }
   },
   "engine": {

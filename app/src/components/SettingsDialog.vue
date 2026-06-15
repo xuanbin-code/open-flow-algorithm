@@ -96,7 +96,7 @@ const languageValue = computed({
           <span>{{ $t('settings.title') }}</span>
         </DialogTitle>
         <DialogDescription>
-          {{ $t('store.themeColorDesc') }}
+          {{ $t('settings.themeColorDesc') }}
         </DialogDescription>
       </DialogHeader>
 
@@ -121,7 +121,7 @@ const languageValue = computed({
         <!-- 2. Theme color -->
         <div class="flex flex-col gap-2">
           <div>
-            <span class="text-sm font-medium leading-none">{{ $t('store.themeColor') }}</span>
+            <span class="text-sm font-medium leading-none">{{ $t('settings.themeColor') }}</span>
           </div>
           <!-- Preset swatches -->
           <div class="flex flex-wrap gap-2">
@@ -181,8 +181,8 @@ const languageValue = computed({
         <!-- 4. Sound effects -->
         <div class="flex items-center justify-between">
           <div class="flex flex-col gap-0.5">
-            <span class="text-sm font-medium leading-none">{{ $t('store.soundEffects') }}</span>
-            <span class="text-xs text-muted-foreground">{{ $t('store.soundEffectsDesc') }}</span>
+            <span class="text-sm font-medium leading-none">{{ $t('settings.soundEffects') }}</span>
+            <span class="text-xs text-muted-foreground">{{ $t('settings.soundEffectsDesc') }}</span>
           </div>
           <div class="flex items-center gap-2">
             <Checkbox
@@ -200,8 +200,8 @@ const languageValue = computed({
         <!-- 5. Default Zoom -->
         <div class="flex items-center justify-between">
           <div class="flex flex-col gap-0.5">
-            <span class="text-sm font-medium leading-none">{{ $t('store.defaultZoom') }}</span>
-            <span class="text-xs text-muted-foreground">{{ $t('store.defaultZoomDesc') }}</span>
+            <span class="text-sm font-medium leading-none">{{ $t('settings.defaultZoom') }}</span>
+            <span class="text-xs text-muted-foreground">{{ $t('settings.defaultZoomDesc') }}</span>
           </div>
           <div class="flex items-center gap-2">
             <input
