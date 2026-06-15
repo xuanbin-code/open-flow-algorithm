@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import NodePropertyEditor from './NodePropertyEditor.vue'
 import type { Statement, FunctionDef } from '../../engine/fprg-ast'
-import { GripVertical, X } from '../icons'
+import { GripVertical, X } from '@/lib/icons'
 
 const { t } = useI18n()
 

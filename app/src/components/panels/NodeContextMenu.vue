@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Pencil, Trash2 } from '@/components/icons'
+import { Pencil, Trash2 } from '@/lib/icons'
 import {
   ContextMenuContent,
   ContextMenuItem,

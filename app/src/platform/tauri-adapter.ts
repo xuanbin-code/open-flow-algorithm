@@ -4,7 +4,7 @@
 
 import { open, save } from '@tauri-apps/plugin-dialog'
 import { readTextFile, writeTextFile, BaseDirectory } from '@tauri-apps/plugin-fs'
-import type { PlatformFileSystem, FileDialogFilter, RecentEntry } from './types'
+import type { PlatformFileSystem, FileDialogFilter, RecentEntry } from '@/types/platform'
 
 const RECENT_FILE_NAME = 'recent-files.json'
 

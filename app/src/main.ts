@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { i18n } from './i18n'
-import './tailwind.css'
+import './styles/tailwind.css'
 import 'animate.css'
 import { initSettingsStore } from './stores/settings'
 import App from './App.vue'

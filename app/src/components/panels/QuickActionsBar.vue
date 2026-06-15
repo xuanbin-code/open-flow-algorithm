@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { Save, FolderOpen, Undo2, Redo2 } from '../icons'
+import { Save, FolderOpen, Undo2, Redo2 } from '@/lib/icons'
 import {
   Tooltip,
   TooltipContent,
@@ -8,8 +7,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Separator } from '@/components/ui/separator'
-
-const { t } = useI18n()
 
 defineProps<{
   canSave: boolean

@@ -2,7 +2,7 @@
 // Web 平台适配器 — File System Access API + localStorage
 // ============================================================
 
-import type { PlatformFileSystem, FileDialogFilter, FileOpenResult, RecentEntry } from './types'
+import type { PlatformFileSystem, FileDialogFilter, FileOpenResult, RecentEntry } from '@/types/platform'
 
 const RECENT_KEY = 'flowgorithm-recent-files'
 const MAX_RECENT = 20

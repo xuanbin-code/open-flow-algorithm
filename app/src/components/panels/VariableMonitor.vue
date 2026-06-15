@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { VariableEntry } from '@/types'
-import { GripVertical, ChevronRight, ExternalLink, Pin } from '../icons'
+import { GripVertical, ChevronRight, ExternalLink, Pin } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

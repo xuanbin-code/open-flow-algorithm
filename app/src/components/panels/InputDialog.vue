@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
-import { Keyboard } from '../icons'
+import { Keyboard } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {

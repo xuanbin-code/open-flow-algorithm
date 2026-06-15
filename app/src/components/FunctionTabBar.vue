@@ -2,7 +2,7 @@
 import { ref, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FunctionDef } from '../engine/fprg-ast'
-import { SquareFunction, Clipboard, Plus, ChevronLeft, ChevronRight, Eye, EyeOff } from './icons'
+import { SquareFunction, Clipboard, Plus, ChevronLeft, ChevronRight, Eye, EyeOff } from '@/lib/icons'
 
 const { t } = useI18n()
 import { Button } from '@/components/ui/button'

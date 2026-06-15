@@ -2,7 +2,7 @@
 import { ref, reactive, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FunctionDef, Parameter } from '../engine/fprg-ast'
-import { Plus, Trash2, SquareFunction } from './icons'
+import { Plus, Trash2, SquareFunction } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {

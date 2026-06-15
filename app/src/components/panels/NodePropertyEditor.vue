@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Statement, FunctionDef, DeclareStatement } from '../../engine/fprg-ast'
-import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Import } from '../icons'
+import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Import } from '@/lib/icons'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 

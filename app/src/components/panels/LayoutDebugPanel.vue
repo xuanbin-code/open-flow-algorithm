@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Ruler, Eye, ChevronLeft, ChevronRight, Crosshair } from '../icons'
+import { Ruler, Eye, ChevronLeft, ChevronRight, Crosshair } from '@/lib/icons'
 
 const { t } = useI18n()
 

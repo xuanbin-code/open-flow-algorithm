@@ -5,7 +5,7 @@
 
 import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { generateAccentPalette } from '../utils/color-palette'
+import { generateAccentPalette } from '../lib/color-palette'
 import { setI18nLocale } from '../i18n'
 
 // ============================================================

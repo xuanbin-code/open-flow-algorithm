@@ -34,12 +34,19 @@ open-flow-algorithm/
 │   ├── src/
 │   │   ├── App.vue           # Root component
 │   │   ├── main.ts           # Vue entry point
-│   │   └── sandbox/          # Flowchart sandbox
-│   │       ├── index.vue     # Main flowchart UI
-│   │       ├── flowchart-engine.ts  # Core engine: AST → VueFlow
-│   │       ├── fprg-ast.ts   # FPRG XML parser → AST
-│   │       ├── fprg/         # Sample .fprg files
-│   │       └── components/       # Vue components (nodes/, panels/, MenuBar)
+│   │   ├── components/       # Vue components
+│   │   │   ├── nodes/        # 11 VueFlow node components
+│   │   │   ├── panels/       # 8 panel components (console, monitor, editor, debug, etc.)
+│   │   │   └── ui/           # 21 shadcn-vue base components (auto-generated)
+│   │   ├── composables/      # Vue composables (useSound, useViewportFit)
+│   │   ├── engine/           # Core engine (AST parser, interpreter, expression evaluator, layout)
+│   │   ├── i18n/             # i18n config (index.ts) + locale JSON files (locales/)
+│   │   ├── lib/              # Shared utilities (cn, icons, color-palette)
+│   │   ├── platform/         # Platform adapters (Tauri / Web)
+│   │   ├── stores/           # Pinia stores (settings, recentFiles)
+│   │   ├── styles/           # Global styles (tailwind.css, variables.css)
+│   │   ├── types/            # Shared TypeScript type definitions (app, platform)
+│   │   └── fprg/             # Sample .fprg flowchart files
 │   └── src-tauri/            # Tauri Rust backend
 │       ├── Cargo.toml
 │       ├── tauri.conf.json
@@ -56,11 +63,23 @@ A Vue 3 + TypeScript app that parses `.fprg` XML and renders an interactive flow
 
 **Key files:**
 - `App.vue` — Root component (orchestrates all sub-components, VueFlow, interpreter)
+- `main.ts` — Vue entry point (creates Pinia, applies settings store, mounts app)
+- `styles/tailwind.css` — Tailwind directives + minimal CSS reset, imports variables.css
+- `styles/variables.css` — CSS custom properties for dark/light theme
+- `i18n/index.ts` — vue-i18n instance config, locale switching
+- `i18n/locales/zh-CN.json`, `i18n/locales/en.json` — Translation files
+- `types/index.ts` — Barrel re-exports for all shared type modules
+- `types/app.ts` — App-level shared types (ChatMessage, VariableEntry)
+- `types/platform.ts` — Platform adapter types (PlatformFileSystem, FileDialogFilter, etc.)
+- `lib/icons.ts` — Lucide icon barrel exports (22 icons)
+- `lib/utils.ts` — `cn()` utility (clsx + tailwind-merge)
+- `lib/color-palette.ts` — Accent color presets and HSL conversion
 - `components/nodes/` — 11 VueFlow node components (Start, End, Declare, Assign, Input, Output, If, Merge, For, While, Call)
 - `components/MenuBar.vue` — Top menu bar (文件/编辑/程序) + execution toolbar (Run/Step/Pause/Stop/Speed/VarMonitor)
 - `components/FunctionTabBar.vue` — Collapsible left sidebar for function list with context menu
 - `components/SettingsDialog.vue` — Settings dialog (language, theme, accent color, sound)
 - `components/FunctionDialog.vue` — Function editor dialog (name, return type, parameter table)
+- `components/SubFunctionFlowWindow.vue` — Floating window displaying sub-function flowchart
 - `components/panels/ExecutionConsole.vue` — Right-side chat console (program/user dialogue + input bar)
 - `components/panels/VariableMonitor.vue` — Floating draggable variable monitor panel
 - `components/panels/InsertNodePanel.vue` — Floating node insertion/editing panel
@@ -69,12 +88,20 @@ A Vue 3 + TypeScript app that parses `.fprg` XML and renders an interactive flow
 - `engine/fprg-ast.ts` — FPRG XML parser → AST, with Chinese-localized labels
 - `engine/interpreter.ts` — Flowchart execution engine (step-through interpreter)
 - `engine/expression-evaluator.ts` — Expression evaluation (math, comparisons, functions)
-- `composables/useSettings.ts` — Singleton settings manager (theme, accent, language, localStorage)
+- `engine/text-measure.ts` — Canvas-based text width measurement for node sizing
+- `stores/settings.ts` — Pinia store for app settings (theme, accent, language, sound, localStorage)
+- `stores/recentFiles.ts` — Pinia store for recent files list
+- `composables/useSound.ts` — Sound effects composable (wraps @rexa-developer/tiks)
+- `composables/useViewportFit.ts` — Viewport positioning composable (centers Start node)
+- `platform/index.ts` — Platform adapter unified entry (detects Tauri vs Web)
+- `platform/web-adapter.ts` — Web platform adapter (File System Access API + localStorage)
+- `platform/tauri-adapter.ts` — Tauri platform adapter (native dialog + fs plugins)
+
 
 ### UI Framework: shadcn-vue + Tailwind CSS v3
 - **shadcn-vue** (Reka-UI based) — Component library installed via `pnpm dlx shadcn-vue@latest add`. Components are source code in `src/components/ui/`. Configured in `components.json`.
 - **Tailwind CSS v3** — Configured via `tailwind.config.js` + `postcss.config.js`. Global styles in `src/tailwind.css` (includes shadcn CSS variables + project-specific variables + global animations). `corePlugins.preflight: false` to avoid conflicts with VueFlow.
-- **Icons:** `@lucide/vue` (barrel file at `components/icons.ts`, 22 icons)
+- **Icons:** `@lucide/vue` (barrel file at `lib/icons.ts`, 22 icons)
 - **Utils:** `class-variance-authority` (CVA) + `clsx` + `tailwind-merge` → `cn()` at `lib/utils.ts`
 - **Path alias:** `@/` → `./src/` (configured in both `tsconfig.json` and `vite.config.ts`)
 - **Adding components:** `pnpm dlx shadcn-vue@latest add <name>`

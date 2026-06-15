@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useSettingsStore } from '../stores/settings'
-import { Sun, Moon, Settings, Play, StepForward, Pause, Square } from './icons'
+import { Sun, Moon, Settings, Play, StepForward, Pause, Square } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import {
   ToggleGroup,

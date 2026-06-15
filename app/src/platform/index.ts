@@ -2,7 +2,7 @@
 // 平台适配器 — 统一入口
 // ============================================================
 
-import type { PlatformFileSystem, FileDialogFilter, FileOpenResult, RecentEntry } from './types'
+import type { PlatformFileSystem, FileDialogFilter, FileOpenResult, RecentEntry } from '@/types/platform'
 import { tauriFileSystem } from './tauri-adapter'
 import { webFileSystem } from './web-adapter'
 

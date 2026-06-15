@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useSettingsStore } from '../stores/settings'
-import { ACCENT_PRESETS } from '../utils/color-palette'
-import { Sun, Moon, Settings, Check } from './icons'
+import { ACCENT_PRESETS } from '../lib/color-palette'
+import { Sun, Moon, Settings, Check } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
