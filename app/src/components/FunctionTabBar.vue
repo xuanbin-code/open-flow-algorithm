@@ -2,7 +2,7 @@
 import { ref, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { FunctionDef } from '../engine/fprg-ast'
-import { SquareFunction, Clipboard, Plus, ChevronLeft, ChevronRight } from './icons'
+import { SquareFunction, Clipboard, Plus, ChevronLeft, ChevronRight, Eye, EyeOff } from './icons'
 
 const { t } = useI18n()
 import { Button } from '@/components/ui/button'
@@ -124,15 +124,6 @@ function onDblClickTab(funcName: string) {
             @click="onTabClick(func.name)"
             @dblclick="onDblClickTab(func.name)"
           >
-            <input
-              v-if="func.name !== 'Main'"
-              type="checkbox"
-              class="fn-exec-check"
-              :checked="props.executionEnabled[func.name] ?? false"
-              :title="$t('functions.toggleExecution')"
-              @click.stop
-              @change="emit('toggleExecution', func.name, ($event.target as HTMLInputElement).checked)"
-            />
             <SquareFunction :size="13" class="fn-tab-icon" />
             <span class="fn-tab-name">{{ func.name }}</span>
             <span
@@ -141,6 +132,16 @@ function onDblClickTab(funcName: string) {
             >
               ({{ func.parameters.length }})
             </span>
+            <button
+              v-if="func.name !== 'Main'"
+              class="fn-exec-toggle"
+              :class="{ enabled: props.executionEnabled[func.name] }"
+              :title="$t('functions.toggleExecution')"
+              @click.stop="emit('toggleExecution', func.name, !(props.executionEnabled[func.name] ?? false))"
+            >
+              <Eye v-if="props.executionEnabled[func.name]" :size="14" />
+              <EyeOff v-else :size="14" />
+            </button>
           </button>
         </ContextMenuTrigger>
         <ContextMenuContent class="w-36">
@@ -301,13 +302,38 @@ function onDblClickTab(funcName: string) {
   flex-shrink: 0;
 }
 
-.fn-exec-check {
+/* ---- Execution toggle icon (rightmost) ---- */
+.fn-exec-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  width: 13px;
-  height: 13px;
-  margin: 0;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-muted-3);
   cursor: pointer;
-  accent-color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.fn-tab:hover .fn-exec-toggle {
+  opacity: 1;
+}
+
+.fn-exec-toggle.enabled {
+  opacity: 1;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.fn-exec-toggle:hover {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--accent);
 }
 
 /* ---- Collapsed tab: hide icon & hint, center name ---- */
@@ -323,6 +349,10 @@ function onDblClickTab(funcName: string) {
 }
 
 .fn-sidebar.collapsed .fn-tab-param-hint {
+  display: none;
+}
+
+.fn-sidebar.collapsed .fn-exec-toggle {
   display: none;
 }
 

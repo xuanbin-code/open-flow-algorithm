@@ -16,7 +16,7 @@ export { Play, StepForward, Pause, Square } from '@lucide/vue'
 export { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Redo2, Import } from '@lucide/vue'
 
 // 调试面板
-export { Ruler, Eye, Crosshair } from '@lucide/vue'
+export { Ruler, Eye, EyeOff, Crosshair } from '@lucide/vue'
 
 // 变量监控
 export { Table, ExternalLink, Pin } from '@lucide/vue'
