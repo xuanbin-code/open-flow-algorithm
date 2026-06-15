@@ -148,12 +148,6 @@ watch(
   background: var(--accent-orange, #f39c12) !important;
 }
 
-
-/* loop-back handle 偏移到 center-bottom source 右边 20px */
-:deep(.handle-loop-back) {
-  left: calc(50% + 20px) !important;
-}
-
 /* handle 旁标签 */
 .handle-tag {
   position: absolute;
@@ -168,5 +162,12 @@ watch(
   right: -4px;
   top: 20%;
   transform: translate(100%, -50%);
+}
+</style>
+
+<!-- unscoped: handle-loop-back 必须穿透 VueFlow Handle 内部样式 -->
+<style>
+.handle-loop-back {
+  left: calc(50% + 20px) !important;
 }
 </style>

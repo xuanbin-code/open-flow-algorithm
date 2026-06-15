@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onUnmounted, computed } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { VueFlow, useVueFlow, Panel } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import type { FlowNode, FlowEdge } from '../engine/flowchart-engine'
@@ -15,6 +15,8 @@ import MergeNode from './nodes/MergeNode.vue'
 import ForNode from './nodes/ForNode.vue'
 import WhileNode from './nodes/WhileNode.vue'
 import CallNode from './nodes/CallNode.vue'
+import '@vue-flow/core/dist/style.css'
+import '@vue-flow/core/dist/theme-default.css'
 import { X } from './icons'
 import { ChevronDown, ChevronRight } from '@lucide/vue'
 import { Badge } from '@/components/ui/badge'
@@ -53,8 +55,10 @@ const emit = defineEmits<{
 // VueFlow access — 必须使用唯一 id 避免与主 VueFlow 共享 store
 // ============================================================
 
-const flowId = computed(() => `sub-${props.windowState.funcName}-${props.windowState.instanceId}`)
-const { updateNodeData } = useVueFlow({ id: flowId.value })
+const flowId = computed(
+  () => `sub-${props.windowState.funcName}-${props.windowState.instanceId}`,
+)
+const { updateNodeData, fitView } = useVueFlow({ id: flowId.value })
 
 // ============================================================
 // Execution highlight sync
@@ -64,7 +68,7 @@ const lastHighlightedIds = ref<Set<string>>(new Set())
 
 watch(
   () => [...props.windowState.executingNodeIds],
-  (newIds) => {
+  newIds => {
     const newSet = new Set(newIds)
     const prevSet = lastHighlightedIds.value
 
@@ -98,11 +102,22 @@ onUnmounted(() => {
   resetAllHighlights()
 })
 
+// 手动调用 fitView：等所有节点完成 DOM 渲染和尺寸测量后再适配视口
+// 避免 fit-view-on-init 在节点未就绪时基于不完整数据计算视口导致 edge 偏移
+onMounted(async () => {
+  await nextTick()
+  // 再等一帧，确保 VueFlow 内部完成节点尺寸测量（ResizeObserver）
+  await new Promise(resolve => requestAnimationFrame(resolve))
+  fitView({ padding: 0.1, duration: 0 })
+})
+
 // ============================================================
 // Executing state — drives the flowing border animation
 // ============================================================
 
-const isExecuting = computed(() => props.windowState.executingNodeIds.length > 0)
+const isExecuting = computed(
+  () => props.windowState.executingNodeIds.length > 0,
+)
 
 // ============================================================
 // Inline variable monitor
@@ -184,130 +199,145 @@ function onClose() {
       }"
     >
       <div class="sub-fn-window" :class="{ executing: isExecuting, dragging }">
-      <!-- Title bar -->
-      <div class="sub-fn-titlebar" @mousedown="onDragStart">
-        <span class="sub-fn-title">{{ props.windowState.funcName }}</span>
-        <button class="sub-fn-close" @click.stop="onClose" :title="'Close'">
-          <X :size="15" />
-        </button>
-      </div>
+        <!-- Title bar -->
+        <div class="sub-fn-titlebar" @mousedown="onDragStart">
+          <span class="sub-fn-title">{{ props.windowState.funcName }}</span>
+          <button class="sub-fn-close" @click.stop="onClose" :title="'Close'">
+            <X :size="15" />
+          </button>
+        </div>
 
-      <!-- VueFlow -->
-      <div class="sub-fn-flow">
-        <TooltipProvider :delay-duration="500">
-        <VueFlow
-          :id="flowId"
-          :nodes="props.windowState.nodes"
-          :edges="props.windowState.edges"
-          :default-viewport="{ zoom: 0.8, x: 0, y: 0 }"
-          :min-zoom="0.1"
-          :max-zoom="4"
-          :nodes-draggable="false"
-          :nodes-connectable="false"
-          :elements-selectable="false"
-          :zoom-on-scroll="true"
-          :pan-on-scroll="false"
-          :pan-on-drag="true"
-          fit-view-on-init
-        >
-          <Background pattern-color="#aaa" :gap="20" />
+        <!-- VueFlow -->
+        <div class="sub-fn-flow">
+          <TooltipProvider :delay-duration="500">
+            <VueFlow
+              :id="flowId"
+              :nodes="props.windowState.nodes"
+              :edges="props.windowState.edges"
+              :default-viewport="{ zoom: 0.35, x: 50, y: 20 }"
+              :min-zoom="0.1"
+              :max-zoom="4"
+              :nodes-draggable="false"
+              :nodes-connectable="false"
+              :elements-selectable="false"
+              :zoom-on-scroll="true"
+              :pan-on-scroll="false"
+              :pan-on-drag="true"
+            >
+              <Background pattern-color="#aaa" :gap="20" />
 
-          <!-- Inline variable monitor — Panel anchored top-left -->
-          <Panel position="top-left" class="sub-fn-var-panel">
-            <div class="sub-fn-var-monitor" :class="{ collapsed: varsCollapsed }">
-              <button class="sub-fn-var-header" @click="varsCollapsed = !varsCollapsed">
-                <ChevronRight v-if="varsCollapsed" :size="12" />
-                <ChevronDown v-else :size="12" />
-                <span class="sub-fn-var-title">
-                  {{ $t('execution.variables') }}
-                  <span class="sub-fn-var-count">({{ props.windowState.variables.length }})</span>
-                </span>
-              </button>
-
-              <Transition name="vars-collapse">
-                <div v-if="!varsCollapsed && hasVariables" class="sub-fn-var-body">
-                  <div
-                    v-for="v in sortedVariables"
-                    :key="v.name"
-                    class="sub-fn-var-row"
+              <!-- Inline variable monitor — Panel anchored top-left -->
+              <Panel position="top-left" class="sub-fn-var-panel">
+                <div
+                  class="sub-fn-var-monitor"
+                  :class="{ collapsed: varsCollapsed }"
+                >
+                  <button
+                    class="sub-fn-var-header"
+                    @click="varsCollapsed = !varsCollapsed"
                   >
-                    <div class="sub-fn-var-name">
-                      <Badge
-                        v-if="v.tag === 'return'"
-                        variant="default"
-                        class="var-tag var-tag--return"
-                      >{{ $t('execution.varTagReturn') }}</Badge>
-                      <Badge
-                        v-if="v.tag === 'parameter'"
-                        variant="secondary"
-                        class="var-tag var-tag--param"
-                      >{{ $t('execution.varTagParameter') }}</Badge>
-                      <div class="sub-fn-var-info">
-                        <span class="sub-fn-var-label">{{ v.name }}</span>
-                        <span class="sub-fn-var-type">{{ v.type }}</span>
+                    <ChevronRight v-if="varsCollapsed" :size="12" />
+                    <ChevronDown v-else :size="12" />
+                    <span class="sub-fn-var-title">
+                      {{ $t('execution.variables') }}
+                      <span class="sub-fn-var-count"
+                        >({{ props.windowState.variables.length }})</span
+                      >
+                    </span>
+                  </button>
+
+                  <div
+                    v-if="!varsCollapsed && hasVariables"
+                    class="sub-fn-var-body"
+                  >
+                    <div
+                      v-for="v in sortedVariables"
+                      :key="v.name"
+                      class="sub-fn-var-row"
+                    >
+                      <div class="sub-fn-var-name">
+                        <Badge
+                          v-if="v.tag === 'return'"
+                          variant="default"
+                          class="var-tag var-tag--return"
+                          >{{ $t('execution.varTagReturn') }}</Badge
+                        >
+                        <Badge
+                          v-if="v.tag === 'parameter'"
+                          variant="secondary"
+                          class="var-tag var-tag--param"
+                          >{{ $t('execution.varTagParameter') }}</Badge
+                        >
+                        <div class="sub-fn-var-info">
+                          <span class="sub-fn-var-label">{{ v.name }}</span>
+                          <span class="sub-fn-var-type">{{ v.type }}</span>
+                        </div>
                       </div>
+                      <span class="sub-fn-var-value">{{
+                        formatVarValue(v.value)
+                      }}</span>
                     </div>
-                    <span class="sub-fn-var-value">{{ formatVarValue(v.value) }}</span>
+                  </div>
+
+                  <div
+                    v-if="!varsCollapsed && !hasVariables"
+                    class="sub-fn-var-empty"
+                  >
+                    {{ $t('execution.noVariablesShort') }}
                   </div>
                 </div>
-              </Transition>
+              </Panel>
 
-              <div v-if="!varsCollapsed && !hasVariables" class="sub-fn-var-empty">
-                {{ $t('execution.noVariablesShort') }}
-              </div>
-            </div>
-          </Panel>
-
-          <template #node-start="nodeProps">
-            <StartNode v-bind="nodeProps" />
-          </template>
-          <template #node-end="nodeProps">
-            <EndNode v-bind="nodeProps" />
-          </template>
-          <template #node-default="nodeProps">
-            <div
-              class="default-node-fallback"
-              :class="{ 'is-empty': nodeProps.data?.isEmpty }"
-              :style="{
-                width: (nodeProps.data?.width ?? 120) + 'px',
-                height: (nodeProps.data?.height ?? 50) + 'px',
-              }"
-            >
-              {{ nodeProps.data?.label ?? '' }}
-            </div>
-          </template>
-          <template #node-declare="nodeProps">
-            <DeclareNode v-bind="nodeProps" />
-          </template>
-          <template #node-assign="nodeProps">
-            <AssignNode v-bind="nodeProps" />
-          </template>
-          <template #node-fg-input="nodeProps">
-            <InputNode v-bind="nodeProps" />
-          </template>
-          <template #node-fg-output="nodeProps">
-            <OutputNode v-bind="nodeProps" />
-          </template>
-          <template #node-fg-if="nodeProps">
-            <IfNode v-bind="nodeProps" />
-          </template>
-          <template #node-fg-merge="nodeProps">
-            <MergeNode v-bind="nodeProps" />
-          </template>
-          <template #node-fg-for="nodeProps">
-            <ForNode v-bind="nodeProps" />
-          </template>
-          <template #node-fg-while="nodeProps">
-            <WhileNode v-bind="nodeProps" />
-          </template>
-          <template #node-call="nodeProps">
-            <CallNode v-bind="nodeProps" />
-          </template>
-        </VueFlow>
-        </TooltipProvider>
+              <template #node-start="nodeProps">
+                <StartNode v-bind="nodeProps" />
+              </template>
+              <template #node-end="nodeProps">
+                <EndNode v-bind="nodeProps" />
+              </template>
+              <template #node-default="nodeProps">
+                <div
+                  class="default-node-fallback"
+                  :class="{ 'is-empty': nodeProps.data?.isEmpty }"
+                  :style="{
+                    width: (nodeProps.data?.width ?? 120) + 'px',
+                    height: (nodeProps.data?.height ?? 50) + 'px',
+                  }"
+                >
+                  {{ nodeProps.data?.label ?? '' }}
+                </div>
+              </template>
+              <template #node-declare="nodeProps">
+                <DeclareNode v-bind="nodeProps" />
+              </template>
+              <template #node-assign="nodeProps">
+                <AssignNode v-bind="nodeProps" />
+              </template>
+              <template #node-fg-input="nodeProps">
+                <InputNode v-bind="nodeProps" />
+              </template>
+              <template #node-fg-output="nodeProps">
+                <OutputNode v-bind="nodeProps" />
+              </template>
+              <template #node-fg-if="nodeProps">
+                <IfNode v-bind="nodeProps" />
+              </template>
+              <template #node-fg-merge="nodeProps">
+                <MergeNode v-bind="nodeProps" />
+              </template>
+              <template #node-fg-for="nodeProps">
+                <ForNode v-bind="nodeProps" />
+              </template>
+              <template #node-fg-while="nodeProps">
+                <WhileNode v-bind="nodeProps" />
+              </template>
+              <template #node-call="nodeProps">
+                <CallNode v-bind="nodeProps" />
+              </template>
+            </VueFlow>
+          </TooltipProvider>
+        </div>
       </div>
     </div>
-  </div>
   </Transition>
 </template>
 
@@ -336,9 +366,13 @@ function onClose() {
     var(--accent) 270deg,
     transparent 360deg
   );
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   mask-composite: exclude;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   opacity: 0;
   transition: opacity 0.35s ease;
@@ -364,7 +398,10 @@ function onClose() {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: opacity 0.15s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+  transition:
+    opacity 0.15s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
 /* While executing: subtle border tint + elevated glow */
@@ -576,7 +613,11 @@ function onClose() {
 }
 
 .var-tag--return {
-  background: color-mix(in srgb, var(--accent-yellow, #f1c40f) 85%, transparent);
+  background: color-mix(
+    in srgb,
+    var(--accent-yellow, #f1c40f) 85%,
+    transparent
+  );
   color: #1a1a1a;
 }
 
@@ -610,35 +651,40 @@ function onClose() {
 }
 
 /* ---- Enter / leave transition (unscoped so Transition classes match reliably) ---- */
+/* NOTE: Do NOT animate transform (scale) — VueFlow's ResizeObserver measures
+   handle bounds on mount via getBoundingClientRect(), which would report
+   coordinates at the scaled size. CSS transforms don't trigger ResizeObserver,
+   so the incorrect bounds are never recalculated, causing all edges to shift
+   left by ~15% of node width. Opacity-only fade avoids this. */
 .sub-fn-enter-active {
-  transition: opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-              transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .sub-fn-leave-active {
-  transition: opacity 0.22s ease-in,
-              transform 0.22s ease-in;
+  transition: opacity 0.22s ease-in;
 }
 
 .sub-fn-enter-from {
   opacity: 0;
-  transform: scale(0.85);
 }
 
 .sub-fn-leave-to {
   opacity: 0;
-  transform: scale(0.9);
 }
 
 /* ---- Variable monitor collapse transition ---- */
 .vars-collapse-enter-active {
-  transition: max-height 0.25s ease, opacity 0.2s ease;
+  transition:
+    max-height 0.25s ease,
+    opacity 0.2s ease;
   max-height: 180px;
   overflow: hidden;
 }
 
 .vars-collapse-leave-active {
-  transition: max-height 0.2s ease, opacity 0.15s ease;
+  transition:
+    max-height 0.2s ease,
+    opacity 0.15s ease;
   max-height: 180px;
   overflow: hidden;
 }

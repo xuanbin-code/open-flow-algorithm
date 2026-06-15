@@ -39,6 +39,7 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
       height: nodeHeight + 'px',
     }"
   >
+    <div class="node-shape"></div>
     <Handle type="target" :position="Position.Top" />
     <Tooltip :delay-duration="500">
       <TooltipTrigger as-child>
@@ -53,51 +54,58 @@ const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
 </template>
 
 <style scoped>
+/* 形状层：承载 skewX 变换 / 背景 / 阴影，避免影响 Handle 定位 */
+.node-shape {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #e67e22;
+  border: 2px solid #d35400;
+  transform: skewX(-10deg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 .flow-node {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 13px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  border: 2px solid #d35400;
-  transform: skewX(-10deg);
-}
-
-.fg-input-node {
-  background: #e67e22;
-  border-color: #d35400;
 }
 
 .node-label {
+  position: relative;
+  z-index: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 0 8px;
-  transform: skewX(10deg);
 }
 
-.fg-input-node.selected {
+.fg-input-node.selected .node-shape {
   box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.5);
 }
 
-.fg-input-node.executing {
+.fg-input-node.executing .node-shape {
   animation: exec-pulse 0.8s ease-in-out infinite alternate;
   border-color: #2ecc71 !important;
 }
 
-.fg-input-node.dragging {
+.fg-input-node.dragging .node-shape {
   opacity: 0.8;
+}
+
+.fg-input-node.dragging {
   cursor: grabbing;
 }
 
-.fg-input-node.is-empty {
+.fg-input-node.is-empty .node-shape {
   opacity: 0.6;
   filter: grayscale(0.7);
 }
 
-
-.fg-input-node.flashHighlight {
+.fg-input-node.flashHighlight .node-shape {
   animation: flash-pulse 0.5s ease-in-out 3;
   border-color: var(--accent-orange, #f39c12) !important;
 }

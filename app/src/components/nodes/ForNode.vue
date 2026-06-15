@@ -165,8 +165,11 @@ watch(
   transform: translate(100%, -50%);
 }
 
-/* loop-back handle 偏移到 center-bottom source 右边 20px */
-:deep(.handle-loop-back) {
+</style>
+
+<!-- unscoped: handle-loop-back 必须穿透 VueFlow Handle 内部样式 -->
+<style>
+.handle-loop-back {
   left: calc(50% + 20px) !important;
 }
 </style>
