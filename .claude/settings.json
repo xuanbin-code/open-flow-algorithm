@@ -15,7 +15,9 @@
       "Bash(pnpm vue-tsc *)",
       "Bash(git add *)",
       "Bash(git commit -m 'feat: 实现主题色（accent color）切换功能 *)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(npx tsc *)",
+      "Bash(pnpm dev *)"
     ]
   }
 }

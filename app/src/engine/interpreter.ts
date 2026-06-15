@@ -110,6 +110,80 @@ function parseCallExpression(expr: string): { name: string; args: string[] } | n
 }
 
 /**
+ * 从表达式中提取第一个用户自定义函数调用。
+ * 跟踪括号平衡以确保正确提取嵌套调用（如 fib(fib(2))）。
+ * 返回调用信息及表达式的前后部分，用于字面量替换。
+ */
+function extractFirstUserCall(
+  expr: string,
+  userFuncNames: Set<string>,
+): { name: string; argStr: string; before: string; after: string; fullMatch: string } | null {
+  for (const name of userFuncNames) {
+    // 匹配函数名后跟开括号（如 "fib(" 或 "fib ("）
+    const regex = new RegExp(`\\b${name}\\s*\\(`)
+    const match = regex.exec(expr)
+    if (!match) continue
+
+    const startIdx = match.index
+    // 定位开括号位置
+    const openParenIdx = match.index + match[0].length - 1
+
+    // 跟踪括号平衡找到匹配的闭括号
+    let depth = 0
+    let closeIdx = -1
+    for (let i = openParenIdx; i < expr.length; i++) {
+      if (expr[i] === '(') depth++
+      else if (expr[i] === ')') {
+        depth--
+        if (depth === 0) {
+          closeIdx = i
+          break
+        }
+      }
+    }
+
+    if (closeIdx === -1) continue
+
+    const fullMatch = expr.substring(startIdx, closeIdx + 1)
+    const before = expr.substring(0, startIdx)
+    const after = expr.substring(closeIdx + 1)
+    const argStr = expr.substring(openParenIdx + 1, closeIdx)
+
+    return { name, argStr, before, after, fullMatch }
+  }
+  return null
+}
+
+/**
+ * 按逗号分割参数列表，同时考虑括号嵌套。
+ * 用于解析从表达式中提取的函数调用参数字符串。
+ */
+function splitCallArgs(argStr: string): string[] {
+  const args: string[] = []
+  let depth = 0
+  let current = ''
+  for (let i = 0; i < argStr.length; i++) {
+    const ch = argStr[i]
+    if (ch === '(') {
+      depth++
+      current += ch
+    } else if (ch === ')') {
+      depth--
+      current += ch
+    } else if (ch === ',' && depth === 0) {
+      args.push(current)
+      current = ''
+    } else {
+      current += ch
+    }
+  }
+  if (current) {
+    args.push(current)
+  }
+  return args
+}
+
+/**
  * 便捷包装器：用当前作用域的变量 + 用户自定义函数求值表达式。
  * 使 evaluateExpression 调用中自动注入 _syncFunctions。
  */
@@ -324,7 +398,8 @@ async function* executeDeclare(
       if (name in state.variables) continue // 不覆盖已有变量
 
       if (stmt.expression) {
-        const result = evaluateExpr(stmt.expression, state)
+        const resolvedExpr = yield* resolveExpression(stmt.expression, state)
+        const result = evaluateExpr(resolvedExpr, state)
 
         if (Array.isArray(result)) {
           // 数组字面量初始化 → 直接赋值，自动确定长度
@@ -368,7 +443,8 @@ async function* executeDeclare(
     if (name in state.variables) continue // 不覆盖已有变量
 
     if (stmt.expression) {
-      const result = evaluateExpr(stmt.expression, state)
+      const resolvedExpr = yield* resolveExpression(stmt.expression, state)
+      const result = evaluateExpr(resolvedExpr, state)
       state.variables[name] = coerceValue(result, flowType)
     } else {
       state.variables[name] = defaultValueForType(flowType)
@@ -389,7 +465,9 @@ async function* executeAssign(
     return
   }
 
-  const value = evaluateExpr(stmt.expression, state)
+  // 预处理：将用户自定义函数调用替换为字面量（产生子窗口事件）
+  const resolvedExpr = yield* resolveExpression(stmt.expression, state)
+  const value = evaluateExpr(resolvedExpr, state)
 
   // 解析数组下标：如 "arr[0]" → name="arr", indexExpr="0"
   const access = parseArrayAccess(stmt.variable)
@@ -484,7 +562,9 @@ async function* executeOutput(
 ): AsyncGenerator<InterpreterEvent> {
   if (!stmt.expression) return
 
-  const value = evaluateExpr(stmt.expression, state)
+  // 预处理：将用户自定义函数调用替换为字面量（产生子窗口事件）
+  const resolvedExpr = yield* resolveExpression(stmt.expression, state)
+  const value = evaluateExpr(resolvedExpr, state)
   const text = formatOutputValue(value, stmt.newline)
   state.output.push(text)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -526,11 +606,13 @@ async function* executeCall(
   // ==========================================
 
   // 1. 求值参数表达式（在调用者作用域中）
+  // 先预处理表达式中的用户自定义函数调用，确保子窗口可视化
   const argValues: unknown[] = []
   for (const argExpr of parsed.args) {
     const trimmed = argExpr.trim()
     if (trimmed) {
-      argValues.push(evaluateExpr(trimmed, state))
+      const resolved = yield* resolveExpression(trimmed, state)
+      argValues.push(evaluateExpr(resolved, state))
     } else {
       argValues.push(undefined)
     }
@@ -606,6 +688,181 @@ async function* executeCall(
   }
 }
 
+// ============================================================
+// 表达式预处理：将用户自定义函数调用替换为字面量结果
+// （通过异步 Generator 执行函数，产生 function-enter/leave 事件）
+// ============================================================
+
+/**
+ * 异步执行一个用户自定义函数（用于表达式中的函数调用）。
+ * 镜像 executeCall 的核心逻辑但跳过表达式解析步骤。
+ * 产生 function-enter / function-leave 事件以实现子窗口可视化。
+ */
+async function* executeFunctionFromExpression(
+  funcDef: FunctionDef,
+  args: unknown[],
+  state: RuntimeState,
+): AsyncGenerator<InterpreterEvent, unknown> {
+  // 1. 创建新作用域并绑定参数
+  const newVars: Record<string, unknown> = {}
+  const newTypes: Record<string, string> = {}
+
+  for (let i = 0; i < funcDef.parameters.length; i++) {
+    const param = funcDef.parameters[i]
+    const rawValue = i < args.length ? args[i] : undefined
+    const value = rawValue !== undefined && rawValue !== null
+      ? coerceValue(rawValue, param.type)
+      : defaultValueForType(param.type)
+
+    newVars[param.name] = param.array ? (Array.isArray(value) ? value : [value]) : value
+    newTypes[param.name] = param.array ? param.type + '[]' : param.type
+  }
+
+  // 预扫描函数体中的 declare
+  collectDeclarations(funcDef.body, { variables: newVars, variableTypes: newTypes } as RuntimeState)
+
+  // 2. 保存调用者作用域，切换到被调用者作用域
+  const callerName = state.currentFunctionName
+  const callerFrame: CallFrame = {
+    funcName: callerName,
+    variables: state.variables,
+    variableTypes: state.variableTypes,
+  }
+  state.callFrames.push(callerFrame)
+  state.variables = newVars
+  state.variableTypes = newTypes
+
+  // 3. 执行函数体（包裹 function-enter / function-leave 事件）
+  state.currentFunctionName = funcDef.name
+  yield { type: 'function-enter', functionName: funcDef.name }
+
+  try {
+    yield* executeBlock(funcDef.body, state)
+    yield { type: 'function-leave', functionName: funcDef.name }
+  } catch (e: unknown) {
+    // 异常时也 yield function-leave，确保调用栈正确弹出
+    yield { type: 'function-leave', functionName: funcDef.name }
+    state.currentFunctionName = callerName
+    const frame = state.callFrames.pop()
+    if (frame) {
+      state.variables = frame.variables
+      state.variableTypes = frame.variableTypes
+    }
+    throw e
+  }
+
+  state.currentFunctionName = callerName
+
+  // 4. 捕获返回值
+  const returnValue = funcDef.variable
+    ? state.variables[funcDef.variable]
+    : undefined
+
+  // 5. 恢复调用者作用域
+  const poppedFrame = state.callFrames.pop()
+  if (poppedFrame) {
+    state.variables = poppedFrame.variables
+    state.variableTypes = poppedFrame.variableTypes
+  }
+
+  return returnValue
+}
+
+/**
+ * 将表达式中的用户自定义函数调用替换为字面量结果。
+ *
+ * 循环处理直到表达式中无用户函数调用：
+ * 1. 找到第一个用户函数调用（跟踪括号平衡）
+ * 2. 递归解析参数表达式中的嵌套调用
+ * 3. 通过异步 Generator 执行函数（产生 function-enter/leave 事件）
+ * 4. 在原表达式中用字面量结果替换该调用
+ *
+ * @param expr 原始表达式字符串
+ * @param state 运行时状态
+ * @returns 不含用户函数调用的简化表达式（可直接用 evaluateExpr 求值）
+ */
+async function* resolveExpression(
+  expr: string,
+  state: RuntimeState,
+): AsyncGenerator<InterpreterEvent, string> {
+  const program = state._program
+  if (!program) return expr
+
+  // 收集用户自定义函数名（排除 Main）
+  const userFuncNames = new Set(
+    program.functions.filter((f) => f.name !== 'Main').map((f) => f.name),
+  )
+
+  if (userFuncNames.size === 0) return expr
+
+  let result = expr
+
+  while (true) {
+    const call = extractFirstUserCall(result, userFuncNames)
+    if (!call) break
+
+    // 解析参数表达式
+    const argStrs = splitCallArgs(call.argStr)
+
+    // 递归解析每个参数表达式（处理嵌套调用）
+    const resolvedArgExprs: string[] = []
+    for (const argStr of argStrs) {
+      const trimmed = argStr.trim()
+      if (trimmed) {
+        // 递归解析参数中的用户函数调用
+        const resolved = yield* resolveExpression(trimmed, state)
+        resolvedArgExprs.push(resolved)
+      } else {
+        resolvedArgExprs.push('')
+      }
+    }
+
+    // 求值已解析的参数表达式（此时只含字面量、变量、内置函数）
+    const argValues: unknown[] = resolvedArgExprs.map((resolved) => {
+      const trimmed = resolved.trim()
+      return trimmed ? evaluateExpr(trimmed, state) : undefined
+    })
+
+    // 查找函数定义
+    const funcDef = program.functions.find((f) => f.name === call.name)!
+    if (!funcDef) {
+      // 不应该发生，但安全回退
+      break
+    }
+
+    // 通过异步 Generator 执行函数（产生 function-enter/leave 事件）
+    const returnValue = yield* executeFunctionFromExpression(funcDef, argValues, state)
+
+    // 将调用替换为字面量结果
+    const replacement = valueToLiteralString(returnValue)
+    result = call.before + replacement + call.after
+  }
+
+  return result
+}
+
+/**
+ * 将 JavaScript 值转换为可在表达式中作为字面量使用的字符串。
+ * 数字 → 数字字符串，字符串 → 引号包裹，布尔 → true/false。
+ */
+function valueToLiteralString(value: unknown): string {
+  if (typeof value === 'string') {
+    // 转义字符串中的双引号和反斜杠
+    const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+    return `"${escaped}"`
+  }
+  if (typeof value === 'boolean') {
+    return value ? 'true' : 'false'
+  }
+  if (value === null || value === undefined) {
+    return '0'
+  }
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? String(value) : '0'
+  }
+  return String(value)
+}
+
 async function* executeIf(
   stmt: IfStatement,
   state: RuntimeState,
@@ -624,7 +881,9 @@ async function* executeIf(
     yield { type: 'statement-enter', statement: stmt, nodeId }
   }
 
-  const cond = evaluateExpr(stmt.expression, state)
+  // 预处理：将用户自定义函数调用替换为字面量（产生子窗口事件）
+  const resolvedCond = yield* resolveExpression(stmt.expression, state)
+  const cond = evaluateExpr(resolvedCond, state)
 
   if (nodeId) {
     yield { type: 'statement-leave', statement: stmt, nodeId }
@@ -664,7 +923,9 @@ async function* executeWhile(
       yield { type: 'statement-enter', statement: stmt, nodeId }
     }
 
-    const cond = evaluateExpr(stmt.expression, state)
+    // 预处理：将用户自定义函数调用替换为字面量（产生子窗口事件）
+    const resolvedCond = yield* resolveExpression(stmt.expression, state)
+    const cond = evaluateExpr(resolvedCond, state)
 
     if (nodeId) {
       yield { type: 'statement-leave', statement: stmt, nodeId }
@@ -686,9 +947,13 @@ async function* executeFor(
   const varName = stmt.variable
   if (!varName) return
 
-  const startVal = evaluateExpr(stmt.start || '0', state)
-  const endVal = evaluateExpr(stmt.end || '0', state)
-  const stepVal = evaluateExpr(stmt.step || '1', state)
+  // 预处理：将用户自定义函数调用替换为字面量（产生子窗口事件）
+  const resolvedStart = stmt.start ? (yield* resolveExpression(stmt.start, state)) : '0'
+  const resolvedEnd = stmt.end ? (yield* resolveExpression(stmt.end, state)) : '0'
+  const resolvedStep = stmt.step ? (yield* resolveExpression(stmt.step, state)) : '1'
+  const startVal = evaluateExpr(resolvedStart, state)
+  const endVal = evaluateExpr(resolvedEnd, state)
+  const stepVal = evaluateExpr(resolvedStep, state)
 
   // 推断循环变量类型
   state.variableTypes[varName] = state.variableTypes[varName] || 'Integer'
@@ -756,7 +1021,9 @@ async function* executeDo(
       yield { type: 'statement-enter', statement: stmt, nodeId }
     }
 
-    const cond = evaluateExpr(stmt.expression, state)
+    // 预处理：将用户自定义函数调用替换为字面量（产生子窗口事件）
+    const resolvedCond = yield* resolveExpression(stmt.expression, state)
+    const cond = evaluateExpr(resolvedCond, state)
 
     if (nodeId) {
       yield { type: 'statement-leave', statement: stmt, nodeId }

@@ -10,7 +10,7 @@
         <parameters/>
         <body>
             <declare name="r" type="Integer" array="False" size=""/>
-            <call expression="fib(2)" result="r"/>
+            <call expression="fib(3)" result="r"/>
             <output expression="r" newline="True"/>
         </body>
     </function>
