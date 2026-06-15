@@ -17,6 +17,7 @@ import WhileNode from './components/nodes/WhileNode.vue'
 import InsertNodePanel from './components/panels/InsertNodePanel.vue'
 import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
 import QuickActionsBar from './components/panels/QuickActionsBar.vue'
+import NodeContextMenu from './components/panels/NodeContextMenu.vue'
 import ExecutionConsole from './components/panels/ExecutionConsole.vue'
 import VariableMonitor from './components/panels/VariableMonitor.vue'
 import type { ChatMessage, VariableEntry } from '@/types'
@@ -48,6 +49,7 @@ import { useViewportFit } from './composables/useViewportFit'
 import { useSound } from './composables/useSound'
 import { useI18n } from 'vue-i18n'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { ContextMenu, ContextMenuTrigger } from '@/components/ui/context-menu'
 
 const { t } = useI18n()
 const sound = useSound()
@@ -114,6 +116,7 @@ const SPEED_DELAYS: Record<string, number> = { slow: 1000, normal: 300, fast: 50
 
 // 子函数执行可视化
 const functionExecutionEnabled = reactive<Record<string, boolean>>({})
+const fileLoadVersion = ref(0) // 每次 loadProgram 递增，强制 FunctionTabBar 重建
 const subEngineCache = new Map<string, FlowchartEngine>()
 const subWindows = ref<Record<string, SubWindowState>>({})
 let executionCallStack: { functionName: string; instanceKey: string }[] = []
@@ -209,6 +212,12 @@ function rebuildEngine() {
 
 /** 加载 fprg XML → 重建 engine + 更新 VueFlow 响应式数据 */
 function loadProgram(xml: string, filePath?: string) {
+  // 清理上一个文件的执行可视化状态
+  resetExecution()
+  for (const key of Object.keys(functionExecutionEnabled)) {
+    delete functionExecutionEnabled[key]
+  }
+
   program.value = parseFprgToAst(xml)
   activeFunctionName.value = 'Main'
   engine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
@@ -218,6 +227,8 @@ function loadProgram(xml: string, filePath?: string) {
     currentFilePath.value = filePath
     isNewFile.value = false
   }
+  // 递增版本号，强制 FunctionTabBar 重建以刷新函数列表
+  fileLoadVersion.value++
   // 推迟到下一微任务：等 Vue pre-flush watcher 记录完旧值后再清空历史
   Promise.resolve().then(() => programHistory.clear())
   console.log('Loaded program:', program.value.attributes.name, filePath ? `(${filePath})` : '')
@@ -888,6 +899,7 @@ const showSettingsDialog = ref(false)
 // ============================================
 const panelVisible = ref(false)
 const panelPosition = ref({ x: 0, y: 0 })
+const contextMenuMousePos = ref({ x: 0, y: 0 })
 const clickedEdgeId = ref<string | null>(null)
 const editingStatement = ref<Statement | null>(null)
 const selectedNodeId = ref<string | null>(null)
@@ -952,6 +964,61 @@ function deleteSelectedNode() {
   engine.rebuild()
   nodes.value = [...engine.nodes]
   edges.value = [...engine.edges]
+}
+
+/** Delete a node by ID — used by the right-click context menu. */
+function deleteNodeById(nodeId: string) {
+  if (isExecuting.value) return
+  const node = engine.nodesMap.get(nodeId)
+  if (!node?.data?.statement) return
+
+  const stmt = node.data.statement
+  if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag) return
+
+  const loc = findStatementLocation(program.value, stmt)
+  if (loc) {
+    loc.body.splice(loc.index, 1)
+  }
+  if (selectedNodeId.value === nodeId) {
+    selectedNodeId.value = null
+  }
+  engine.rebuild()
+  nodes.value = [...engine.nodes]
+  edges.value = [...engine.edges]
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function canDeleteNode(nodeProps: any): boolean {
+  if (isExecuting.value) return false
+  const stmt = nodeProps.data?.statement as Statement | undefined
+  if (!stmt) return false
+  if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag) return false
+  return true
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function canEditNode(nodeProps: any): boolean {
+  if (isExecuting.value) return false
+  return !!nodeProps.data?.statement
+}
+
+function onNodeContextMenu(event: MouseEvent) {
+  contextMenuMousePos.value = { x: event.clientX, y: event.clientY }
+}
+
+function handleNodeContextEdit(nodeId: string) {
+  if (isExecuting.value) return
+  const node = engine.nodesMap.get(nodeId)
+  if (!node?.data?.statement) return
+
+  selectedNodeId.value = nodeId
+  clickedEdgeId.value = null
+  editingStatement.value = node.data.statement
+  panelPosition.value = {
+    x: contextMenuMousePos.value.x + 24,
+    y: contextMenuMousePos.value.y - 120,
+  }
+  panelVisible.value = true
 }
 
 // ============================================
@@ -1110,6 +1177,11 @@ async function onMenuAction(actionId: string) {
 
   switch (actionId) {
     case 'new': {
+      // 清理上一个文件的执行可视化状态
+      resetExecution()
+      for (const key of Object.keys(functionExecutionEnabled)) {
+        delete functionExecutionEnabled[key]
+      }
       program.value = createEmptyProgram()
       activeFunctionName.value = 'Main'
       engine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
@@ -1117,6 +1189,7 @@ async function onMenuAction(actionId: string) {
       edges.value = [...engine.edges]
       currentFilePath.value = null
       isNewFile.value = true
+      fileLoadVersion.value++
       // 推迟到下一微任务：等 Vue pre-flush watcher 记录完旧值后再清空历史
       Promise.resolve().then(() => programHistory.clear())
       await nextTick()
@@ -1266,6 +1339,7 @@ async function handleSaveAs() {
     />
     <div class="main-area">
       <FunctionTabBar
+        :key="fileLoadVersion"
         :functions="program.functions"
         :active-function="activeFunctionName"
         :execution-enabled="functionExecutionEnabled"
@@ -1303,42 +1377,181 @@ async function handleSaveAs() {
           </Panel>
           <Background pattern-color="#aaa" :gap="20" />
           <Controls />
-          <template #node-start="nodeProps"
-            ><StartNode v-bind="nodeProps"
-          /></template>
-          <template #node-end="nodeProps"
-            ><EndNode v-bind="nodeProps"
-          /></template>
-          <template #node-default="nodeProps"
-            ><div class="default-node-fallback" :class="{ 'is-empty': nodeProps.data?.isEmpty }" :style="{ width: (nodeProps.data?.width ?? 120) + 'px', height: (nodeProps.data?.height ?? 50) + 'px' }">{{ nodeProps.data?.label ?? '' }}</div
-          /></template>
-          <template #node-declare="nodeProps"
-            ><DeclareNode v-bind="nodeProps"
-          /></template>
-          <template #node-assign="nodeProps"
-            ><AssignNode v-bind="nodeProps"
-          /></template>
-          <template #node-fg-input="nodeProps"
-            ><InputNode v-bind="nodeProps"
-          /></template>
-          <template #node-fg-output="nodeProps"
-            ><OutputNode v-bind="nodeProps"
-          /></template>
-          <template #node-fg-if="nodeProps"
-            ><IfNode v-bind="nodeProps"
-          /></template>
-          <template #node-fg-merge="nodeProps"
-            ><MergeNode v-bind="nodeProps"
-          /></template>
-          <template #node-fg-for="nodeProps"
-            ><ForNode v-bind="nodeProps"
-          /></template>
-          <template #node-fg-while="nodeProps"
-            ><WhileNode v-bind="nodeProps"
-          /></template>
-          <template #node-call="nodeProps"
-            ><CallNode v-bind="nodeProps"
-          /></template>
+          <!-- Start / End / Merge: non-editable, non-deletable -->
+          <template #node-start="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <StartNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="false"
+                :can-edit="false"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-end="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <EndNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="false"
+                :can-edit="false"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-fg-merge="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <MergeNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="false"
+                :can-edit="false"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+
+          <!-- Editable / deletable nodes -->
+          <template #node-default="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <div
+                  class="default-node-fallback"
+                  :class="{ 'is-empty': nodeProps.data?.isEmpty }"
+                  :style="{ width: (nodeProps.data?.width ?? 120) + 'px', height: (nodeProps.data?.height ?? 50) + 'px' }"
+                >{{ nodeProps.data?.label ?? '' }}</div>
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="canDeleteNode(nodeProps)"
+                :can-edit="canEditNode(nodeProps)"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-declare="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <DeclareNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="canDeleteNode(nodeProps)"
+                :can-edit="canEditNode(nodeProps)"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-assign="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <AssignNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="canDeleteNode(nodeProps)"
+                :can-edit="canEditNode(nodeProps)"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-fg-input="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <InputNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="canDeleteNode(nodeProps)"
+                :can-edit="canEditNode(nodeProps)"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-fg-output="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <OutputNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="canDeleteNode(nodeProps)"
+                :can-edit="canEditNode(nodeProps)"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-fg-if="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <IfNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="canDeleteNode(nodeProps)"
+                :can-edit="canEditNode(nodeProps)"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-fg-for="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <ForNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="canDeleteNode(nodeProps)"
+                :can-edit="canEditNode(nodeProps)"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-fg-while="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <WhileNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="canDeleteNode(nodeProps)"
+                :can-edit="canEditNode(nodeProps)"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
+          <template #node-call="nodeProps">
+            <ContextMenu @contextmenu="onNodeContextMenu">
+              <ContextMenuTrigger as-child>
+                <CallNode v-bind="nodeProps" />
+              </ContextMenuTrigger>
+              <NodeContextMenu
+                :node-id="nodeProps.id"
+                :can-delete="canDeleteNode(nodeProps)"
+                :can-edit="canEditNode(nodeProps)"
+                @edit="handleNodeContextEdit"
+                @delete="deleteNodeById"
+              />
+            </ContextMenu>
+          </template>
         </VueFlow>
         </TooltipProvider>
       </div>
