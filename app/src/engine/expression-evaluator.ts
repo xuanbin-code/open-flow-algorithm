@@ -29,13 +29,16 @@ function normalizeExpression(expr: string): string {
   // 1. 先替换多字符运算符（避免 <> 中的 = 被单独替换）
   result = result.replace(/<>/g, '!==')
 
-  // 2. 替换 = 为 ===（但要避开已经替换过的 !==, <=, >=）
-  result = result.replace(/(?<![!<>])=(?!=)/g, '===')
+  // 2. 替换 == 为 ===（必须在单独 = 之前处理；避开 !== 中的 ==）
+  result = result.replace(/(?<!!)==(?!=)/g, '===')
 
-  // 3. 幂运算
+  // 3. 替换单个 = 为 ===（避开 !==, ==, <=, >= 以及已替换的 ===）
+  result = result.replace(/(?<![!<>=])=(?!=)/g, '===')
+
+  // 4. 幂运算
   result = result.replace(/\^/g, '**')
 
-  // 4. 关键字替换（用词边界避免误伤变量名 like "android" / "notify"）
+  // 5. 关键字替换（用词边界避免误伤变量名 like "android" / "notify"）
   result = result.replace(/\band\b/gi, '&&')
   result = result.replace(/\bor\b/gi, '||')
   result = result.replace(/\bnot\b/gi, '!')

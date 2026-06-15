@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="未命名"/>
+        <attribute name="authors" value=""/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2026-06-15"/>
+    </attributes>
+    <function name="Main" type="" variable="">
+        <parameters/>
+        <body>
+            <declare name="r" type="Integer" array="False" size=""/>
+            <call expression="fib(2)" result="r"/>
+            <output expression="r" newline="True"/>
+        </body>
+    </function>
+    <function name="fib" type="Integer" variable="res">
+        <parameters>
+            <parameter name="n" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="res" type="Integer" array="False" size="" tag="return"/>
+            <declare name="n" type="Integer" array="False" size="" tag="parameter"/>
+            <if expression="n==0">
+                <then>
+                    <assign variable="res" expression="0"/>
+                </then>
+                <else></else>
+            </if>
+            <if expression="n == 1">
+                <then>
+                    <assign variable="res" expression="1"/>
+                </then>
+                <else>
+                    <assign variable="res" expression="fib(n-1)+fib(n-2)"/>
+                </else>
+            </if>
+        </body>
+    </function>
+</flowgorithm>

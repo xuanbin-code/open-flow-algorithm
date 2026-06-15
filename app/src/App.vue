@@ -1349,7 +1349,7 @@ async function handleSaveAs() {
         @delete-function="onDeleteFunction"
         @toggle-execution="onToggleExecution"
       />
-      <div class="flow-container" :class="{ 'flow-ready': isContentReady }">
+      <div class="flow-container" :class="{ 'flow-ready': isContentReady }" @contextmenu="onNodeContextMenu">
         <TooltipProvider :delay-duration="500">
         <VueFlow
           :key="activeFunctionName"
@@ -1379,8 +1379,8 @@ async function handleSaveAs() {
           <Controls />
           <!-- Start / End / Merge: non-editable, non-deletable -->
           <template #node-start="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <StartNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1393,8 +1393,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-end="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <EndNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1407,8 +1407,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-fg-merge="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <MergeNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1423,8 +1423,8 @@ async function handleSaveAs() {
 
           <!-- Editable / deletable nodes -->
           <template #node-default="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <div
                   class="default-node-fallback"
                   :class="{ 'is-empty': nodeProps.data?.isEmpty }"
@@ -1441,8 +1441,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-declare="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <DeclareNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1455,8 +1455,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-assign="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <AssignNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1469,8 +1469,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-fg-input="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <InputNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1483,8 +1483,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-fg-output="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <OutputNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1497,8 +1497,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-fg-if="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <IfNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1511,8 +1511,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-fg-for="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <ForNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1525,8 +1525,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-fg-while="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <WhileNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
@@ -1539,8 +1539,8 @@ async function handleSaveAs() {
             </ContextMenu>
           </template>
           <template #node-call="nodeProps">
-            <ContextMenu @contextmenu="onNodeContextMenu">
-              <ContextMenuTrigger as-child>
+            <ContextMenu>
+              <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                 <CallNode v-bind="nodeProps" />
               </ContextMenuTrigger>
               <NodeContextMenu
