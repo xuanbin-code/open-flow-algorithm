@@ -6,6 +6,10 @@
 
 import { i18n } from '../i18n'
 const t = i18n.global.t
+
+/** 可传入 evaluateExpression 的用户自定义函数映射 */
+export type EvalFunctions = Record<string, (...args: unknown[]) => unknown>
+
 // ============================================================
 
 /**
@@ -112,6 +116,7 @@ export function parseArrayAccess(variable: string): {
 export function evaluateExpression(
   expr: string,
   variables: Record<string, unknown>,
+  functions?: EvalFunctions,
 ): unknown {
   if (!expr || expr.trim() === '') return undefined
 
@@ -132,12 +137,25 @@ export function evaluateExpression(
     jsExpr = normalizeExpression(expr)
   }
 
-  // 收集变量名列表，作为 Function 参数传入
+  // 收集变量名和函数名列表，作为 Function 参数传入
   const varNames = Object.keys(variables)
+  const funcNames = functions ? Object.keys(functions) : []
+
+  // 合并参数名（避免重复：函数名优先于变量名）
+  const allNames = [...varNames]
+  const allValues: unknown[] = varNames.map((n) => variables[n])
+  if (functions) {
+    for (const fname of funcNames) {
+      if (!allNames.includes(fname)) {
+        allNames.push(fname)
+        allValues.push(functions[fname])
+      }
+    }
+  }
 
   try {
-    const fn = new Function(...varNames, `return (${jsExpr})`)
-    const result = fn(...varNames.map((n) => variables[n]))
+    const fn = new Function(...allNames, `return (${jsExpr})`)
+    const result = fn(...allValues)
 
     // 类型转换：根据变量声明类型转换赋值结果
     return result

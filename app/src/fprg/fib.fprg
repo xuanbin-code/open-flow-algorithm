@@ -21,15 +21,9 @@
         <body>
             <declare name="res" type="Integer" array="False" size="" tag="return"/>
             <declare name="n" type="Integer" array="False" size="" tag="parameter"/>
-            <if expression="n==0">
+            <if expression="n &lt;= 1">
                 <then>
-                    <assign variable="res" expression="0"/>
-                </then>
-                <else></else>
-            </if>
-            <if expression="n == 1">
-                <then>
-                    <assign variable="res" expression="1"/>
+                    <assign variable="res" expression="n"/>
                 </then>
                 <else>
                     <assign variable="res" expression="fib(n-1)+fib(n-2)"/>

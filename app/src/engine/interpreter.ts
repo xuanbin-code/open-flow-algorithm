@@ -5,9 +5,9 @@
 // 外部（index.vue）通过驱动 generator 来控制运行/步进/终止。
 // ============================================================
 
-import type { Program, Statement, IfStatement, WhileStatement, ForStatement } from './fprg-ast'
+import type { Program, Statement, IfStatement, WhileStatement, ForStatement, FunctionDef } from './fprg-ast'
 import { splitDeclareNames } from './fprg-ast'
-import { evaluateExpression, coerceValue, defaultValueForType, parseArrayAccess } from './expression-evaluator'
+import { evaluateExpression, coerceValue, defaultValueForType, parseArrayAccess, type EvalFunctions } from './expression-evaluator'
 import { i18n } from '../i18n'
 const t = i18n.global.t
 
@@ -39,6 +39,10 @@ export interface RuntimeState {
   currentFunctionName: string
   /** program 引用（用于函数查找） */
   _program?: Program
+  /** 同步函数包装器（在 createInterpreter 中构建，供表达式求值时注入） */
+  _syncFunctions?: EvalFunctions
+  /** 同步递归深度计数器（防止无限递归导致栈溢出） */
+  _syncRecursionDepth?: number
 }
 
 export type InterpreterEvent =
@@ -56,6 +60,7 @@ export type InterpreterEvent =
 // ============================================================
 
 const MAX_ITERATIONS = 10000
+const MAX_SYNC_RECURSION_DEPTH = 1000
 
 /**
  * 解析调用表达式，提取函数名和参数列表。
@@ -104,6 +109,14 @@ function parseCallExpression(expr: string): { name: string; args: string[] } | n
   return { name: funcName, args }
 }
 
+/**
+ * 便捷包装器：用当前作用域的变量 + 用户自定义函数求值表达式。
+ * 使 evaluateExpression 调用中自动注入 _syncFunctions。
+ */
+function evaluateExpr(expr: string, state: RuntimeState): unknown {
+  return evaluateExpression(expr, state.variables, state._syncFunctions)
+}
+
 // ============================================================
 // createInterpreter
 // ============================================================
@@ -128,6 +141,9 @@ export function createInterpreter(program: Program): {
   if (mainFunc) {
     collectDeclarations(mainFunc.body, state)
   }
+
+  // 预构建同步函数包装器（供表达式中的递归/交叉调用）
+  state._syncFunctions = buildSyncFunctionWrappers(program, state)
 
   const generator = runProgram(program, state)
   return { state, generator }
@@ -157,6 +173,25 @@ function collectDeclarations(statements: Statement[], state: RuntimeState): void
       collectDeclarations(stmt.body, state)
     }
   }
+}
+
+/**
+ * 构建用户自定义函数的同步包装器映射。
+ * 每个包装器捕获 funcDef、program、state，在求值表达式时注入作用域。
+ * Main 函数排除 —— 不能作为子函数调用。
+ */
+function buildSyncFunctionWrappers(
+  program: Program,
+  state: RuntimeState,
+): EvalFunctions {
+  const wrappers: EvalFunctions = {}
+  for (const funcDef of program.functions) {
+    if (funcDef.name === 'Main') continue
+    wrappers[funcDef.name] = (...args: unknown[]) => {
+      return executeFunctionSync(funcDef, args, program, state)
+    }
+  }
+  return wrappers
 }
 
 // ============================================================
@@ -289,14 +324,14 @@ async function* executeDeclare(
       if (name in state.variables) continue // 不覆盖已有变量
 
       if (stmt.expression) {
-        const result = evaluateExpression(stmt.expression, state.variables)
+        const result = evaluateExpr(stmt.expression, state)
 
         if (Array.isArray(result)) {
           // 数组字面量初始化 → 直接赋值，自动确定长度
           state.variables[name] = result
         } else {
           // 标量表达式 → 创建 size 长度的数组并填充该值
-          const sizeValue = evaluateExpression(stmt.size || '0', state.variables)
+          const sizeValue = evaluateExpr(stmt.size || '0', state)
           const size = Math.max(0, Math.floor(Number(sizeValue)))
           if (isNaN(size) || !isFinite(size)) {
             throw new Error(t('engine.error.arraySizeInvalid', { name, size: stmt.size }))
@@ -309,7 +344,7 @@ async function* executeDeclare(
         }
       } else {
         // 无初始化表达式 → 默认值填充
-        const sizeValue = evaluateExpression(stmt.size || '0', state.variables)
+        const sizeValue = evaluateExpr(stmt.size || '0', state)
         const size = Math.max(0, Math.floor(Number(sizeValue)))
         if (isNaN(size) || !isFinite(size)) {
           throw new Error(t('engine.error.arraySizeInvalid', { name, size: stmt.size }))
@@ -333,7 +368,7 @@ async function* executeDeclare(
     if (name in state.variables) continue // 不覆盖已有变量
 
     if (stmt.expression) {
-      const result = evaluateExpression(stmt.expression, state.variables)
+      const result = evaluateExpr(stmt.expression, state)
       state.variables[name] = coerceValue(result, flowType)
     } else {
       state.variables[name] = defaultValueForType(flowType)
@@ -354,7 +389,7 @@ async function* executeAssign(
     return
   }
 
-  const value = evaluateExpression(stmt.expression, state.variables)
+  const value = evaluateExpr(stmt.expression, state)
 
   // 解析数组下标：如 "arr[0]" → name="arr", indexExpr="0"
   const access = parseArrayAccess(stmt.variable)
@@ -366,7 +401,7 @@ async function* executeAssign(
     if (!Array.isArray(arr)) {
       throw new Error(t('engine.error.notArray', { name }))
     }
-    const rawIndex = evaluateExpression(indexExpr!, state.variables)
+    const rawIndex = evaluateExpr(indexExpr!, state)
     const index = Math.floor(Number(rawIndex))
     if (isNaN(index) || !isFinite(index)) {
       throw new Error(`数组 "${name}" 的索引无效: ${indexExpr}`)
@@ -416,7 +451,7 @@ async function* executeInput(
     if (!Array.isArray(arr)) {
       throw new Error(t('engine.error.notArray', { name }))
     }
-    const rawIndex = evaluateExpression(indexExpr!, state.variables)
+    const rawIndex = evaluateExpr(indexExpr!, state)
     const index = Math.floor(Number(rawIndex))
     if (isNaN(index) || !isFinite(index)) {
       throw new Error(t('engine.error.indexInvalid', { name, indexExpr }))
@@ -449,7 +484,7 @@ async function* executeOutput(
 ): AsyncGenerator<InterpreterEvent> {
   if (!stmt.expression) return
 
-  const value = evaluateExpression(stmt.expression, state.variables)
+  const value = evaluateExpr(stmt.expression, state)
   const text = formatOutputValue(value, stmt.newline)
   state.output.push(text)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -468,7 +503,7 @@ async function* executeCall(
   if (!parsed) {
     // 无法解析，回退到表达式求值
     try {
-      evaluateExpression(stmt.expression, state.variables)
+      evaluateExpr(stmt.expression, state)
     } catch { /* 忽略 */ }
     return
   }
@@ -481,7 +516,7 @@ async function* executeCall(
     // 不是用户函数（或不能调用 Main），回退到表达式求值
     // 用于 Math.sqrt、Random 等内置调用
     try {
-      evaluateExpression(stmt.expression, state.variables)
+      evaluateExpr(stmt.expression, state)
     } catch { /* 忽略 */ }
     return
   }
@@ -495,7 +530,7 @@ async function* executeCall(
   for (const argExpr of parsed.args) {
     const trimmed = argExpr.trim()
     if (trimmed) {
-      argValues.push(evaluateExpression(trimmed, state.variables))
+      argValues.push(evaluateExpr(trimmed, state))
     } else {
       argValues.push(undefined)
     }
@@ -589,7 +624,7 @@ async function* executeIf(
     yield { type: 'statement-enter', statement: stmt, nodeId }
   }
 
-  const cond = evaluateExpression(stmt.expression, state.variables)
+  const cond = evaluateExpr(stmt.expression, state)
 
   if (nodeId) {
     yield { type: 'statement-leave', statement: stmt, nodeId }
@@ -629,7 +664,7 @@ async function* executeWhile(
       yield { type: 'statement-enter', statement: stmt, nodeId }
     }
 
-    const cond = evaluateExpression(stmt.expression, state.variables)
+    const cond = evaluateExpr(stmt.expression, state)
 
     if (nodeId) {
       yield { type: 'statement-leave', statement: stmt, nodeId }
@@ -651,9 +686,9 @@ async function* executeFor(
   const varName = stmt.variable
   if (!varName) return
 
-  const startVal = evaluateExpression(stmt.start || '0', state.variables)
-  const endVal = evaluateExpression(stmt.end || '0', state.variables)
-  const stepVal = evaluateExpression(stmt.step || '1', state.variables)
+  const startVal = evaluateExpr(stmt.start || '0', state)
+  const endVal = evaluateExpr(stmt.end || '0', state)
+  const stepVal = evaluateExpr(stmt.step || '1', state)
 
   // 推断循环变量类型
   state.variableTypes[varName] = state.variableTypes[varName] || 'Integer'
@@ -721,7 +756,7 @@ async function* executeDo(
       yield { type: 'statement-enter', statement: stmt, nodeId }
     }
 
-    const cond = evaluateExpression(stmt.expression, state.variables)
+    const cond = evaluateExpr(stmt.expression, state)
 
     if (nodeId) {
       yield { type: 'statement-leave', statement: stmt, nodeId }
@@ -731,6 +766,371 @@ async function* executeDo(
 
     if (!cond) break
   } while (true)
+}
+
+// ============================================================
+// 同步函数执行器（供表达式中的函数调用使用）
+//
+// 这些函数是异步 Generator 执行器的同步镜像，用于
+// evaluateExpression → 用户自定义函数包装器 → 同步执行函数体。
+// 不产生事件、不检查暂停、不修改 state.callFrames。
+// ============================================================
+
+/**
+ * 同步执行一个用户自定义函数，返回其返回值。
+ * 保存/恢复调用者作用域，JS 调用栈天然提供递归深度。
+ */
+function executeFunctionSync(
+  funcDef: FunctionDef,
+  args: unknown[],
+  program: Program,
+  state: RuntimeState,
+): unknown {
+  // 递归深度守卫：防止无限递归导致的栈溢出
+  const depth = (state._syncRecursionDepth ?? 0) + 1
+  if (depth > MAX_SYNC_RECURSION_DEPTH) {
+    throw new Error(
+      t('engine.error.syncRecursionDepthExceeded', { max: String(MAX_SYNC_RECURSION_DEPTH) }),
+    )
+  }
+  state._syncRecursionDepth = depth
+
+  try {
+    // 1. 创建新作用域并绑定参数
+    const newVars: Record<string, unknown> = {}
+  const newTypes: Record<string, string> = {}
+
+  for (let i = 0; i < funcDef.parameters.length; i++) {
+    const param = funcDef.parameters[i]
+    const rawValue = i < args.length ? args[i] : undefined
+    const value = rawValue !== undefined && rawValue !== null
+      ? coerceValue(rawValue, param.type)
+      : defaultValueForType(param.type)
+
+    newVars[param.name] = param.array ? (Array.isArray(value) ? value : [value]) : value
+    newTypes[param.name] = param.array ? param.type + '[]' : param.type
+  }
+
+  // 2. 预扫描函数体中的 declare（类型信息 + 默认值）
+  collectDeclarations(funcDef.body, { variables: newVars, variableTypes: newTypes } as RuntimeState)
+
+  // 3. 保存调用者作用域
+  const savedVars = state.variables
+  const savedTypes = state.variableTypes
+
+  // 4. 切换到被调用者作用域
+  state.variables = newVars
+  state.variableTypes = newTypes
+
+  let returnValue: unknown = undefined
+
+  try {
+    executeBlockSync(funcDef.body, program, state)
+
+    // 5. 捕获返回值（仅在成功路径）
+    if (funcDef.variable) {
+      returnValue = state.variables[funcDef.variable]
+    }
+    } finally {
+      // 6. 始终恢复调用者作用域
+      state.variables = savedVars
+      state.variableTypes = savedTypes
+    }
+
+    return returnValue
+  } finally {
+    // 7. 始终递减递归深度
+    state._syncRecursionDepth = (state._syncRecursionDepth ?? 1) - 1
+  }
+}
+
+/** 同步遍历语句列表并分发执行 */
+function executeBlockSync(
+  statements: Statement[],
+  program: Program,
+  state: RuntimeState,
+): void {
+  if (!statements || !Array.isArray(statements)) return
+  for (const stmt of statements) {
+    executeStatementSync(stmt, program, state)
+  }
+}
+
+/** 同步分发单条语句 */
+function executeStatementSync(
+  stmt: Statement,
+  program: Program,
+  state: RuntimeState,
+): void {
+  switch (stmt.kind) {
+    case 'declare':
+      executeDeclareSync(stmt, state)
+      break
+    case 'assign':
+      executeAssignSync(stmt, state)
+      break
+    case 'if':
+      executeIfSync(stmt, program, state)
+      break
+    case 'while':
+      executeWhileSync(stmt, program, state)
+      break
+    case 'for':
+      executeForSync(stmt, program, state)
+      break
+    case 'do':
+      executeDoSync(stmt, program, state)
+      break
+    case 'call':
+      executeCallSync(stmt, program, state)
+      break
+    case 'output':
+      // no-op：显示输出与表达式求值无关
+      break
+    case 'input':
+      throw new Error(t('engine.error.inputDuringExpressionEval'))
+    case 'more':
+      // 占位节点，无操作
+      break
+  }
+}
+
+/** 同步执行 declare 语句 */
+function executeDeclareSync(
+  stmt: Statement & { kind: 'declare' },
+  state: RuntimeState,
+): void {
+  const names = splitDeclareNames(stmt.name)
+  if (names.length === 0 || !names.some((n) => n)) return
+  const flowType = stmt.type || 'Integer'
+
+  // ----------------------------------------------------------
+  // 数组声明
+  // ----------------------------------------------------------
+  if (stmt.array) {
+    for (const name of names) {
+      if (!name) continue
+      state.variableTypes[name] = flowType + '[]'
+      if (name in state.variables) continue
+
+      if (stmt.expression) {
+        const result = evaluateExpr(stmt.expression, state)
+
+        if (Array.isArray(result)) {
+          state.variables[name] = result
+        } else {
+          const sizeValue = evaluateExpr(stmt.size || '0', state)
+          const size = Math.max(0, Math.floor(Number(sizeValue)))
+          if (isNaN(size) || !isFinite(size)) {
+            throw new Error(t('engine.error.arraySizeInvalid', { name, size: stmt.size }))
+          }
+          if (size > 1_000_000) {
+            throw new Error(t('engine.error.arraySizeExceeded', { name, size }))
+          }
+          const val = coerceValue(result, flowType)
+          state.variables[name] = new Array(size).fill(val)
+        }
+      } else {
+        const sizeValue = evaluateExpr(stmt.size || '0', state)
+        const size = Math.max(0, Math.floor(Number(sizeValue)))
+        if (isNaN(size) || !isFinite(size)) {
+          throw new Error(t('engine.error.arraySizeInvalid', { name, size: stmt.size }))
+        }
+        if (size > 1_000_000) {
+          throw new Error(t('engine.error.arraySizeExceeded', { name, size }))
+        }
+        const defaultValue = defaultValueForType(flowType)
+        state.variables[name] = new Array(size).fill(defaultValue)
+      }
+    }
+    return
+  }
+
+  // ----------------------------------------------------------
+  // 标量声明
+  // ----------------------------------------------------------
+  for (const name of names) {
+    if (!name) continue
+    state.variableTypes[name] = flowType
+    if (name in state.variables) continue
+
+    if (stmt.expression) {
+      const result = evaluateExpr(stmt.expression, state)
+      state.variables[name] = coerceValue(result, flowType)
+    } else {
+      state.variables[name] = defaultValueForType(flowType)
+    }
+  }
+}
+
+/** 同步执行 assign 语句 */
+function executeAssignSync(
+  stmt: Statement & { kind: 'assign' },
+  state: RuntimeState,
+): void {
+  if (!stmt.variable || !stmt.expression) return
+
+  const value = evaluateExpr(stmt.expression, state)
+  const access = parseArrayAccess(stmt.variable)
+
+  if (access.indexExpr !== null) {
+    const { name, indexExpr } = access
+    const arr = state.variables[name]
+    if (!Array.isArray(arr)) {
+      throw new Error(t('engine.error.notArray', { name }))
+    }
+    const rawIndex = evaluateExpr(indexExpr!, state)
+    const index = Math.floor(Number(rawIndex))
+    if (isNaN(index) || !isFinite(index)) {
+      throw new Error(`数组 "${name}" 的索引无效: ${indexExpr}`)
+    }
+    if (index < 0 || index >= arr.length) {
+      throw new Error(
+        t('engine.error.indexOutOfBounds', { name, index, size: arr.length }),
+      )
+    }
+    const elemType = (state.variableTypes[name] || '').replace(/\[\]$/, '')
+    arr[index] = coerceValue(value, elemType)
+  } else {
+    const varType = state.variableTypes[stmt.variable] || ''
+    state.variables[stmt.variable] = coerceValue(value, varType)
+  }
+}
+
+/** 同步执行 if 语句 */
+function executeIfSync(
+  stmt: IfStatement,
+  program: Program,
+  state: RuntimeState,
+): void {
+  if (!stmt.expression) return
+  const cond = evaluateExpr(stmt.expression, state)
+  if (cond) {
+    executeBlockSync(stmt.thenBranch, program, state)
+  } else {
+    executeBlockSync(stmt.elseBranch, program, state)
+  }
+}
+
+/** 同步执行 while 语句（带 MAX_ITERATIONS 守卫） */
+function executeWhileSync(
+  stmt: WhileStatement,
+  program: Program,
+  state: RuntimeState,
+): void {
+  if (!stmt.expression) return
+  let iterations = 0
+  while (evaluateExpr(stmt.expression, state)) {
+    if (++iterations > MAX_ITERATIONS) {
+      throw new Error(
+        t('engine.error.loopMaxIterations', { kind: 'while', max: MAX_ITERATIONS }),
+      )
+    }
+    executeBlockSync(stmt.body, program, state)
+  }
+}
+
+/** 同步执行 for 语句（带 MAX_ITERATIONS 守卫） */
+function executeForSync(
+  stmt: ForStatement,
+  program: Program,
+  state: RuntimeState,
+): void {
+  const varName = stmt.variable
+  if (!varName) return
+
+  const startVal = evaluateExpr(stmt.start || '0', state)
+  const endVal = evaluateExpr(stmt.end || '0', state)
+  const stepVal = evaluateExpr(stmt.step || '1', state)
+
+  state.variableTypes[varName] = state.variableTypes[varName] || 'Integer'
+  state.variables[varName] = coerceValue(startVal, state.variableTypes[varName])
+
+  const step = Number(stepVal) || 1
+  const end = Number(endVal) || 0
+
+  let iterations = 0
+  while (true) {
+    if (++iterations > MAX_ITERATIONS) {
+      throw new Error(
+        t('engine.error.loopMaxIterations', { kind: 'for', max: MAX_ITERATIONS }),
+      )
+    }
+
+    const current = Number(state.variables[varName])
+    const shouldBreak = step > 0 ? current > end : current < end
+    if (shouldBreak) break
+
+    executeBlockSync(stmt.body, program, state)
+    state.variables[varName] = current + step
+  }
+}
+
+/** 同步执行 do 语句（带 MAX_ITERATIONS 守卫） */
+function executeDoSync(
+  stmt: Statement & { kind: 'do' },
+  program: Program,
+  state: RuntimeState,
+): void {
+  if (!stmt.expression) return
+  let iterations = 0
+  do {
+    if (++iterations > MAX_ITERATIONS) {
+      throw new Error(
+        t('engine.error.loopMaxIterations', { kind: 'do', max: MAX_ITERATIONS }),
+      )
+    }
+    executeBlockSync(stmt.body, program, state)
+  } while (evaluateExpr(stmt.expression, state))
+}
+
+/** 同步执行 call 语句 */
+function executeCallSync(
+  stmt: Statement & { kind: 'call' },
+  program: Program,
+  state: RuntimeState,
+): void {
+  if (!stmt.expression) return
+
+  const parsed = parseCallExpression(stmt.expression)
+  if (!parsed) {
+    // 非调用表达式，回退到表达式求值
+    try {
+      evaluateExpr(stmt.expression, state)
+    } catch { /* 忽略 */ }
+    return
+  }
+
+  // 查找用户定义函数
+  const funcDef = program.functions.find((f) => f.name === parsed.name)
+
+  if (!funcDef || funcDef.name === 'Main') {
+    // 内置函数或 Main，回退到表达式求值
+    try {
+      evaluateExpr(stmt.expression, state)
+    } catch { /* 忽略 */ }
+    return
+  }
+
+  // 在调用者作用域中求值参数
+  const argValues: unknown[] = []
+  for (const argExpr of parsed.args) {
+    const trimmed = argExpr.trim()
+    if (trimmed) {
+      argValues.push(evaluateExpr(trimmed, state))
+    } else {
+      argValues.push(undefined)
+    }
+  }
+
+  // 同步执行
+  const returnValue = executeFunctionSync(funcDef, argValues, program, state)
+
+  // 将返回值存入调用者作用域
+  if (stmt.result && returnValue !== undefined) {
+    state.variables[stmt.result] = returnValue
+    state.variableTypes[stmt.result] = funcDef.type
+  }
 }
 
 // ============================================================
