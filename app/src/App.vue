@@ -177,6 +177,28 @@ function syncVariables(state: RuntimeState) {
   }))
 }
 
+/** 为子函数窗口同步变量列表（使用该函数的 declare 语句构建 tagMap） */
+function syncSubWindowVariables(state: RuntimeState, funcName: string): VariableEntry[] {
+  const funcDef = program.value.functions.find(f => f.name === funcName)
+  if (!funcDef) return []
+
+  const tagMap: Record<string, 'return' | 'parameter'> = {}
+  for (const stmt of funcDef.body) {
+    if (stmt.kind === 'declare' && stmt.tag) {
+      for (const n of splitDeclareNames(stmt.name)) {
+        tagMap[n] = stmt.tag
+      }
+    }
+  }
+
+  return Object.keys(state.variables).map((name) => ({
+    name,
+    type: state.variableTypes[name] || '',
+    value: state.variables[name],
+    tag: tagMap[name],
+  }))
+}
+
 /** 根据活动函数重建流程图引擎 */
 function rebuildEngine() {
   engine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
@@ -614,6 +636,8 @@ async function driveInterpreter(mode: 'run' | 'step') {
                 if (edge) edge.animated = true
               }
               win.previousNodeId = event.nodeId
+              // 同步变量到子函数窗口
+              win.variables = syncSubWindowVariables(interpreterRuntime, topFrame.functionName)
             }
             // 未勾选的子函数 → 跳过高亮，不操作主画布
           } else {
@@ -645,6 +669,8 @@ async function driveInterpreter(mode: 'run' | 'step') {
             if (topFrame.instanceKey && subWindows.value[topFrame.instanceKey]) {
               const win = subWindows.value[topFrame.instanceKey]
               win.executingNodeIds = win.executingNodeIds.filter(id => id !== event.nodeId)
+              // 语句执行完毕后同步变量（assign 等在此刻才完成）
+              win.variables = syncSubWindowVariables(interpreterRuntime, topFrame.functionName)
             }
             // 未勾选的子函数 → 跳过
           } else {
@@ -668,6 +694,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
               executionCallStack[executionCallStack.length - 1].instanceKey = key
 
               const existingCount = Object.keys(subWindows.value).length
+              const vars = syncSubWindowVariables(interpreterRuntime, event.functionName)
               subWindows.value = {
                 ...subWindows.value,
                 [key]: {
@@ -680,6 +707,7 @@ async function driveInterpreter(mode: 'run' | 'step') {
                   visible: true,
                   left: 120 + (existingCount % 5) * 40,
                   top: 100 + (existingCount % 5) * 40,
+                  variables: vars,
                 },
               }
             }
@@ -692,6 +720,9 @@ async function driveInterpreter(mode: 'run' | 'step') {
           const frame = executionCallStack.pop()
           if (frame?.instanceKey && subWindows.value[frame.instanceKey]) {
             const key = frame.instanceKey
+            // 最终变量快照，让返回值在退出动画期间可见
+            subWindows.value[key].variables =
+              syncSubWindowVariables(interpreterRuntime, frame.functionName)
             // 先触发出场动画，动画结束后再删除
             subWindows.value[key].visible = false
             setTimeout(() => {

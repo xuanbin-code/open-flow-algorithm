@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, onUnmounted, computed } from 'vue'
-import { VueFlow, useVueFlow } from '@vue-flow/core'
+import { VueFlow, useVueFlow, Panel } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import type { FlowNode, FlowEdge } from '../engine/flowchart-engine'
+import type { VariableEntry } from '../types'
 import StartNode from './nodes/StartNode.vue'
 import EndNode from './nodes/EndNode.vue'
 import DeclareNode from './nodes/DeclareNode.vue'
@@ -15,6 +16,8 @@ import ForNode from './nodes/ForNode.vue'
 import WhileNode from './nodes/WhileNode.vue'
 import CallNode from './nodes/CallNode.vue'
 import { X } from './icons'
+import { ChevronDown, ChevronRight } from '@lucide/vue'
+import { Badge } from '@/components/ui/badge'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 // ============================================================
@@ -31,6 +34,7 @@ export interface SubWindowState {
   visible: boolean
   left: number
   top: number
+  variables: VariableEntry[]
 }
 
 // ============================================================
@@ -99,6 +103,30 @@ onUnmounted(() => {
 // ============================================================
 
 const isExecuting = computed(() => props.windowState.executingNodeIds.length > 0)
+
+// ============================================================
+// Inline variable monitor
+// ============================================================
+
+const varsCollapsed = ref(false)
+
+/** Sort: parameters first, then return value, then other locals */
+const sortedVariables = computed(() => {
+  const vars = [...props.windowState.variables]
+  return vars.sort((a, b) => {
+    const order = (tag: string | undefined) =>
+      tag === 'parameter' ? 0 : tag === 'return' ? 1 : 2
+    return order(a.tag) - order(b.tag)
+  })
+})
+
+const hasVariables = computed(() => props.windowState.variables.length > 0)
+
+function formatVarValue(value: unknown): string {
+  if (value === null || value === undefined) return 'null'
+  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  return String(value)
+}
 
 // ============================================================
 // Draggable state & handlers (adapted from VariableMonitor)
@@ -183,6 +211,53 @@ function onClose() {
           fit-view-on-init
         >
           <Background pattern-color="#aaa" :gap="20" />
+
+          <!-- Inline variable monitor — Panel anchored top-left -->
+          <Panel position="top-left" class="sub-fn-var-panel">
+            <div class="sub-fn-var-monitor" :class="{ collapsed: varsCollapsed }">
+              <button class="sub-fn-var-header" @click="varsCollapsed = !varsCollapsed">
+                <ChevronRight v-if="varsCollapsed" :size="12" />
+                <ChevronDown v-else :size="12" />
+                <span class="sub-fn-var-title">
+                  {{ $t('execution.variables') }}
+                  <span class="sub-fn-var-count">({{ props.windowState.variables.length }})</span>
+                </span>
+              </button>
+
+              <Transition name="vars-collapse">
+                <div v-if="!varsCollapsed && hasVariables" class="sub-fn-var-body">
+                  <div
+                    v-for="v in sortedVariables"
+                    :key="v.name"
+                    class="sub-fn-var-row"
+                  >
+                    <div class="sub-fn-var-name">
+                      <Badge
+                        v-if="v.tag === 'return'"
+                        variant="default"
+                        class="var-tag var-tag--return"
+                      >{{ $t('execution.varTagReturn') }}</Badge>
+                      <Badge
+                        v-if="v.tag === 'parameter'"
+                        variant="secondary"
+                        class="var-tag var-tag--param"
+                      >{{ $t('execution.varTagParameter') }}</Badge>
+                      <div class="sub-fn-var-info">
+                        <span class="sub-fn-var-label">{{ v.name }}</span>
+                        <span class="sub-fn-var-type">{{ v.type }}</span>
+                      </div>
+                    </div>
+                    <span class="sub-fn-var-value">{{ formatVarValue(v.value) }}</span>
+                  </div>
+                </div>
+              </Transition>
+
+              <div v-if="!varsCollapsed && !hasVariables" class="sub-fn-var-empty">
+                {{ $t('execution.noVariablesShort') }}
+              </div>
+            </div>
+          </Panel>
+
           <template #node-start="nodeProps">
             <StartNode v-bind="nodeProps" />
           </template>
@@ -365,6 +440,159 @@ function onClose() {
   border-style: dashed;
   opacity: 0.6;
 }
+
+/* ---- Inline variable monitor (glass-morphism Panel) ---- */
+.sub-fn-var-panel {
+  pointer-events: auto;
+}
+
+.sub-fn-var-monitor {
+  width: 170px;
+  background: color-mix(in srgb, var(--bg-panel) 82%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--border-medium) 60%, transparent);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  transition: width 0.25s ease;
+  user-select: none;
+}
+
+.sub-fn-var-monitor.collapsed {
+  width: auto;
+}
+
+.sub-fn-var-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 5px 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 10px;
+  transition: color 0.15s ease;
+}
+
+.sub-fn-var-header:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.sub-fn-var-title {
+  font-weight: 600;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.sub-fn-var-count {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.sub-fn-var-body {
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 2px 6px 6px;
+}
+
+.sub-fn-var-body::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sub-fn-var-body::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 3px;
+}
+
+.sub-fn-var-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  transition: background 0.12s ease;
+}
+
+.sub-fn-var-row:hover {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.sub-fn-var-name {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.sub-fn-var-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  min-width: 0;
+}
+
+.sub-fn-var-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.sub-fn-var-type {
+  font-size: 8px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.sub-fn-var-value {
+  font-size: 10px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  color: var(--accent);
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.var-tag {
+  font-size: 8px;
+  padding: 0 3px;
+  line-height: 14px;
+  flex-shrink: 0;
+}
+
+.var-tag--return {
+  background: color-mix(in srgb, var(--accent-yellow, #f1c40f) 85%, transparent);
+  color: #1a1a1a;
+}
+
+.var-tag--param {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.sub-fn-var-empty {
+  padding: 8px 10px;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+}
 </style>
 
 <!-- unscoped: @property must be global -->
@@ -400,5 +628,24 @@ function onClose() {
 .sub-fn-leave-to {
   opacity: 0;
   transform: scale(0.9);
+}
+
+/* ---- Variable monitor collapse transition ---- */
+.vars-collapse-enter-active {
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  max-height: 180px;
+  overflow: hidden;
+}
+
+.vars-collapse-leave-active {
+  transition: max-height 0.2s ease, opacity 0.15s ease;
+  max-height: 180px;
+  overflow: hidden;
+}
+
+.vars-collapse-enter-from,
+.vars-collapse-leave-to {
+  max-height: 0;
+  opacity: 0;
 }
 </style>
