@@ -112,6 +112,9 @@ const executionOutput = ref<string[]>([])
 /** 执行节点栈（Set）：支持嵌套语句（if/while/for）与内部语句同时高亮 */
 const executingNodeIds = ref<Set<string>>(new Set())
 const previousNodeId = ref<string | null>(null)
+/** Edge currently showing animated dashes (execution flow indicator).
+ *  Must be mutated through `findEdge()` to hit VueFlow's reactive proxy. */
+const previousAnimatedEdgeId = ref<string | null>(null)
 const executionSpeed = ref<'slow' | 'normal' | 'fast'>('normal')
 const SPEED_DELAYS: Record<string, number> = { slow: 1000, normal: 300, fast: 50 }
 
@@ -267,6 +270,7 @@ function createInvocation(
     edges: [...engineForFunction.edges],
     executingNodeIds: [],
     previousNodeId: null,
+    activeEdgeId: null,
     variables: options.variables ?? [],
     position: { x: 0, y: 0 },
   }
@@ -295,6 +299,7 @@ function markInvocationCompleted(id: string) {
   if (!inv) return
   inv.status = 'completed'
   inv.executingNodeIds = []
+  inv.activeEdgeId = null
 }
 
 function handleInvocationStatementEnter(frame: { functionName: string; invocationId: string | null } | undefined, nodeId: string) {
@@ -306,7 +311,18 @@ function handleInvocationStatementEnter(frame: { functionName: string; invocatio
     const edge = invocation.edges.find(
       e => e.source === invocation.previousNodeId && e.target === nodeId,
     )
-    if (edge) edge.animated = true
+    invocation.activeEdgeId = edge?.id ?? null
+  } else {
+    // First statement in this invocation: animate edge from Start node
+    const startNode = invocation.nodes.find(n => n.type === 'start')
+    if (startNode) {
+      const startEdge = invocation.edges.find(
+        e => e.source === startNode.id && e.target === nodeId,
+      )
+      invocation.activeEdgeId = startEdge?.id ?? null
+    } else {
+      invocation.activeEdgeId = null
+    }
   }
   invocation.previousNodeId = nodeId
   invocation.variables = invocation.functionName === 'Main'
@@ -319,6 +335,18 @@ function handleInvocationStatementLeave(frame: { functionName: string; invocatio
   if (!invocation || !interpreterRuntime) return
 
   invocation.executingNodeIds = invocation.executingNodeIds.filter(id => id !== nodeId)
+
+  // If heading to End node, animate that edge instead of clearing
+  const endNode = invocation.nodes.find(n => n.type === 'end')
+  if (endNode) {
+    const endEdge = invocation.edges.find(
+      e => e.source === nodeId && e.target === endNode.id,
+    )
+    invocation.activeEdgeId = endEdge?.id ?? null
+  } else {
+    invocation.activeEdgeId = null
+  }
+
   invocation.variables = invocation.functionName === 'Main'
     ? [...varEntries.value]
     : syncSubWindowVariables(interpreterRuntime, invocation.functionName)
@@ -329,11 +357,39 @@ function handleMainStatementEnter(frame: { functionName: string; invocationId: s
   executingNodeIds.value.add(nodeId)
   syncExecutionHighlight()
 
+  // Clear previous animated edge — only one edge animates at a time
+  if (previousAnimatedEdgeId.value) {
+    const prevEdge = findEdge(previousAnimatedEdgeId.value)
+    if (prevEdge) prevEdge.animated = false
+    previousAnimatedEdgeId.value = null
+  }
+
   if (previousNodeId.value) {
     const edge = edges.value.find(
       e => e.source === previousNodeId.value && e.target === nodeId,
     )
-    if (edge) edge.animated = true
+    if (edge) {
+      const reactiveEdge = findEdge(edge.id)
+      if (reactiveEdge) {
+        reactiveEdge.animated = true
+        previousAnimatedEdgeId.value = edge.id
+      }
+    }
+  } else {
+    // First statement: animate edge from Start node to the first executing node
+    const startNode = nodes.value.find(n => n.type === 'start')
+    if (startNode) {
+      const startEdge = edges.value.find(
+        e => e.source === startNode.id && e.target === nodeId,
+      )
+      if (startEdge) {
+        const reactiveEdge = findEdge(startEdge.id)
+        if (reactiveEdge) {
+          reactiveEdge.animated = true
+          previousAnimatedEdgeId.value = startEdge.id
+        }
+      }
+    }
   }
   previousNodeId.value = nodeId
 }
@@ -343,6 +399,26 @@ function handleMainStatementLeave(frame: { functionName: string; invocationId: s
   executingNodeIds.value.delete(nodeId)
   updateNodeData(nodeId, { executing: false })
   syncExecutionHighlight()
+
+  // If heading to End node, animate that edge
+  const endNode = nodes.value.find(n => n.type === 'end')
+  if (endNode) {
+    const endEdge = edges.value.find(
+      e => e.source === nodeId && e.target === endNode.id,
+    )
+    if (endEdge) {
+      // Clear previous animated edge first
+      if (previousAnimatedEdgeId.value) {
+        const prevEdge = findEdge(previousAnimatedEdgeId.value)
+        if (prevEdge) prevEdge.animated = false
+      }
+      const reactiveEdge = findEdge(endEdge.id)
+      if (reactiveEdge) {
+        reactiveEdge.animated = true
+        previousAnimatedEdgeId.value = endEdge.id
+      }
+    }
+  }
 }
 
 function pushInvocationFrame(event: Extract<InterpreterEvent, { type: 'function-enter' }>) {
@@ -443,7 +519,7 @@ watch(LP, () => {
   }, 30)
 })
 
-const { setViewport, updateNodeData, setCenter, findNode } = useVueFlow()
+const { setViewport, updateNodeData, setCenter, findNode, findEdge } = useVueFlow()
 
 // 视口定位：使用固定缩放比例将 Start 节点居中在视图中
 const settingsStore = useSettingsStore()
@@ -633,8 +709,10 @@ function onHighlightNode(nodeId: string) {
 
 function resetEdgeAnimation() {
   for (const edge of edges.value) {
-    edge.animated = false
+    const reactiveEdge = findEdge(edge.id)
+    if (reactiveEdge) reactiveEdge.animated = false
   }
+  previousAnimatedEdgeId.value = null
 }
 
 function resetExecution() {
@@ -653,6 +731,7 @@ function resetExecution() {
   lastHighlightedIds.value.clear()
 
   previousNodeId.value = null
+  previousAnimatedEdgeId.value = null
   interpreterRuntime = null
   interpreterGen = null
   stepResolve = null
@@ -1796,6 +1875,12 @@ async function handleSaveAs() {
 /* 连接线箭头填充 */
 .vue-flow__arrowclosed path {
   fill: var(--vf-pattern-color);
+}
+
+/* 执行流指示器 — 动画边路径（匹配节点执行发光的绿色主题） */
+.vue-flow__edge.animated .vue-flow__edge-path {
+  stroke: #35d07f;
+  stroke-width: 2.5px;
 }
 
 /* ---- Toast ---- */

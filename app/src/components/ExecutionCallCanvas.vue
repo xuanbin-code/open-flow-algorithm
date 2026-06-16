@@ -21,6 +21,8 @@ export interface InvocationViewState {
   edges: FlowEdge[]
   executingNodeIds: string[]
   previousNodeId: string | null
+  /** Edge ID that should show animated dashes (execution flow indicator) */
+  activeEdgeId: string | null
   variables: VariableEntry[]
   position: { x: number; y: number }
 }

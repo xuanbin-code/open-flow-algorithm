@@ -26,7 +26,7 @@ const props = defineProps<{
 
 const inv = computed(() => props.data.invocation)
 const flowId = computed(() => `call-node-${inv.value.id}`)
-const { updateNodeData } = useVueFlow(flowId.value)
+const { updateNodeData, findEdge } = useVueFlow(flowId.value)
 const varsCollapsed = ref(false)
 const lastHighlightedIds = ref<Set<string>>(new Set())
 
@@ -53,11 +53,20 @@ function formatVarValue(value: unknown): string {
   return String(value)
 }
 
+// Track the currently animated edge so we can clear it on transition
+let previousAnimatedEdgeId: string | null = null
+
 function resetAllHighlights() {
   for (const id of lastHighlightedIds.value) {
     updateNodeData(id, { executing: false })
   }
   lastHighlightedIds.value = new Set()
+
+  if (previousAnimatedEdgeId) {
+    const edge = findEdge(previousAnimatedEdgeId)
+    if (edge) edge.animated = false
+    previousAnimatedEdgeId = null
+  }
 }
 
 watch(
@@ -75,6 +84,26 @@ watch(
     }
 
     lastHighlightedIds.value = newSet
+  },
+)
+
+// Animate the edge indicated by activeEdgeId (set by handleInvocationStatementEnter)
+watch(
+  () => inv.value.activeEdgeId,
+  (newEdgeId) => {
+    // Clear previously animated edge
+    if (previousAnimatedEdgeId) {
+      const prevEdge = findEdge(previousAnimatedEdgeId)
+      if (prevEdge) prevEdge.animated = false
+    }
+
+    // Animate the new edge
+    if (newEdgeId) {
+      const edge = findEdge(newEdgeId)
+      if (edge) edge.animated = true
+    }
+
+    previousAnimatedEdgeId = newEdgeId ?? null
   },
 )
 
