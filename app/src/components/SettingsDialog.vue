@@ -240,6 +240,24 @@ const languageValue = computed({
 .preset-btn[data-active] {
   background-color: color-mix(in srgb, var(--accent) 15%, transparent);
 }
+
+/* 暗色模式 — 预设色块按钮使用深色表面背景，增强视觉层次 */
+:root:not([data-theme="light"]) .preset-btn {
+  background-color: var(--bg-toggle-btn);
+  border: 1px solid var(--border);
+}
+:root:not([data-theme="light"]) .preset-btn:hover {
+  background-color: var(--bg-toggle-btn-hover);
+}
+:root:not([data-theme="light"]) .preset-btn[data-active] {
+  background-color: color-mix(in srgb, var(--accent) 20%, var(--bg-toggle-btn));
+  border-color: var(--accent);
+}
+:root:not([data-theme="light"]) .preset-btn[data-active]:hover {
+  background-color: color-mix(in srgb, var(--accent) 20%, var(--bg-toggle-btn-hover));
+  border-color: var(--accent);
+}
+
 .zoom-slider {
   width: 100px;
   height: 4px;
