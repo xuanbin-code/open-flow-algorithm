@@ -126,12 +126,6 @@ function onDblClickTab(funcName: string) {
           >
             <SquareFunction :size="13" class="fn-tab-icon" />
             <span class="fn-tab-name">{{ func.name }}</span>
-            <span
-              v-if="func.parameters.length > 0"
-              class="fn-tab-param-hint"
-            >
-              ({{ func.parameters.length }})
-            </span>
             <button
               v-if="func.name !== 'Main'"
               class="fn-exec-toggle"
@@ -295,13 +289,6 @@ function onDblClickTab(funcName: string) {
   font-weight: 600;
 }
 
-.fn-tab-param-hint {
-  font-size: 10px;
-  color: var(--text-muted-3);
-  font-weight: 400;
-  flex-shrink: 0;
-}
-
 /* ---- Execution toggle icon (rightmost) ---- */
 .fn-exec-toggle {
   display: flex;
@@ -345,10 +332,6 @@ function onDblClickTab(funcName: string) {
 }
 
 .fn-sidebar.collapsed .fn-tab-icon {
-  display: none;
-}
-
-.fn-sidebar.collapsed .fn-tab-param-hint {
   display: none;
 }
 
