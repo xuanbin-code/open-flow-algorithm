@@ -43,6 +43,8 @@ export interface RuntimeState {
   _syncFunctions?: EvalFunctions
   /** 同步递归深度计数器（防止无限递归导致栈溢出） */
   _syncRecursionDepth?: number
+  /** 执行演示开关（函数名 → 是否启用逐步可视化）。未启用的函数在步进时直接同步执行，不产生事件。 */
+  _functionExecutionEnabled?: Record<string, boolean>
 }
 
 export type InterpreterEvent =
@@ -195,20 +197,24 @@ function evaluateExpr(expr: string, state: RuntimeState): unknown {
 // createInterpreter
 // ============================================================
 
-export function createInterpreter(program: Program): {
-  state: RuntimeState
-  generator: AsyncGenerator<InterpreterEvent>
-} {
-  const state: RuntimeState = {
-    variables: {},
-    variableTypes: {},
-    callFrames: [],
-    output: [],
-    currentStatement: null,
-    currentNodeId: null,
-    currentFunctionName: 'Main',
-    _program: program,
-  }
+export function createInterpreter(
+    program: Program,
+    functionExecutionEnabled?: Record<string, boolean>,
+  ): {
+    state: RuntimeState
+    generator: AsyncGenerator<InterpreterEvent>
+  } {
+    const state: RuntimeState = {
+      variables: {},
+      variableTypes: {},
+      callFrames: [],
+      output: [],
+      currentStatement: null,
+      currentNodeId: null,
+      currentFunctionName: 'Main',
+      _program: program,
+      _functionExecutionEnabled: functionExecutionEnabled,
+    }
 
   // 预先扫描 Main 函数体中所有 declare 语句，收集类型信息
   const mainFunc = program.functions.find((f) => f.name === 'Main')
@@ -618,6 +624,17 @@ async function* executeCall(
     }
   }
 
+  // 如果该函数未启用执行演示，则同步执行（不产生逐步事件），直接返回
+  const enabled = !state._functionExecutionEnabled || state._functionExecutionEnabled[funcDef.name]
+  if (!enabled) {
+    const returnValue = executeFunctionSync(funcDef, argValues, state._program!, state)
+    if (stmt.result && returnValue !== undefined) {
+      state.variables[stmt.result] = returnValue
+      state.variableTypes[stmt.result] = funcDef.type
+    }
+    return
+  }
+
   // 2. 创建新作用域
   const newVars: Record<string, unknown> = {}
   const newTypes: Record<string, string> = {}
@@ -840,6 +857,15 @@ async function* resolveExpression(
     if (!funcDef) {
       // 不应该发生，但安全回退
       break
+    }
+
+    // 如果该函数未启用执行演示，则同步执行（不产生逐步事件）
+    const enabled = !state._functionExecutionEnabled || state._functionExecutionEnabled[funcDef.name]
+    if (!enabled) {
+      const syncReturn = executeFunctionSync(funcDef, argValues, program, state)
+      const replacement = valueToLiteralString(syncReturn)
+      result = call.before + replacement + call.after
+      continue
     }
 
     // 通过异步 Generator 执行函数（产生 function-enter/leave 事件）

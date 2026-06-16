@@ -672,7 +672,7 @@ async function startExecution() {
 
   executionStatus.value = 'running'
 
-  const { state, generator } = createInterpreter(program.value)
+  const { state, generator } = createInterpreter(program.value, functionExecutionEnabled)
   interpreterRuntime = state
   interpreterGen = generator
 
@@ -700,7 +700,7 @@ async function stepExecution() {
       }]
     }
 
-    const { state, generator } = createInterpreter(program.value)
+    const { state, generator } = createInterpreter(program.value, functionExecutionEnabled)
     interpreterRuntime = state
     interpreterGen = generator
 
