@@ -1408,7 +1408,8 @@ async function handleSaveAs() {
         @delete-function="onDeleteFunction"
         @toggle-execution="onToggleExecution"
       />
-      <div class="flow-container" :class="{ 'flow-ready': isContentReady }" @contextmenu="onNodeContextMenu">
+      <div class="center-area">
+        <div class="flow-container" :class="{ 'flow-ready': isContentReady }" @contextmenu="onNodeContextMenu">
         <TooltipProvider :delay-duration="500">
         <VueFlow
           :key="activeFunctionName"
@@ -1614,6 +1615,11 @@ async function handleSaveAs() {
         </VueFlow>
         </TooltipProvider>
       </div>
+        <ExecutionCallCanvas
+          :invocations="invocations"
+          :visible="callCanvasVisible"
+        />
+      </div>
       <div class="right-panel">
         <VariableMonitor
           :variables="varEntries"
@@ -1638,10 +1644,6 @@ async function handleSaveAs() {
       :visible="showVariableMonitor && variableMonitorMode === 'window'"
       mode="window"
       @toggle-mode="variableMonitorMode = 'embedded'"
-    />
-    <ExecutionCallCanvas
-      :invocations="invocations"
-      :visible="callCanvasVisible"
     />
     <LayoutDebugPanel
       :params="LP"
@@ -1699,9 +1701,14 @@ async function handleSaveAs() {
   overflow: hidden;
   padding: 10px;
 }
+.center-area {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
 .flow-container {
   position: relative;
-  flex: 1;
+  width: 100%;
   min-width: 0;
   height: 100%;
   overflow: hidden;

@@ -144,13 +144,14 @@ function onNodeDragStop(event: any) {
 
 <style>
 .call-canvas-shell {
-  position: fixed;
-  inset: 42px 0 0 0;
-  z-index: 35;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--bg-canvas) 92%, transparent), var(--bg-canvas)),
     var(--bg-canvas);
-  border-top: 1px solid var(--border-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
 }
 
 .call-canvas-toolbar {
@@ -372,9 +373,12 @@ function onNodeDragStop(event: any) {
   opacity: 0.6;
 }
 
-.call-canvas-enter-active,
+.call-canvas-enter-active {
+  transition: opacity 0.3s ease-out;
+}
+
 .call-canvas-leave-active {
-  transition: opacity 0.18s ease;
+  transition: opacity 0.25s ease-in;
 }
 
 .call-canvas-enter-from,
