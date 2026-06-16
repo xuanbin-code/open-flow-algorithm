@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { VueFlow, useVueFlow, Panel, Handle, Position, type EdgeMarkerType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import type { FlowNode, FlowEdge } from '../engine/flowchart-engine'
@@ -36,6 +36,10 @@ const { setCenter, fitView } = useVueFlow(CALL_CANVAS_ID)
 // Card dimensions (matched to .invocation-card CSS: width 440px, height 420px)
 const CARD_HALF_W = 220
 const CARD_HALF_H = 210
+
+/** When true, automatic fitView is suppressed because auto-center
+ *  has taken control of viewport positioning during execution. */
+const autoCenterActive = ref(false)
 
 const invocationList = computed(() => Object.values(props.invocations))
 const rootInvocation = computed(() => invocationList.value.find(inv => inv.parentId === null))
@@ -79,7 +83,11 @@ const graphEdges = computed(() =>
 
 async function resetCallCanvasViewport() {
   await nextTick()
+  // Re-check: auto-center may have taken control while we yielded
+  if (autoCenterActive.value) return
   await new Promise(resolve => requestAnimationFrame(resolve))
+  // Re-check again: auto-center fires between nextTick and rAF
+  if (autoCenterActive.value) return
   try {
     await fitView({ padding: 0.15, duration: 0 })
   } catch {
@@ -87,10 +95,18 @@ async function resetCallCanvasViewport() {
   }
 }
 
+// Only fit-view on initial canvas appearance, not on every invocation-list change.
+// Auto-center handles viewport positioning during execution.
+// Reset the guard when canvas hides so next execution starts clean.
 watch(
-  () => props.visible && invocationList.value.length,
-  count => {
-    if (count) void resetCallCanvasViewport()
+  () => props.visible,
+  (visible) => {
+    if (visible && invocationList.value.length) {
+      void resetCallCanvasViewport()
+    }
+    if (!visible) {
+      autoCenterActive.value = false
+    }
   },
 )
 
@@ -105,6 +121,9 @@ watch(activeInvocationId, (newId, oldId) => {
   const inv = props.invocations[newId]
   if (!inv) return
 
+  // Suppress automatic fitView from overriding this animated transition
+  autoCenterActive.value = true
+
   try {
     void setCenter(
       inv.position.x + CARD_HALF_W,
@@ -117,6 +136,8 @@ watch(activeInvocationId, (newId, oldId) => {
 })
 
 function fitCallTree() {
+  // Allow fitView to execute for explicit user action
+  autoCenterActive.value = false
   void resetCallCanvasViewport()
 }
 

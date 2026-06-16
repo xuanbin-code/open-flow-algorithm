@@ -120,7 +120,7 @@ const functionExecutionEnabled = reactive<Record<string, boolean>>({})
 const fileLoadVersion = ref(0) // 每次 loadProgram 递增，强制 FunctionTabBar 重建
 const subEngineCache = new Map<string, FlowchartEngine>()
 const invocations = ref<Record<string, InvocationViewState>>({})
-const callCanvasRef = ref<InstanceType<typeof ExecutionCallCanvas> | null>(null)
+// const callCanvasRef = ref<InstanceType<typeof ExecutionCallCanvas> | null>(null)
 const callCanvasVisible = computed(() =>
   isExecuting.value && Object.values(invocations.value).some(inv => inv.parentId !== null),
 )
@@ -377,7 +377,6 @@ function pushInvocationFrame(event: Extract<InterpreterEvent, { type: 'function-
 
       // dagre auto-layout: reposition all cards after adding a child
       layoutCallTree()
-      void callCanvasRef.value?.fitCallTree()
     }
   }
 
