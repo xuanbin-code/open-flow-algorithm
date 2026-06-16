@@ -26,7 +26,7 @@ import SettingsDialog from './components/SettingsDialog.vue'
 import FunctionTabBar from './components/FunctionTabBar.vue'
 import FunctionDialog from './components/FunctionDialog.vue'
 import CallNode from './components/nodes/CallNode.vue'
-import SubFunctionFlowWindow, { type SubWindowState } from './components/SubFunctionFlowWindow.vue'
+import ExecutionCallCanvas, { type InvocationViewState } from './components/ExecutionCallCanvas.vue'
 import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
@@ -118,9 +118,11 @@ const SPEED_DELAYS: Record<string, number> = { slow: 1000, normal: 300, fast: 50
 const functionExecutionEnabled = reactive<Record<string, boolean>>({})
 const fileLoadVersion = ref(0) // 每次 loadProgram 递增，强制 FunctionTabBar 重建
 const subEngineCache = new Map<string, FlowchartEngine>()
-const subWindows = ref<Record<string, SubWindowState>>({})
-let executionCallStack: { functionName: string; instanceKey: string }[] = []
-let subWindowCounter = 0
+const invocations = ref<Record<string, InvocationViewState>>({})
+const callCanvasVisible = computed(() => isExecuting.value && Object.keys(invocations.value).length > 0)
+let executionCallStack: { functionName: string; invocationId: string | null }[] = []
+let invocationCounter = 0
+const invocationSiblingCounts = new Map<string, number>()
 
 /** 视图参数（仅影响视口，不触发 re-layout） */
 const vpZoom = ref(1)
@@ -200,6 +202,155 @@ function syncSubWindowVariables(state: RuntimeState, funcName: string): Variable
     value: state.variables[name],
     tag: tagMap[name],
   }))
+}
+
+function getInvocationLayout(parentId: string | null): { depth: number; siblingIndex: number; position: { x: number; y: number } } {
+  const depth = parentId ? (invocations.value[parentId]?.depth ?? 0) + 1 : 0
+  const siblingKey = parentId ?? 'root'
+  const siblingIndex = invocationSiblingCounts.get(siblingKey) ?? 0
+  invocationSiblingCounts.set(siblingKey, siblingIndex + 1)
+
+  const parent = parentId ? invocations.value[parentId] : null
+  const x = depth * 540
+  const y = parent
+    ? parent.position.y + (siblingIndex - 0.5) * 460 + 230
+    : 0
+
+  return { depth, siblingIndex, position: { x, y } }
+}
+
+function createInvocation(
+  functionName: string,
+  engineForFunction: FlowchartEngine,
+  options: {
+    parentId: string | null
+    callSiteNodeId?: string | null
+    callExpression?: string
+    variables?: VariableEntry[]
+  },
+): InvocationViewState {
+  const instanceId = ++invocationCounter
+  const id = `${functionName}_${instanceId}`
+  const layout = getInvocationLayout(options.parentId)
+
+  return {
+    id,
+    functionName,
+    instanceId,
+    parentId: options.parentId,
+    callSiteNodeId: options.callSiteNodeId ?? null,
+    callExpression: options.callExpression,
+    depth: layout.depth,
+    siblingIndex: layout.siblingIndex,
+    status: 'active',
+    nodes: [...engineForFunction.nodes],
+    edges: [...engineForFunction.edges],
+    executingNodeIds: [],
+    previousNodeId: null,
+    variables: options.variables ?? [],
+    position: layout.position,
+  }
+}
+
+function createRootInvocation() {
+  const rootEngine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
+  const root = createInvocation('Main', rootEngine, {
+    parentId: null,
+    variables: [],
+  })
+  invocations.value = { [root.id]: root }
+  executionCallStack = [{ functionName: 'Main', invocationId: root.id }]
+}
+
+function markInvocationCompleted(id: string) {
+  const inv = invocations.value[id]
+  if (!inv) return
+  inv.status = 'completed'
+  inv.executingNodeIds = []
+}
+
+function handleInvocationStatementEnter(frame: { functionName: string; invocationId: string | null } | undefined, nodeId: string) {
+  const invocation = frame?.invocationId ? invocations.value[frame.invocationId] : null
+  if (!invocation || !interpreterRuntime) return
+
+  invocation.executingNodeIds = [...invocation.executingNodeIds, nodeId]
+  if (invocation.previousNodeId) {
+    const edge = invocation.edges.find(
+      e => e.source === invocation.previousNodeId && e.target === nodeId,
+    )
+    if (edge) edge.animated = true
+  }
+  invocation.previousNodeId = nodeId
+  invocation.variables = invocation.functionName === 'Main'
+    ? [...varEntries.value]
+    : syncSubWindowVariables(interpreterRuntime, invocation.functionName)
+}
+
+function handleInvocationStatementLeave(frame: { functionName: string; invocationId: string | null } | undefined, nodeId: string) {
+  const invocation = frame?.invocationId ? invocations.value[frame.invocationId] : null
+  if (!invocation || !interpreterRuntime) return
+
+  invocation.executingNodeIds = invocation.executingNodeIds.filter(id => id !== nodeId)
+  invocation.variables = invocation.functionName === 'Main'
+    ? [...varEntries.value]
+    : syncSubWindowVariables(interpreterRuntime, invocation.functionName)
+}
+
+function handleMainStatementEnter(frame: { functionName: string; invocationId: string | null } | undefined, nodeId: string) {
+  if (frame?.functionName !== 'Main') return
+  executingNodeIds.value.add(nodeId)
+  syncExecutionHighlight()
+
+  if (previousNodeId.value) {
+    const edge = edges.value.find(
+      e => e.source === previousNodeId.value && e.target === nodeId,
+    )
+    if (edge) edge.animated = true
+  }
+  previousNodeId.value = nodeId
+}
+
+function handleMainStatementLeave(frame: { functionName: string; invocationId: string | null } | undefined, nodeId: string) {
+  if (frame?.functionName !== 'Main') return
+  executingNodeIds.value.delete(nodeId)
+  updateNodeData(nodeId, { executing: false })
+  syncExecutionHighlight()
+}
+
+function pushInvocationFrame(event: Extract<InterpreterEvent, { type: 'function-enter' }>) {
+  const parentFrame = executionCallStack[executionCallStack.length - 1]
+  const parentId = parentFrame?.invocationId ?? null
+  let invocationId: string | null = null
+
+  if (functionExecutionEnabled[event.functionName]) {
+    const cachedEngine = subEngineCache.get(event.functionName)
+    if (cachedEngine && interpreterRuntime) {
+      const invocation = createInvocation(event.functionName, cachedEngine, {
+        parentId,
+        callSiteNodeId: event.callerNodeId ?? null,
+        callExpression: event.callExpression,
+        variables: syncSubWindowVariables(interpreterRuntime, event.functionName),
+      })
+      invocationId = invocation.id
+      invocations.value = {
+        ...invocations.value,
+        [invocation.id]: invocation,
+      }
+    }
+  }
+
+  executionCallStack.push({
+    functionName: event.functionName,
+    invocationId,
+  })
+}
+
+function popInvocationFrame() {
+  const frame = executionCallStack.pop()
+  if (!frame?.invocationId || !interpreterRuntime || !invocations.value[frame.invocationId]) return
+  invocations.value[frame.invocationId].variables =
+    syncSubWindowVariables(interpreterRuntime, frame.functionName)
+  markInvocationCompleted(frame.invocationId)
 }
 
 /** 根据活动函数重建流程图引擎 */
@@ -478,9 +629,11 @@ function resetExecution() {
   }
 
   // 清理子函数执行窗口
+  // Clear function invocation canvas state.
   executionCallStack = []
-  subWindowCounter = 0
-  subWindows.value = {}
+  invocationCounter = 0
+  invocationSiblingCounts.clear()
+  invocations.value = {}
   subEngineCache.clear()
 }
 
@@ -504,6 +657,7 @@ async function startExecution() {
 
   // 预构建已勾选的子函数流程图（确保 _nodeId 在执行前已设置）
   preBuildSubEngines()
+  createRootInvocation()
 
   // 插入运行分隔线
   if (chatMessages.value.length > 0) {
@@ -533,6 +687,7 @@ async function stepExecution() {
 
     // 预构建已勾选的子函数流程图（确保 _nodeId 在执行前已设置）
     preBuildSubEngines()
+    createRootInvocation()
 
     // 插入运行分隔线
     if (chatMessages.value.length > 0) {
@@ -633,115 +788,31 @@ async function driveInterpreter(mode: 'run' | 'step') {
       switch (event.type) {
         case 'statement-enter': {
           const topFrame = executionCallStack[executionCallStack.length - 1]
-
-          if (topFrame) {
-            // 在子函数内部
-            if (topFrame.instanceKey && subWindows.value[topFrame.instanceKey]) {
-              // 已勾选的子函数 → 路由到浮动窗口
-              const win = subWindows.value[topFrame.instanceKey]
-              win.executingNodeIds = [...win.executingNodeIds, event.nodeId]
-              if (win.previousNodeId) {
-                const edge = win.edges.find(
-                  e => e.source === win.previousNodeId && e.target === event.nodeId,
-                )
-                if (edge) edge.animated = true
-              }
-              win.previousNodeId = event.nodeId
-              // 同步变量到子函数窗口
-              win.variables = syncSubWindowVariables(interpreterRuntime, topFrame.functionName)
-            }
-            // 未勾选的子函数 → 跳过高亮，不操作主画布
-          } else {
-            // Main 函数执行（原有逻辑）
-            executingNodeIds.value.add(event.nodeId)
-            syncExecutionHighlight()
-
-            if (previousNodeId.value) {
-              const edge = edges.value.find(
-                e => e.source === previousNodeId.value && e.target === event.nodeId,
-              )
-              if (edge) {
-                edge.animated = true
-              }
-            }
-            previousNodeId.value = event.nodeId
-          }
+          handleInvocationStatementEnter(topFrame, event.nodeId)
+          handleMainStatementEnter(topFrame, event.nodeId)
 
           syncVariables(interpreterRuntime)
+          if (topFrame?.functionName === 'Main' && topFrame.invocationId && invocations.value[topFrame.invocationId]) {
+            invocations.value[topFrame.invocationId].variables = [...varEntries.value]
+          }
           if (mode === 'step') sound.playTick()
           break
         }
         case 'statement-leave': {
           console.log(`[eventLoop] statement-leave nodeId=${event.nodeId}`)
           const topFrame = executionCallStack[executionCallStack.length - 1]
-
-          if (topFrame) {
-            // 在子函数内部
-            if (topFrame.instanceKey && subWindows.value[topFrame.instanceKey]) {
-              const win = subWindows.value[topFrame.instanceKey]
-              win.executingNodeIds = win.executingNodeIds.filter(id => id !== event.nodeId)
-              // 语句执行完毕后同步变量（assign 等在此刻才完成）
-              win.variables = syncSubWindowVariables(interpreterRuntime, topFrame.functionName)
-            }
-            // 未勾选的子函数 → 跳过
-          } else {
-            // Main 函数（原有逻辑）
-            executingNodeIds.value.delete(event.nodeId)
-            updateNodeData(event.nodeId, { executing: false })
-            syncExecutionHighlight()
-          }
+          handleInvocationStatementLeave(topFrame, event.nodeId)
+          handleMainStatementLeave(topFrame, event.nodeId)
           break
         }
         case 'function-enter': {
-          executionCallStack.push({
-            functionName: event.functionName,
-            instanceKey: '',
-          })
-          if (functionExecutionEnabled[event.functionName]) {
-            const cachedEngine = subEngineCache.get(event.functionName)
-            if (cachedEngine) {
-              const instanceId = ++subWindowCounter
-              const key = `${event.functionName}_${instanceId}`
-              executionCallStack[executionCallStack.length - 1].instanceKey = key
-
-              const existingCount = Object.keys(subWindows.value).length
-              const vars = syncSubWindowVariables(interpreterRuntime, event.functionName)
-              subWindows.value = {
-                ...subWindows.value,
-                [key]: {
-                  funcName: event.functionName,
-                  instanceId,
-                  nodes: [...cachedEngine.nodes],
-                  edges: [...cachedEngine.edges],
-                  executingNodeIds: [],
-                  previousNodeId: null,
-                  visible: true,
-                  left: 120 + (existingCount % 5) * 40,
-                  top: 100 + (existingCount % 5) * 40,
-                  variables: vars,
-                },
-              }
-            }
-          }
+          pushInvocationFrame(event)
           // 让 Vue 渲染窗口后再处理后续事件
           await nextTick()
           break
         }
         case 'function-leave': {
-          const frame = executionCallStack.pop()
-          if (frame?.instanceKey && subWindows.value[frame.instanceKey]) {
-            const key = frame.instanceKey
-            // 最终变量快照，让返回值在退出动画期间可见
-            subWindows.value[key].variables =
-              syncSubWindowVariables(interpreterRuntime, frame.functionName)
-            // 先触发出场动画，动画结束后再删除
-            subWindows.value[key].visible = false
-            setTimeout(() => {
-              const updated = { ...subWindows.value }
-              delete updated[key]
-              subWindows.value = updated
-            }, 350)
-          }
+          popInvocationFrame()
           break
         }
         case 'output': {
@@ -1112,18 +1183,6 @@ function onDeleteFunction(name: string) {
 
 function onToggleExecution(funcName: string, enabled: boolean) {
   functionExecutionEnabled[funcName] = enabled
-}
-
-function handleCloseSubWindow(key: string) {
-  if (subWindows.value[key]) {
-    subWindows.value[key].visible = false
-    // 等出场动画播完后再从列表中移除
-    setTimeout(() => {
-      const updated = { ...subWindows.value }
-      delete updated[key]
-      subWindows.value = updated
-    }, 350)
-  }
 }
 
 function onInsertNode(type: string) {
@@ -1580,11 +1639,9 @@ async function handleSaveAs() {
       mode="window"
       @toggle-mode="variableMonitorMode = 'embedded'"
     />
-    <SubFunctionFlowWindow
-      v-for="(win, key) in subWindows"
-      :key="key"
-      :window-state="win"
-      @close="handleCloseSubWindow(key)"
+    <ExecutionCallCanvas
+      :invocations="invocations"
+      :visible="callCanvasVisible"
     />
     <LayoutDebugPanel
       :params="LP"

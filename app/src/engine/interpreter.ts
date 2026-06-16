@@ -50,7 +50,7 @@ export type InterpreterEvent =
   | { type: 'statement-leave'; statement: Statement; nodeId: string }
   | { type: 'output'; text: string; nodeId?: string }
   | { type: 'input-request'; variable: string }
-  | { type: 'function-enter'; functionName: string }
+  | { type: 'function-enter'; functionName: string; callerNodeId?: string; callExpression?: string }
   | { type: 'function-leave'; functionName: string }
   | { type: 'done' }
   | { type: 'error'; message: string; statement?: Statement }
@@ -650,7 +650,13 @@ async function* executeCall(
 
   // 4. 执行函数体（包裹 function-enter / function-leave 事件）
   state.currentFunctionName = funcDef.name
-  yield { type: 'function-enter', functionName: funcDef.name }
+  const callerNodeId = (stmt as any)._nodeId as string | undefined
+  yield {
+    type: 'function-enter',
+    functionName: funcDef.name,
+    callerNodeId,
+    callExpression: stmt.expression,
+  }
 
   try {
     yield* executeBlock(funcDef.body, state)
@@ -702,6 +708,7 @@ async function* executeFunctionFromExpression(
   funcDef: FunctionDef,
   args: unknown[],
   state: RuntimeState,
+  callExpression?: string,
 ): AsyncGenerator<InterpreterEvent, unknown> {
   // 1. 创建新作用域并绑定参数
   const newVars: Record<string, unknown> = {}
@@ -734,7 +741,12 @@ async function* executeFunctionFromExpression(
 
   // 3. 执行函数体（包裹 function-enter / function-leave 事件）
   state.currentFunctionName = funcDef.name
-  yield { type: 'function-enter', functionName: funcDef.name }
+  yield {
+    type: 'function-enter',
+    functionName: funcDef.name,
+    callerNodeId: state.currentNodeId ?? undefined,
+    callExpression,
+  }
 
   try {
     yield* executeBlock(funcDef.body, state)
@@ -831,7 +843,7 @@ async function* resolveExpression(
     }
 
     // 通过异步 Generator 执行函数（产生 function-enter/leave 事件）
-    const returnValue = yield* executeFunctionFromExpression(funcDef, argValues, state)
+    const returnValue = yield* executeFunctionFromExpression(funcDef, argValues, state, call.fullMatch)
 
     // 将调用替换为字面量结果
     const replacement = valueToLiteralString(returnValue)
