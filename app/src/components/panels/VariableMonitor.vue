@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { VariableEntry } from '@/types'
 import { GripVertical, ChevronRight, ExternalLink, Pin } from '@/lib/icons'
@@ -26,6 +26,9 @@ const props = defineProps<{
   variables: VariableEntry[]
   visible: boolean
   mode: 'embedded' | 'window'
+  /** Teleport target element for embedded mode. When null/undefined,
+   *  Teleport is disabled and the panel renders in-place. */
+  embedAnchor?: HTMLElement | null
 }>()
 
 const emit = defineEmits<{
@@ -45,6 +48,21 @@ let dragStartX = 0
 let dragStartY = 0
 let panelStartX = 0
 let panelStartY = 0
+
+/** When switching from embedded to window mode, capture the embedded
+ *  panel's screen position so the floating window appears near it. */
+watch(
+  () => props.mode,
+  (newMode, oldMode) => {
+    if (newMode !== 'window' || oldMode !== 'embedded') return
+    if (!props.embedAnchor) return
+    const rect = props.embedAnchor.getBoundingClientRect()
+    if (rect && rect.width > 0 && rect.height > 0) {
+      panelLeft.value = rect.left
+      panelTop.value = rect.top
+    }
+  },
+)
 
 function onDragStart(e: MouseEvent) {
   if (props.mode !== 'window') return
@@ -92,6 +110,7 @@ function formatValue(value: unknown): string {
 </script>
 
 <template>
+  <Teleport :to="embedAnchor" :disabled="mode !== 'embedded' || !embedAnchor">
   <div
     v-if="visible"
     class="var-monitor"
@@ -180,26 +199,26 @@ function formatValue(value: unknown): string {
       </template>
     </Card>
   </div>
+  </Teleport>
 </template>
 
 <style scoped>
 .var-monitor--window {
   position: fixed;
   z-index: 40;
-  width: 350px;
+  width: 260px;
   max-height: 400px;
 }
 
 .var-monitor--embedded {
   position: static;
-  width: 100%;
-  min-height: 120px;
-  max-height: 250px;
-  flex-shrink: 0;
+  width: 260px;
+  max-height: 340px;
   overflow: hidden;
+  background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
   border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  background: var(--bg-panel);
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
 }
 
 .var-monitor--embedded .var-monitor-scroll {
@@ -211,7 +230,7 @@ function formatValue(value: unknown): string {
 }
 
 .var-monitor--embedded.collapsed {
-  min-height: auto;
+  width: auto;
 }
 
 .var-monitor--window.collapsed {

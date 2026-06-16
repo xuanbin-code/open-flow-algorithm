@@ -146,6 +146,7 @@ const varEntries = ref<VariableEntry[]>([])
 /** 变量监视面板是否可见 */
 const showVariableMonitor = ref(true)
 const variableMonitorMode = ref<'embedded' | 'window'>('embedded')
+const varMonitorAnchor = ref<HTMLElement | null>(null)
 
 /** 对话消息列表（程序输出 + 用户输入） */
 const chatMessages = ref<ChatMessage[]>([])
@@ -1463,6 +1464,9 @@ async function handleSaveAs() {
           @node-double-click="onNodeDblClick"
           @pane-click="onPaneClick"
         >
+          <Panel position="top-left">
+            <div ref="varMonitorAnchor"></div>
+          </Panel>
           <Panel position="top-right">
             <QuickActionsBar
               :can-save="isDirty"
@@ -1662,12 +1666,6 @@ async function handleSaveAs() {
         />
       </div>
       <div class="right-panel">
-        <VariableMonitor
-          :variables="varEntries"
-          :visible="showVariableMonitor && variableMonitorMode === 'embedded'"
-          mode="embedded"
-          @toggle-mode="variableMonitorMode = 'window'"
-        />
         <ExecutionConsole
           class="execution-console"
           :chat-messages="chatMessages"
@@ -1682,9 +1680,10 @@ async function handleSaveAs() {
     </div>
     <VariableMonitor
       :variables="varEntries"
-      :visible="showVariableMonitor && variableMonitorMode === 'window'"
-      mode="window"
-      @toggle-mode="variableMonitorMode = 'embedded'"
+      :visible="showVariableMonitor"
+      :mode="variableMonitorMode"
+      :embed-anchor="varMonitorAnchor"
+      @toggle-mode="variableMonitorMode = variableMonitorMode === 'embedded' ? 'window' : 'embedded'"
     />
     <LayoutDebugPanel
       :params="LP"
