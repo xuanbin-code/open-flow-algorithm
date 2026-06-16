@@ -16,8 +16,6 @@ export interface InvocationViewState {
   parentId: string | null
   callSiteNodeId: string | null
   callExpression?: string
-  depth: number
-  siblingIndex: number
   status: 'active' | 'returning' | 'completed'
   nodes: FlowNode[]
   edges: FlowEdge[]
@@ -33,7 +31,7 @@ const props = defineProps<{
 }>()
 
 const CALL_CANVAS_ID = 'execution-call-canvas'
-const { setCenter, setViewport } = useVueFlow(CALL_CANVAS_ID)
+const { setCenter, setViewport, fitView } = useVueFlow(CALL_CANVAS_ID)
 
 const invocationList = computed(() => Object.values(props.invocations))
 const rootInvocation = computed(() => invocationList.value.find(inv => inv.parentId === null))
@@ -70,7 +68,7 @@ async function resetCallCanvasViewport() {
   await nextTick()
   await new Promise(resolve => requestAnimationFrame(resolve))
   try {
-    await setViewport({ x: 72, y: 72, zoom: 1 }, { duration: 0 })
+    await fitView({ padding: 0.15, duration: 0 })
   } catch {
     // VueFlow can mount one frame later than the overlay.
   }
@@ -86,6 +84,8 @@ watch(
 function fitCallTree() {
   void resetCallCanvasViewport()
 }
+
+defineExpose({ fitCallTree })
 
 async function centerRoot() {
   const root = rootInvocation.value

@@ -42,6 +42,7 @@ import {
   type FlowNode,
   type FlowEdge,
 } from './engine/flowchart-engine'
+import { graphlib, layout as dagreLayout } from '@dagrejs/dagre'
 import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './engine/interpreter'
 import { useSettingsStore } from './stores/settings'
 import { useRecentFilesStore } from './stores/recentFiles'
@@ -119,12 +120,12 @@ const functionExecutionEnabled = reactive<Record<string, boolean>>({})
 const fileLoadVersion = ref(0) // 每次 loadProgram 递增，强制 FunctionTabBar 重建
 const subEngineCache = new Map<string, FlowchartEngine>()
 const invocations = ref<Record<string, InvocationViewState>>({})
+const callCanvasRef = ref<InstanceType<typeof ExecutionCallCanvas> | null>(null)
 const callCanvasVisible = computed(() =>
   isExecuting.value && Object.values(invocations.value).some(inv => inv.parentId !== null),
 )
 let executionCallStack: { functionName: string; invocationId: string | null }[] = []
 let invocationCounter = 0
-const invocationSiblingCounts = new Map<string, number>()
 
 /** 视图参数（仅影响视口，不触发 re-layout） */
 const vpZoom = ref(1)
@@ -206,19 +207,38 @@ function syncSubWindowVariables(state: RuntimeState, funcName: string): Variable
   }))
 }
 
-function getInvocationLayout(parentId: string | null): { depth: number; siblingIndex: number; position: { x: number; y: number } } {
-  const depth = parentId ? (invocations.value[parentId]?.depth ?? 0) + 1 : 0
-  const siblingKey = parentId ?? 'root'
-  const siblingIndex = invocationSiblingCounts.get(siblingKey) ?? 0
-  invocationSiblingCounts.set(siblingKey, siblingIndex + 1)
+const CARD_WIDTH = 440
+const CARD_HEIGHT = 420
 
-  const parent = parentId ? invocations.value[parentId] : null
-  const x = depth * 540
-  const y = parent
-    ? parent.position.y + (siblingIndex - 0.5) * 460 + 230
-    : 0
+function layoutCallTree() {
+  const invList = Object.values(invocations.value)
+  if (invList.length === 0) return
 
-  return { depth, siblingIndex, position: { x, y } }
+  const g = new graphlib.Graph()
+  g.setGraph({ rankdir: 'LR', nodesep: 100, ranksep: 80, marginx: 40, marginy: 40 })
+  g.setDefaultEdgeLabel(() => ({}))
+
+  for (const inv of invList) {
+    g.setNode(inv.id, { width: CARD_WIDTH, height: CARD_HEIGHT })
+  }
+  for (const inv of invList) {
+    if (inv.parentId && g.hasNode(inv.parentId)) {
+      g.setEdge(inv.parentId, inv.id)
+    }
+  }
+
+  dagreLayout(g)
+
+  // dagre returns center coordinates; VueFlow expects top-left
+  for (const inv of invList) {
+    const node = g.node(inv.id)
+    if (node) {
+      inv.position = {
+        x: node.x - CARD_WIDTH / 2,
+        y: node.y - CARD_HEIGHT / 2,
+      }
+    }
+  }
 }
 
 function createInvocation(
@@ -233,7 +253,6 @@ function createInvocation(
 ): InvocationViewState {
   const instanceId = ++invocationCounter
   const id = `${functionName}_${instanceId}`
-  const layout = getInvocationLayout(options.parentId)
 
   return {
     id,
@@ -242,15 +261,13 @@ function createInvocation(
     parentId: options.parentId,
     callSiteNodeId: options.callSiteNodeId ?? null,
     callExpression: options.callExpression,
-    depth: layout.depth,
-    siblingIndex: layout.siblingIndex,
     status: 'active',
     nodes: [...engineForFunction.nodes],
     edges: [...engineForFunction.edges],
     executingNodeIds: [],
     previousNodeId: null,
     variables: options.variables ?? [],
-    position: layout.position,
+    position: { x: 0, y: 0 },
   }
 }
 
@@ -357,6 +374,10 @@ function pushInvocationFrame(event: Extract<InterpreterEvent, { type: 'function-
           )
         }
       }
+
+      // dagre auto-layout: reposition all cards after adding a child
+      layoutCallTree()
+      void callCanvasRef.value?.fitCallTree()
     }
   }
 
@@ -653,7 +674,6 @@ function resetExecution() {
   // Clear function invocation canvas state.
   executionCallStack = []
   invocationCounter = 0
-  invocationSiblingCounts.clear()
   invocations.value = {}
   subEngineCache.clear()
 }
@@ -1637,6 +1657,7 @@ async function handleSaveAs() {
         </TooltipProvider>
       </div>
         <ExecutionCallCanvas
+          ref="callCanvasRef"
           :invocations="invocations"
           :visible="callCanvasVisible"
         />
