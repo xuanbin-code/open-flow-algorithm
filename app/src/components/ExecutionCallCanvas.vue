@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, watch } from 'vue'
-import { VueFlow, useVueFlow, Panel, type EdgeMarkerType } from '@vue-flow/core'
+import { VueFlow, useVueFlow, Panel, Handle, Position, type EdgeMarkerType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import type { FlowNode, FlowEdge } from '../engine/flowchart-engine'
 import type { VariableEntry } from '@/types'
@@ -31,7 +31,7 @@ const props = defineProps<{
 }>()
 
 const CALL_CANVAS_ID = 'execution-call-canvas'
-const { setCenter, setViewport, fitView } = useVueFlow(CALL_CANVAS_ID)
+const { setCenter, fitView } = useVueFlow(CALL_CANVAS_ID)
 
 const invocationList = computed(() => Object.values(props.invocations))
 const rootInvocation = computed(() => invocationList.value.find(inv => inv.parentId === null))
@@ -135,6 +135,8 @@ function onNodeDragStop(event: any) {
         </Panel>
 
         <template #node-invocation="nodeProps">
+          <Handle type="target" :position="Position.Left" />
+          <Handle type="source" :position="Position.Right" />
           <InvocationFlowNode v-bind="nodeProps" />
         </template>
       </VueFlow>
