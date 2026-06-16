@@ -304,12 +304,7 @@ function onDblClickTab(funcName: string) {
   background: transparent;
   color: var(--text-muted-3);
   cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
-}
-
-.fn-tab:hover .fn-exec-toggle {
-  opacity: 1;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .fn-exec-toggle.enabled {
