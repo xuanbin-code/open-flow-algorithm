@@ -119,7 +119,9 @@ const functionExecutionEnabled = reactive<Record<string, boolean>>({})
 const fileLoadVersion = ref(0) // 每次 loadProgram 递增，强制 FunctionTabBar 重建
 const subEngineCache = new Map<string, FlowchartEngine>()
 const invocations = ref<Record<string, InvocationViewState>>({})
-const callCanvasVisible = computed(() => isExecuting.value && Object.keys(invocations.value).length > 0)
+const callCanvasVisible = computed(() =>
+  isExecuting.value && Object.values(invocations.value).some(inv => inv.parentId !== null),
+)
 let executionCallStack: { functionName: string; invocationId: string | null }[] = []
 let invocationCounter = 0
 const invocationSiblingCounts = new Map<string, number>()
@@ -253,13 +255,21 @@ function createInvocation(
 }
 
 function createRootInvocation() {
-  const rootEngine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
-  const root = createInvocation('Main', rootEngine, {
-    parentId: null,
-    variables: [],
-  })
-  invocations.value = { [root.id]: root }
-  executionCallStack = [{ functionName: 'Main', invocationId: root.id }]
+  const hasEnabledSubFunctions = Object.values(functionExecutionEnabled).some(Boolean)
+
+  if (hasEnabledSubFunctions) {
+    const rootEngine = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
+    const root = createInvocation('Main', rootEngine, {
+      parentId: null,
+      variables: [],
+    })
+    invocations.value = { [root.id]: root }
+    executionCallStack = [{ functionName: 'Main', invocationId: root.id }]
+  } else {
+    // 没有启用任何子函数演示 → 仅在主流程图上显示执行过程
+    invocations.value = {}
+    executionCallStack = [{ functionName: 'Main', invocationId: null }]
+  }
 }
 
 function markInvocationCompleted(id: string) {
