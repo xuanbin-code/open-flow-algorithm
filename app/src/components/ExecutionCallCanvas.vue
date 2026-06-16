@@ -193,19 +193,55 @@ function onNodeDragStop(event: any) {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  position: relative;
+  z-index: 1;
   transition:
-    border-color 0.2s ease,
+    border-color 0.35s ease,
     box-shadow 0.2s ease,
     opacity 0.2s ease;
 }
 
-.invocation-card.executing {
-  border-color: color-mix(in srgb, var(--accent) 46%, var(--border-medium));
-  box-shadow:
-    0 12px 32px rgba(0, 0, 0, 0.24),
-    0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent),
-    0 0 22px color-mix(in srgb, var(--accent) 24%, transparent);
+/* Wrapper — hosts the flowing-border ::before pseudo-element */
+.invocation-card-wrapper {
+  position: relative;
+  border-radius: 11px;
+}
+
+.invocation-card-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 11px;
+  padding: 3px;
+  background: conic-gradient(
+    from var(--inv-border-angle, 0deg),
+    transparent 0deg,
+    var(--accent) 90deg,
+    transparent 180deg,
+    var(--accent) 270deg,
+    transparent 360deg
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.invocation-card-wrapper.executing::before {
+  opacity: 1;
+  animation: inv-border-spin 2.5s linear infinite;
+}
+
+.invocation-card-wrapper.executing .invocation-card {
+  border-color: transparent;
 }
 
 .invocation-card.completed {
@@ -260,6 +296,7 @@ function onNodeDragStop(event: any) {
 .invocation-flow {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .invocation-var-panel {
@@ -384,5 +421,20 @@ function onNodeDragStop(event: any) {
 .call-canvas-enter-from,
 .call-canvas-leave-to {
   opacity: 0;
+}
+</style>
+
+<!-- unscoped: @property must be global -->
+<style>
+@property --inv-border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes inv-border-spin {
+  to {
+    --inv-border-angle: 360deg;
+  }
 }
 </style>

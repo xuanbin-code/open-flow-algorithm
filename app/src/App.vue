@@ -346,6 +346,17 @@ function pushInvocationFrame(event: Extract<InterpreterEvent, { type: 'function-
         ...invocations.value,
         [invocation.id]: invocation,
       }
+
+      // 子函数卡片接管显示后，从父卡片移除 call 节点的执行高亮
+      // 确保只有正在演示的子函数显示边框特效
+      if (parentId && event.callerNodeId) {
+        const parentInv = invocations.value[parentId]
+        if (parentInv) {
+          parentInv.executingNodeIds = parentInv.executingNodeIds.filter(
+            id => id !== event.callerNodeId,
+          )
+        }
+      }
     }
   }
 

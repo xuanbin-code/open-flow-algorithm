@@ -82,7 +82,8 @@ onUnmounted(resetAllHighlights)
 </script>
 
 <template>
-  <div class="invocation-card" :class="[inv.status, { executing: inv.executingNodeIds.length > 0 }]">
+  <div class="invocation-card-wrapper" :class="{ executing: inv.executingNodeIds.length > 0 }">
+    <div class="invocation-card" :class="[inv.status]">
     <div class="invocation-titlebar">
       <div class="invocation-title-main">
         <span class="invocation-title">{{ title }}</span>
@@ -185,5 +186,6 @@ onUnmounted(resetAllHighlights)
         </VueFlow>
       </TooltipProvider>
     </div>
+  </div>
   </div>
 </template>
