@@ -33,8 +33,21 @@ const props = defineProps<{
 const CALL_CANVAS_ID = 'execution-call-canvas'
 const { setCenter, fitView } = useVueFlow(CALL_CANVAS_ID)
 
+// Card dimensions (matched to .invocation-card CSS: width 440px, height 420px)
+const CARD_HALF_W = 220
+const CARD_HALF_H = 210
+
 const invocationList = computed(() => Object.values(props.invocations))
 const rootInvocation = computed(() => invocationList.value.find(inv => inv.parentId === null))
+
+/** ID of the invocation that is currently executing statements.
+ *  In single-threaded execution, at most one matches at a time. */
+const activeInvocationId = computed(() => {
+  const active = invocationList.value.find(
+    inv => inv.status === 'active' && inv.executingNodeIds.length > 0,
+  )
+  return active?.id ?? null
+})
 
 const graphNodes = computed(() =>
   invocationList.value.map(inv => ({
@@ -81,6 +94,28 @@ watch(
   },
 )
 
+/** Auto-center the viewport on the currently executing invocation card
+ *  with a smooth animated transition.
+ *  Only triggers when execution switches between different cards,
+ *  not on every statement step within the same card. */
+watch(activeInvocationId, (newId, oldId) => {
+  if (!newId || newId === oldId) return
+  if (!props.visible) return
+
+  const inv = props.invocations[newId]
+  if (!inv) return
+
+  try {
+    void setCenter(
+      inv.position.x + CARD_HALF_W,
+      inv.position.y + CARD_HALF_H,
+      { zoom: 1, duration: 500 },
+    )
+  } catch {
+    // VueFlow viewport may not be initialized yet
+  }
+})
+
 function fitCallTree() {
   void resetCallCanvasViewport()
 }
@@ -91,7 +126,7 @@ async function centerRoot() {
   const root = rootInvocation.value
   if (!root) return
   try {
-    await setCenter(root.position.x + 220, root.position.y + 210, {
+    await setCenter(root.position.x + CARD_HALF_W, root.position.y + CARD_HALF_H, {
       zoom: 1,
       duration: 0,
     })
