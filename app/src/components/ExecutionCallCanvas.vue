@@ -172,11 +172,10 @@ function onNodeDragStop(event: any) {
         :nodes="graphNodes"
         :edges="graphEdges"
         :default-viewport="{ zoom: 1, x: 72, y: 72 }"
-        :min-zoom="1"
-        :max-zoom="1"
-        :zoom-on-scroll="false"
-        :zoom-on-pinch="false"
-        :zoom-on-double-click="false"
+        :min-zoom="0.2"
+        :max-zoom="3"
+        :zoom-on-scroll="true"
+        :zoom-on-pinch="true"
         @node-drag-stop="onNodeDragStop"
       >
         <Background pattern-color="var(--border-soft)" :gap="28" />
