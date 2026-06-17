@@ -29,3 +29,5 @@ export function useSound() {
     playStop:        () => ok() && tik.toggle(false),
   }
 }
+
+export type UseSoundReturn = ReturnType<typeof useSound>

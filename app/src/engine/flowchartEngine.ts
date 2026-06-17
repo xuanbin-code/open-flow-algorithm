@@ -79,6 +79,7 @@ export interface FlowEdge {
 }
 
 export interface LayoutParams {
+  [key: string]: number
   SPACING: number
   START_Y: number
   NODE_H: number
