@@ -17,6 +17,7 @@ import {
   type InvocationViewState,
 } from './components'
 import type { ChatMessage, VariableEntry } from '@/types'
+import { Check, X } from '@/lib/icons'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
@@ -1073,6 +1074,11 @@ function showToast(message: string, type: 'success' | 'error' = 'success') {
   toastTimer = setTimeout(() => { toast.visible = false }, 3000)
 }
 
+function hideToast() {
+  if (toastTimer) { clearTimeout(toastTimer); toastTimer = null }
+  toast.visible = false
+}
+
 // ============================================
 // 设置对话框
 // ============================================
@@ -1786,7 +1792,16 @@ async function handleSaveAs() {
     <SettingsDialog :visible="showSettingsDialog" @close="showSettingsDialog = false" />
     <!-- Toast 消息 -->
     <Transition name="toast-fade">
-      <div v-if="toast.visible" class="toast" :class="toast.type">{{ toast.message }}</div>
+      <div v-if="toast.visible" class="toast" :class="toast.type">
+        <div class="toast-progress"></div>
+        <div class="toast-body">
+          <component :is="toast.type === 'success' ? Check : X" class="toast-icon" :size="16" />
+          <span class="toast-text">{{ toast.message }}</span>
+          <button class="toast-close" @click="hideToast">
+            <X :size="14" />
+          </button>
+        </div>
+      </div>
     </Transition>
   </div>
 </template>
@@ -1875,22 +1890,77 @@ async function handleSaveAs() {
 /* ---- Toast ---- */
 .toast {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10000;
-  padding: 12px 24px;
+  max-width: 380px;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #fff;
+  overflow: hidden;
+  background: var(--bg-dropdown);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
 }
-.toast.success {
-  background: var(--accent-green);
+
+/* 顶部进度条 */
+.toast-progress {
+  height: 3px;
+  width: 100%;
+  animation: toast-shrink 3s linear forwards;
 }
-.toast.error {
-  background: var(--accent-red);
+.toast.success .toast-progress { background: var(--accent-green); }
+.toast.error   .toast-progress { background: var(--accent-red); }
+
+/* 内容区：图标 + 文本 */
+.toast-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  color: var(--text-primary);
+}
+
+.toast-icon {
+  flex-shrink: 0;
+}
+.toast.success .toast-icon { color: var(--accent-green); }
+.toast.error   .toast-icon { color: var(--accent-red); }
+
+.toast-text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 关闭按钮 */
+.toast-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background 0.15s, color 0.15s;
+}
+.toast-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+@keyframes toast-shrink {
+  from { width: 100%; }
+  to   { width: 0%; }
 }
 
 .toast-fade-enter-active,
@@ -1900,7 +1970,7 @@ async function handleSaveAs() {
 .toast-fade-enter-from,
 .toast-fade-leave-to {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateX(-50%) translateY(-12px);
 }
 
 /* ---- 默认节点回退样式 ---- */
