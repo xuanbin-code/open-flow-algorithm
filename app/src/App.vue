@@ -508,6 +508,12 @@ watch(LP, () => {
   }, 30)
 })
 
+// 当 program 被整体替换时（undo/redo、loadProgram 等），自动重建 engine
+// 确保 engine.funcDef 始终与 program.value 中的函数对象一致
+watch(program, () => {
+  rebuildEngine()
+})
+
 const { setViewport, updateNodeData, setCenter, findNode, findEdge } = useVueFlow()
 
 // 视口定位：使用固定缩放比例将 Start 节点居中在视图中
@@ -564,7 +570,7 @@ async function refreshRecentFiles() {
   await recentFilesStore.load()
 }
 
-// CTRL+S / Ctrl+Z / Ctrl+Y / Delete 快捷键
+// CTRL+S / Ctrl+Z / Ctrl+Y / Delete / Backspace 快捷键
 function onKeydown(e: KeyboardEvent) {
   // 焦点在输入框中 → 交给浏览器处理原生快捷键（如 Ctrl+Z 文本撤销）
   const ae = document.activeElement
@@ -600,7 +606,7 @@ function onKeydown(e: KeyboardEvent) {
     e.preventDefault()
     redo()
   }
-  if (e.key === 'Delete' && selectedNodeId.value) {
+  if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId.value) {
     e.preventDefault()
     deleteSelectedNode()
   }
@@ -1133,13 +1139,13 @@ function deleteSelectedNode() {
   }
 
   const loc = findStatementLocation(program.value, stmt)
-  if (loc) {
-    loc.body.splice(loc.index, 1)
+  if (!loc) {
+    console.warn('[deleteSelectedNode] 无法在 AST 中定位语句，放弃删除')
+    return
   }
+  loc.body.splice(loc.index, 1)
   selectedNodeId.value = null
-  engine.rebuild()
-  nodes.value = [...engine.nodes]
-  edges.value = [...engine.edges]
+  rebuildEngine()
 }
 
 /** Delete a node by ID — used by the right-click context menu. */
@@ -1152,15 +1158,15 @@ function deleteNodeById(nodeId: string) {
   if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag) return
 
   const loc = findStatementLocation(program.value, stmt)
-  if (loc) {
-    loc.body.splice(loc.index, 1)
+  if (!loc) {
+    console.warn('[deleteNodeById] 无法在 AST 中定位语句，放弃删除')
+    return
   }
+  loc.body.splice(loc.index, 1)
   if (selectedNodeId.value === nodeId) {
     selectedNodeId.value = null
   }
-  engine.rebuild()
-  nodes.value = [...engine.nodes]
-  edges.value = [...engine.edges]
+  rebuildEngine()
 }
 
 function canDeleteNode(nodeProps: any): boolean {
