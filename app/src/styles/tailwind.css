@@ -342,3 +342,34 @@ textarea {
   color: var(--popover-foreground);
   border-color: var(--border);
 }
+
+/* ===================================================================
+   CodeMirror 6 autocomplete popup — theme-aware styling
+   The autocomplete tooltip is portaled to <body> by CM6, so project
+   CSS variables must be applied here.
+   =================================================================== */
+.cm-tooltip-autocomplete {
+  font-family: var(--font-sans);
+}
+
+.cm-tooltip-autocomplete ul li {
+  padding: 4px 8px;
+}
+
+.cm-tooltip-autocomplete ul li[aria-selected] {
+  background-color: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--accent-foreground);
+}
+
+.cm-completionDetail {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 11px;
+}
+
+.cm-completionIcon {
+  opacity: 0.7;
+  width: 14px;
+  text-align: center;
+  margin-right: 4px;
+}

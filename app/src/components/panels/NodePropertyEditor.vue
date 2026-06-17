@@ -6,6 +6,9 @@ import type { Statement, FunctionDef, DeclareStatement } from '../../engine/fprg
 import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Import } from '@/lib/icons'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { CodeEditor } from '@/components/ui/code-editor'
+import type { CompletionContextData } from '../../lib/flowgorithm-language'
+import { collectScopeVariables } from '../../lib/scope-resolver'
 
 const { t } = useI18n()
 
@@ -103,6 +106,28 @@ const showExpression = computed(() => {
   if (!props.statement || props.statement.kind !== 'declare') return true
   return declareTag.value === undefined
 })
+
+// ============================================================
+// 作用域变量 & 补全上下文（供 CodeEditor 使用）
+// ============================================================
+
+const scopeVariables = computed(() => {
+  if (!props.statement) return [] as string[]
+  return collectScopeVariables(props.statement, props.allFunctions ?? [])
+})
+
+const completionContext = computed<CompletionContextData>(() => ({
+  variables: scopeVariables.value,
+  functions: (props.allFunctions ?? []).filter(f => f.name !== 'Main'),
+  statementKind: props.statement?.kind ?? '',
+}))
+
+/** 仅用于变量名字段的补全上下文（不含表达式变量补全，但保留关键字） */
+const nameCompletionContext = computed<CompletionContextData>(() => ({
+  variables: [],
+  functions: (props.allFunctions ?? []).filter(f => f.name !== 'Main'),
+  statementKind: props.statement?.kind ?? '',
+}))
 
 // ============================================================
 // Declare 类型选项
@@ -349,14 +374,15 @@ function onConfirm() {
       <template v-if="statement.kind === 'declare'">
         <label class="field">
           <span class="field-label">{{ $t('editor.form.variableName') }}</span>
-          <input
+          <CodeEditor
             class="field-input"
             :class="{ 'field-readonly': isDeclareReadonly }"
-            type="text"
-            :disabled="isDeclareReadonly"
+            :readonly="isDeclareReadonly"
             :placeholder="$t('editor.form.namePlaceholder')"
-            :value="statement.name"
-            @input="setField('name', ($event.target as HTMLInputElement).value)"
+            :model-value="statement.name"
+            :single-line="true"
+            :completion-context="nameCompletionContext"
+            @update:model-value="setField('name', $event)"
           />
         </label>
 
@@ -398,25 +424,27 @@ function onConfirm() {
             <span v-if="isArrayLiteral" class="auto-hint">{{ $t('editor.form.auto') }}</span>
             :
           </span>
-          <input
+          <CodeEditor
             class="field-input"
             :class="{ disabled: isArrayLiteral }"
-            type="text"
+            :readonly="isArrayLiteral"
             :placeholder="isArrayLiteral ? $t('editor.form.autoPlaceholder') : $t('editor.form.sizePlaceholder')"
-            :value="statement.size"
-            :disabled="isArrayLiteral"
-            @input="setField('size', ($event.target as HTMLInputElement).value)"
+            :model-value="statement.size"
+            :single-line="true"
+            :completion-context="completionContext"
+            @update:model-value="setField('size', $event)"
           />
         </label>
 
         <label v-if="showExpression" class="field">
           <span class="field-label">{{ $t('editor.form.initialValue') }}</span>
-          <input
+          <CodeEditor
             class="field-input"
-            type="text"
             :placeholder="$t('editor.form.optionalExpr')"
-            :value="statement.expression"
-            @input="onExpressionInput(($event.target as HTMLInputElement).value)"
+            :model-value="statement.expression"
+            :single-line="true"
+            :completion-context="completionContext"
+            @update:model-value="onExpressionInput($event)"
           />
         </label>
       </template>
@@ -426,23 +454,25 @@ function onConfirm() {
         <div class="assign-layout">
           <div class="assign-left">
             <span class="field-label">{{ $t('editor.form.variable') }}</span>
-            <input
+            <CodeEditor
               class="field-input"
-              type="text"
               :placeholder="$t('editor.form.variablePlaceholder')"
-              :value="statement.variable"
-              @input="setField('variable', ($event.target as HTMLInputElement).value)"
+              :model-value="statement.variable"
+              :single-line="true"
+              :completion-context="nameCompletionContext"
+              @update:model-value="setField('variable', $event)"
             />
           </div>
           <span class="assign-equals">=</span>
           <div class="assign-right">
             <span class="field-label">{{ $t('editor.form.expression') }}</span>
-            <textarea
-              class="field-input"
+            <CodeEditor
+              class="field-input assign-expression"
               :placeholder="$t('editor.form.expressionPlaceholder')"
-              rows="3"
-              :value="statement.expression"
-              @input="setField('expression', ($event.target as HTMLTextAreaElement).value)"
+              :model-value="statement.expression"
+              :single-line="false"
+              :completion-context="completionContext"
+              @update:model-value="setField('expression', $event)"
             />
           </div>
         </div>
@@ -452,12 +482,13 @@ function onConfirm() {
       <template v-if="statement.kind === 'input'">
         <label class="field">
           <span class="field-label">{{ $t('editor.form.variableName') }}</span>
-          <input
+          <CodeEditor
             class="field-input"
-            type="text"
             :placeholder="$t('editor.form.namePlaceholder')"
-            :value="statement.variable"
-            @input="setField('variable', ($event.target as HTMLInputElement).value)"
+            :model-value="statement.variable"
+            :single-line="true"
+            :completion-context="nameCompletionContext"
+            @update:model-value="setField('variable', $event)"
           />
         </label>
       </template>
@@ -466,11 +497,12 @@ function onConfirm() {
       <template v-if="statement.kind === 'output'">
         <label class="field">
           <span class="field-label">{{ $t('editor.form.expression') }}</span>
-          <input
+          <CodeEditor
             class="field-input"
-            type="text"
-            :value="statement.expression"
-            @input="setField('expression', ($event.target as HTMLInputElement).value)"
+            :model-value="statement.expression"
+            :single-line="true"
+            :completion-context="completionContext"
+            @update:model-value="setField('expression', $event)"
           />
         </label>
         <label class="field field-check">
@@ -542,12 +574,13 @@ function onConfirm() {
                   {{ p.type }}{{ p.array ? '[]' : '' }}
                 </Badge>
               </span>
-              <input
+              <CodeEditor
                 class="field-input"
-                type="text"
                 :placeholder="p.name"
-                :value="callParamValues[i] ?? ''"
-                @input="onCallParamInput(i, ($event.target as HTMLInputElement).value)"
+                :model-value="callParamValues[i] ?? ''"
+                :single-line="true"
+                :completion-context="completionContext"
+                @update:model-value="onCallParamInput(i, $event)"
               />
             </label>
             <div v-if="callSelectedFunc.parameters.length === 0" class="call-hint">
@@ -557,12 +590,13 @@ function onConfirm() {
             <!-- 返回值变量（仅当函数有返回类型） -->
             <label v-if="callShowResultField" class="field">
               <span class="field-label">{{ $t('editor.form.callEditor.resultVar') }}</span>
-              <input
+              <CodeEditor
                 class="field-input"
-                type="text"
                 :placeholder="$t('editor.form.callEditor.resultVarPlaceholder')"
-                :value="callResultVar"
-                @input="onCallResultVarInput(($event.target as HTMLInputElement).value)"
+                :model-value="callResultVar"
+                :single-line="true"
+                :completion-context="nameCompletionContext"
+                @update:model-value="onCallResultVarInput($event)"
               />
             </label>
           </template>
@@ -575,23 +609,25 @@ function onConfirm() {
         <template v-else>
           <label class="field">
             <span class="field-label">{{ $t('editor.form.functionCall') }}</span>
-            <input
+            <CodeEditor
               class="field-input"
-              type="text"
-              :value="statement.expression"
+              :model-value="statement.expression"
               :placeholder="$t('editor.form.functionCallPlaceholder')"
-              @input="setField('expression', ($event.target as HTMLInputElement).value)"
+              :single-line="true"
+              :completion-context="completionContext"
+              @update:model-value="setField('expression', $event)"
             />
           </label>
           <!-- 自由模式下：如果表达式匹配到有返回类型的函数，也显示返回值字段 -->
           <label v-if="callShowResultField" class="field">
             <span class="field-label">{{ $t('editor.form.callEditor.resultVar') }}</span>
-            <input
+            <CodeEditor
               class="field-input"
-              type="text"
               :placeholder="$t('editor.form.callEditor.resultVarPlaceholder')"
-              :value="callResultVar"
-              @input="onCallResultVarInput(($event.target as HTMLInputElement).value)"
+              :model-value="callResultVar"
+              :single-line="true"
+              :completion-context="nameCompletionContext"
+              @update:model-value="onCallResultVarInput($event)"
             />
           </label>
         </template>
@@ -601,11 +637,12 @@ function onConfirm() {
       <template v-if="statement.kind === 'if'">
         <label class="field">
           <span class="field-label">{{ $t('editor.form.condition') }}</span>
-          <input
+          <CodeEditor
             class="field-input"
-            type="text"
-            :value="statement.expression"
-            @input="setField('expression', ($event.target as HTMLInputElement).value)"
+            :model-value="statement.expression"
+            :single-line="true"
+            :completion-context="completionContext"
+            @update:model-value="setField('expression', $event)"
           />
         </label>
       </template>
@@ -614,11 +651,12 @@ function onConfirm() {
       <template v-if="statement.kind === 'while' || statement.kind === 'do'">
         <label class="field">
           <span class="field-label">{{ $t('editor.form.condition') }}</span>
-          <input
+          <CodeEditor
             class="field-input"
-            type="text"
-            :value="statement.expression"
-            @input="setField('expression', ($event.target as HTMLInputElement).value)"
+            :model-value="statement.expression"
+            :single-line="true"
+            :completion-context="completionContext"
+            @update:model-value="setField('expression', $event)"
           />
         </label>
       </template>
@@ -629,12 +667,13 @@ function onConfirm() {
         <!-- Row 1: 循环变量 -->
         <label class="field">
           <span class="field-label">{{ $t('editor.form.forVariable') }}</span>
-          <input
+          <CodeEditor
             class="field-input"
-            type="text"
             :placeholder="$t('editor.form.forVarPlaceholder')"
-            :value="statement.variable"
-            @input="setField('variable', ($event.target as HTMLInputElement).value)"
+            :model-value="statement.variable"
+            :single-line="true"
+            :completion-context="nameCompletionContext"
+            @update:model-value="setField('variable', $event)"
           />
         </label>
 
@@ -643,12 +682,13 @@ function onConfirm() {
           <label class="field for-half">
             <span class="field-label">{{ $t('editor.form.startValue') }}</span>
             <div class="spin-wrap">
-              <input
+              <CodeEditor
                 class="field-input spin-input"
-                type="text"
                 placeholder="0"
-                :value="statement.start"
-                @input="setField('start', ($event.target as HTMLInputElement).value)"
+                :model-value="statement.start"
+                :single-line="true"
+                :completion-context="completionContext"
+                @update:model-value="setField('start', $event)"
               />
               <div class="spin-btns">
                 <button class="spin-btn" tabindex="-1" @mousedown.prevent="spinValue('start', 1)">▴</button>
@@ -660,12 +700,13 @@ function onConfirm() {
           <label class="field for-half">
             <span class="field-label">{{ $t('editor.form.endValue') }}</span>
             <div class="spin-wrap">
-              <input
+              <CodeEditor
                 class="field-input spin-input"
-                type="text"
                 placeholder="10"
-                :value="statement.end"
-                @input="setField('end', ($event.target as HTMLInputElement).value)"
+                :model-value="statement.end"
+                :single-line="true"
+                :completion-context="completionContext"
+                @update:model-value="setField('end', $event)"
               />
               <div class="spin-btns">
                 <button class="spin-btn" tabindex="-1" @mousedown.prevent="spinValue('end', 1)">▴</button>
@@ -680,12 +721,13 @@ function onConfirm() {
           <label class="field for-half">
             <span class="field-label">{{ $t('editor.form.step') }}</span>
             <div class="spin-wrap">
-              <input
+              <CodeEditor
                 class="field-input spin-input"
-                type="text"
                 placeholder="1"
-                :value="statement.step"
-                @input="setField('step', ($event.target as HTMLInputElement).value)"
+                :model-value="statement.step"
+                :single-line="true"
+                :completion-context="completionContext"
+                @update:model-value="setField('step', $event)"
               />
               <div class="spin-btns">
                 <button class="spin-btn" tabindex="-1" @mousedown.prevent="spinValue('step', 1)">▴</button>
@@ -826,6 +868,18 @@ function onConfirm() {
   transition: border-color 0.15s;
   font-family: inherit;
   min-height: 28px;
+}
+
+/* CodeEditor host inside field — strip native input styling since CM6 handles its own */
+.field-input:deep(.code-editor-host) {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+/* Multi-line assign expression: allow the editor to grow taller */
+.assign-expression {
+  min-height: 64px;
 }
 
 /* ---- Assign layout: 变量 = 表达式 ---- */

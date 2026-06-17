@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="未命名"/>
+        <attribute name="authors" value=""/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2026-06-17"/>
+    </attributes>
+    <function name="Main" type="" variable="">
+        <parameters/>
+        <body>
+            <declare name="a" type="Integer" array="False" size="" expression="11"/>
+            <declare name="b" type="Integer" array="False" size="" expression="20"/>
+            <assign variable="c" expression="a * b "/>
+            <if expression="a &gt; 10 and b &gt; 20">
+                <then></then>
+                <else></else>
+            </if>
+        </body>
+    </function>
+</flowgorithm>

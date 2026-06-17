@@ -9,6 +9,7 @@
     <function name="Main" type="" variable="">
         <parameters/>
         <body>
+            <declare name="name" type="String" array="False" size="" expression="&quot;nihao&quot;"/>
             <declare name="r" type="Integer" array="False" size=""/>
             <call expression="fib(3)" result="r"/>
             <output expression="r" newline="True"/>
