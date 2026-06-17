@@ -80,6 +80,20 @@ const graphEdges = computed(() =>
         stroke: inv.status === 'completed' ? 'var(--border-medium)' : 'var(--accent)',
         strokeWidth: inv.status === 'active' ? '2.5' : '1.5',
       },
+      labelShowBg: true,
+      labelBgPadding: [5, 10] as [number, number],
+      labelBgBorderRadius: 4,
+      labelStyle: {
+        fontSize: '11px',
+        fontWeight: '500',
+        fill: inv.status === 'completed' ? 'var(--text-muted)' : 'var(--text-primary)',
+      },
+      labelBgStyle: {
+        fill: 'var(--bg-float-panel)',
+        stroke: inv.status === 'completed' ? 'var(--border-soft)' : 'var(--accent)',
+        strokeWidth: '0.5',
+        fillOpacity: 0.92,
+      },
     })),
 )
 
