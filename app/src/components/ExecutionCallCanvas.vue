@@ -72,7 +72,7 @@ const graphEdges = computed(() =>
       id: `${inv.parentId}->${inv.id}`,
       source: inv.parentId!,
       target: inv.id,
-      type: 'smoothstep',
+      type: 'default',
       animated: inv.status === 'active',
       label: inv.callExpression || inv.functionName,
       markerEnd: { type: 'arrowclosed', color: 'context-stroke' } as EdgeMarkerType,
