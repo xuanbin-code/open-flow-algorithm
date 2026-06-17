@@ -121,7 +121,7 @@ onUnmounted(resetAllHighlights)
       <span class="invocation-status">{{ statusLabel }}</span>
     </div>
 
-    <div class="invocation-flow" @pointerdown.stop>
+    <div class="invocation-flow nodrag">
       <TooltipProvider :delay-duration="500">
         <VueFlow
           :id="flowId"
@@ -136,6 +136,7 @@ onUnmounted(resetAllHighlights)
           :zoom-on-scroll="true"
           :pan-on-scroll="false"
           :pan-on-drag="true"
+          no-pan-class-name="no-nopan"
           fit-view-on-init
         >
           <Background pattern-color="#aaa" :gap="20" />
