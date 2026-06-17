@@ -14,8 +14,12 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
+  MenubarShortcut,
   MenubarTrigger,
 } from '@/components/ui/menubar'
+import { useShortcutStore } from '../stores/shortcuts'
+import { comboToString } from '../types/shortcuts'
+import type { ShortcutActionId } from '../types/shortcuts'
 
 const { t } = useI18n()
 
@@ -30,6 +34,7 @@ interface MenuItem {
   divider?: boolean
   sublabel?: string
   submenu?: MenuItem[]
+  shortcutAction?: ShortcutActionId
 }
 
 interface TopMenu {
@@ -74,9 +79,9 @@ const emit = defineEmits<{
 
 const menuFileItems = computed<MenuItem[]>(() => {
   const base: MenuItem[] = [
-    { id: 'new', label: t('menu.new') },
-    { id: 'open', label: t('menu.open') },
-    { id: 'save', label: t('menu.save') },
+    { id: 'new', label: t('menu.new'), shortcutAction: 'new' },
+    { id: 'open', label: t('menu.open'), shortcutAction: 'open' },
+    { id: 'save', label: t('menu.save'), shortcutAction: 'save' },
     { id: 'saveAs', label: t('menu.saveAs') },
   ]
 
@@ -107,18 +112,18 @@ const menus = computed<TopMenu[]>(() => {
       id: 'edit',
       label: t('menu.edit'),
       items: [
-        { id: 'delete', label: t('common.delete'), disabled: true },
-        { id: 'undo', label: t('menu.undo') },
-        { id: 'redo', label: t('menu.redo') },
+        { id: 'delete', label: t('common.delete'), disabled: true, shortcutAction: 'deleteSelected' },
+        { id: 'undo', label: t('menu.undo'), shortcutAction: 'undo' },
+        { id: 'redo', label: t('menu.redo'), shortcutAction: 'redo' },
       ],
     },
     {
       id: 'program',
       label: t('menu.program'),
       items: [
-        { id: 'run', label: t('menu.run'), disabled: es === 'running' || es === 'waiting-input' },
-        { id: 'step', label: t('menu.step'), disabled: es === 'running' || es === 'waiting-input' },
-        { id: 'stop', label: t('menu.stop'), disabled: es === 'idle' || es === 'stopped' },
+        { id: 'run', label: t('menu.run'), disabled: es === 'running' || es === 'waiting-input', shortcutAction: 'run' },
+        { id: 'step', label: t('menu.step'), disabled: es === 'running' || es === 'waiting-input', shortcutAction: 'step' },
+        { id: 'stop', label: t('menu.stop'), disabled: es === 'idle' || es === 'stopped', shortcutAction: 'stop' },
         { id: 'div-speed', label: '', divider: true },
         { id: 'speed-slow', label: t('menu.speedSlow') },
         { id: 'speed-normal', label: t('menu.speedNormal') },
@@ -169,6 +174,7 @@ const fileName = computed(() => {
 // ============================================================
 
 const store = useSettingsStore()
+const shortcutStore = useShortcutStore()
 
 function toggleTheme() {
   store.theme = store.theme === 'dark' ? 'light' : 'dark'
@@ -209,6 +215,9 @@ function toggleTheme() {
                 @click="emit('action', item.id)"
               >
                 {{ item.label }}
+                <MenubarShortcut v-if="item.shortcutAction">
+                  {{ comboToString(shortcutStore.shortcuts[item.shortcutAction]) }}
+                </MenubarShortcut>
               </MenubarItem>
             </template>
           </MenubarContent>

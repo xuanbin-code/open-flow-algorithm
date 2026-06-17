@@ -7,6 +7,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Separator } from '@/components/ui/separator'
+import { useShortcutStore } from '../../stores/shortcuts'
+import { comboToString } from '../../types/shortcuts'
 
 const props = defineProps<{
   canSave: boolean
@@ -21,6 +23,8 @@ const emit = defineEmits<{
   undo: []
   redo: []
 }>()
+
+const shortcutStore = useShortcutStore()
 </script>
 
 <template>
@@ -38,7 +42,7 @@ const emit = defineEmits<{
           </button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{{ $t('quickActions.save') }}</p>
+          <p>{{ $t('quickActions.save') }} ({{ comboToString(shortcutStore.shortcuts.save) }})</p>
         </TooltipContent>
       </Tooltip>
 
@@ -73,7 +77,7 @@ const emit = defineEmits<{
           </button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{{ $t('quickActions.undo') }}</p>
+          <p>{{ $t('quickActions.undo') }} ({{ comboToString(shortcutStore.shortcuts.undo) }})</p>
         </TooltipContent>
       </Tooltip>
 
@@ -89,7 +93,7 @@ const emit = defineEmits<{
           </button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{{ $t('quickActions.redo') }}</p>
+          <p>{{ $t('quickActions.redo') }} ({{ comboToString(shortcutStore.shortcuts.redo) }})</p>
         </TooltipContent>
       </Tooltip>
     </div>

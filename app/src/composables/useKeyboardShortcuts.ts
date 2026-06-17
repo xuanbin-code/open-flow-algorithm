@@ -1,62 +1,102 @@
 // ============================================================
 // useKeyboardShortcuts.ts — 全局键盘快捷键 composable
 //
-// 处理 Ctrl+S / Ctrl+Z / Ctrl+Y / Delete / Backspace 快捷键。
-// 调用方负责在 onMounted/onUnmounted 中绑定/解绑。
+// 从 shortcutStore 读取快捷键映射进行动态匹配，
+// 替代原有的硬编码 if 链。调用方负责在 onMounted
+// /onUnmounted 中绑定/解绑 window keydown 监听器。
 // ============================================================
 
 import type { ComputedRef, Ref } from 'vue'
+import { useShortcutStore } from '../stores/shortcuts'
+import type { ShortcutCombo } from '../types/shortcuts'
+import { comboFromKeyEvent, comboMatch, isEditableTarget } from '../types/shortcuts'
 
 export interface UseKeyboardShortcutsOptions {
+  /** 是否正在执行，运行中阻止编辑类快捷键 */
   isExecuting: ComputedRef<boolean>
+  /** 当前选中节点 ID，用于判断 Delete 是否可用 */
   selectedNodeId: Ref<string | null>
+  // --- 必须的操作处理器 ---
   handleSave: () => Promise<void>
   undo: () => void
   redo: () => void
   deleteSelectedNode: () => void
+  // --- 可选的操作处理器（新增快捷键绑定） ---
+  handleNew?: () => void
+  handleOpen?: () => Promise<void>
+  run?: () => void
+  step?: () => void
+  stop?: () => void
+}
+
+/** 内部 handler 映射条目 */
+interface HandlerEntry {
+  actionId: string          // 调试用
+  combo: ShortcutCombo
+  handler: () => void
+  /** 该快捷键是否在 isExecuting 时也被允许（当前只有 save） */
+  allowWhenExecuting?: boolean
 }
 
 export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions) {
-  const { isExecuting, selectedNodeId, handleSave, undo, redo, deleteSelectedNode } = options
+  const store = useShortcutStore()
+
+  /**
+   * 根据 store 中的快捷键映射构建 handler 查找表。
+   * 每次调用时重新构建（因为 store.shortcuts 是 reactive 的）。
+   */
+  function buildEntries(): HandlerEntry[] {
+    const s = store.shortcuts
+    const entries: HandlerEntry[] = []
+
+    // save ← shortcuts.save
+    entries.push({ actionId: 'save',           combo: s.save,           handler: () => options.handleSave(),           allowWhenExecuting: true })
+
+    // undo ← shortcuts.undo
+    entries.push({ actionId: 'undo',           combo: s.undo,           handler: () => options.undo() })
+
+    // redo ← shortcuts.redo (Ctrl+Y) + redoAlt (Ctrl+Shift+Z)
+    entries.push({ actionId: 'redo',           combo: s.redo,           handler: () => options.redo() })
+    entries.push({ actionId: 'redoAlt',        combo: s.redoAlt,        handler: () => options.redo() })
+
+    // deleteSelected ← shortcuts.deleteSelected（仅在 selectedNodeId 非空时生效）
+    entries.push({ actionId: 'deleteSelected', combo: s.deleteSelected, handler: () => { if (options.selectedNodeId.value) options.deleteSelectedNode() } })
+
+    // 可选处理器
+    if (options.handleNew)  entries.push({ actionId: 'new',  combo: s.new,  handler: () => options.handleNew!() })
+    if (options.handleOpen) entries.push({ actionId: 'open', combo: s.open, handler: () => options.handleOpen!() })
+    if (options.run)        entries.push({ actionId: 'run',  combo: s.run,  handler: () => options.run!() })
+    if (options.step)       entries.push({ actionId: 'step', combo: s.step, handler: () => options.step!() })
+    if (options.stop)       entries.push({ actionId: 'stop', combo: s.stop, handler: () => options.stop!() })
+
+    return entries
+  }
 
   function onKeydown(e: KeyboardEvent) {
-    // 焦点在输入框中 → 交给浏览器处理原生快捷键（如 Ctrl+Z 文本撤销）
-    const ae = document.activeElement
-    if (
-      ae &&
-      (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT' ||
-       (ae as HTMLElement).isContentEditable)
-    ) {
-      return
-    }
+    // 全局快捷键暂停（设置窗口打开时）
+    if (store.shortcutsPaused) return
 
-    // 运行时不响应编辑快捷键（Ctrl+S 除外：运行中不允许保存）
-    if (isExecuting.value) {
-      // 仍允许 Ctrl+S 保存
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    // 焦点在输入框中 → 交给浏览器处理原生快捷键
+    if (isEditableTarget(e)) return
+
+    const pressed = comboFromKeyEvent(e)
+    const entries = buildEntries()
+
+    for (const entry of entries) {
+      if (comboMatch(entry.combo, pressed)) {
+        // 运行中仅允许 save（防止误操作）
+        if (options.isExecuting.value && !entry.allowWhenExecuting) {
+          // save 在运行中被静默忽略（e.preventDefault 仍需调用）
+          if (entry.allowWhenExecuting) {
+            e.preventDefault()
+          }
+          continue
+        }
+
         e.preventDefault()
-        return // 静默忽略
+        entry.handler()
+        return // 找到匹配后停止，避免组合键触发多个 handler
       }
-      return
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-      e.preventDefault()
-      handleSave()
-    }
-    // Ctrl+Z → 撤销
-    if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') {
-      e.preventDefault()
-      undo()
-    }
-    // Ctrl+Y (或 Ctrl+Shift+Z) → 重做
-    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) {
-      e.preventDefault()
-      redo()
-    }
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId.value) {
-      e.preventDefault()
-      deleteSelectedNode()
     }
   }
 

@@ -191,6 +191,11 @@ const { onKeydown } = useKeyboardShortcuts({
   undo,
   redo,
   deleteSelectedNode,
+  handleNew: () => { resetToEmpty(); nextTick(() => { doFitToStartNode(); }); },
+  handleOpen,
+  run: startExecution,
+  step: stepExecution,
+  stop: stopExecution,
 });
 
 // ============================================

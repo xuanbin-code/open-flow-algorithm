@@ -39,10 +39,10 @@
     "addFunction": "添加函数"
   },
   "quickActions": {
-    "save": "保存 (Ctrl+S)",
+    "save": "保存",
     "open": "打开文件",
-    "undo": "撤销 (Ctrl+Z)",
-    "redo": "重做 (Ctrl+Y)"
+    "undo": "撤销",
+    "redo": "重做"
   },
   "settings": {
     "title": "设置",
@@ -60,7 +60,34 @@
     "soundEffects": "音效",
     "soundEffectsDesc": "运行、结束、报错时播放提示音",
     "defaultZoom": "默认缩放",
-    "defaultZoomDesc": "打开流程图时的视口缩放比例"
+    "defaultZoomDesc": "打开流程图时的视口缩放比例",
+    "sidebar": {
+      "general": "通用",
+      "appearance": "外观",
+      "shortcuts": "快捷键"
+    }
+  },
+  "shortcuts": {
+    "title": "键盘快捷键",
+    "desc": "为菜单操作自定义快捷键",
+    "recording": "请按下新的快捷键组合...",
+    "currentCombo": "当前",
+    "change": "修改",
+    "confirm": "确认",
+    "reset": "重置",
+    "resetAll": "恢复全部默认值",
+    "conflict": "此快捷键已被「{action}」占用",
+    "actions": {
+      "save": "保存",
+      "undo": "撤销",
+      "redo": "重做",
+      "deleteSelected": "删除节点",
+      "new": "新建文件",
+      "open": "打开文件",
+      "run": "运行",
+      "step": "步进",
+      "stop": "终止"
+    }
   },
   "execution": {
     "title": "运行时",

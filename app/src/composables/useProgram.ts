@@ -389,7 +389,7 @@ export function useProgram(options: UseProgramOptions): UseProgramReturn {
   return {
     // Core state
     program,
-    engine,
+    engine: engine as Ref<FlowchartEngine>,
     nodes,
     edges,
     LP,

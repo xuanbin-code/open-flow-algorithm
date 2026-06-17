@@ -39,10 +39,10 @@
     "addFunction": "Add Function"
   },
   "quickActions": {
-    "save": "Save (Ctrl+S)",
+    "save": "Save",
     "open": "Open File",
-    "undo": "Undo (Ctrl+Z)",
-    "redo": "Redo (Ctrl+Y)"
+    "undo": "Undo",
+    "redo": "Redo"
   },
   "settings": {
     "title": "Settings",
@@ -60,7 +60,34 @@
     "soundEffects": "Sound Effects",
     "soundEffectsDesc": "Play sounds on run, finish, and error",
     "defaultZoom": "Default Zoom",
-    "defaultZoomDesc": "Viewport zoom when opening a flowchart"
+    "defaultZoomDesc": "Viewport zoom when opening a flowchart",
+    "sidebar": {
+      "general": "General",
+      "appearance": "Appearance",
+      "shortcuts": "Shortcuts"
+    }
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "desc": "Customize key bindings for menu actions",
+    "recording": "Listening for key combination...",
+    "currentCombo": "Current",
+    "change": "Change",
+    "confirm": "Confirm",
+    "reset": "Reset",
+    "resetAll": "Reset All to Defaults",
+    "conflict": "This combination is already used by \"{action}\"",
+    "actions": {
+      "save": "Save",
+      "undo": "Undo",
+      "redo": "Redo",
+      "deleteSelected": "Delete Node",
+      "new": "New File",
+      "open": "Open File",
+      "run": "Run",
+      "step": "Step",
+      "stop": "Stop"
+    }
   },
   "execution": {
     "title": "Runtime",
