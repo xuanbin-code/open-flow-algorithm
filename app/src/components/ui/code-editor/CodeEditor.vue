@@ -19,7 +19,7 @@ import {
   flowgorithmHighlightStyle,
   createFlowgorithmCompletions,
   type CompletionContextData,
-} from '../../../lib/flowgorithm-language'
+} from '../../../lib/flowgorithmLanguage'
 
 // ============================================================
 // Props & Emits
@@ -225,7 +225,7 @@ watch(
 
 watch(
   () => props.readonly,
-  (val) => {
+  (_val) => {
     const view = editorView.value
     if (!view) return
     // Recreating editor is the simplest way to toggle readonly

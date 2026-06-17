@@ -11,7 +11,7 @@ import {
   StreamLanguage,
   StringStream,
 } from '@codemirror/language'
-import { HighlightStyle, syntaxHighlighting } from '@codemirror/language'
+import { HighlightStyle } from '@codemirror/language'
 import { EditorView } from '@codemirror/view'
 import {
   type CompletionSource,
@@ -44,7 +44,6 @@ const TOKEN_STRING = 'string'
 const TOKEN_OPERATOR = 'operator'
 const TOKEN_FUNCTION_NAME = 'functionName'
 const TOKEN_VARIABLE_NAME = 'variableName'
-const TOKEN_PROPERTY = 'property'
 const TOKEN_BRACKET = 'bracket'
 const TOKEN_SEPARATOR = 'separator'
 const TOKEN_INVALID = 'invalid'

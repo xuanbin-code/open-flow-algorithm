@@ -1,19 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
+import type { BaseNodeProps } from '@/types'
 
-interface MergeNodeProps {
-  id: string
-  data?: {
-    isEmpty?: boolean
-    executing?: boolean
-    flashHighlight?: boolean
-  }
-  selected?: boolean
-  dragging?: boolean
-}
-
-const props = withDefaults(defineProps<MergeNodeProps>(), {
+const props = withDefaults(defineProps<BaseNodeProps>(), {
   selected: false,
   dragging: false,
 })

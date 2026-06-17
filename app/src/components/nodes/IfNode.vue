@@ -1,32 +1,13 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { BaseNodeProps } from '@/types'
 
-interface IfNodeProps {
-  id: string
-  data?: {
-    label?: string
-    width?: number
-    height?: number
-    isEmpty?: boolean
-    executing?: boolean
-    flashHighlight?: boolean
-  }
-  selected?: boolean
-  dragging?: boolean
-}
-
-const props = withDefaults(defineProps<IfNodeProps>(), {
+const props = withDefaults(defineProps<BaseNodeProps>(), {
   selected: false,
   dragging: false
 })
-watch(
-  () => props.data?.executing,
-  (newVal, oldVal) => {
-    console.log(`[IfNode ${props.id}] executing changed: ${oldVal} → ${newVal}, data=`, props.data)
-  }
-)
 const nodeWidth = computed(() => props.data?.width ?? 160)
 const nodeHeight = computed(() => props.data?.height ?? 80)
 const label = computed(() => props.data?.label ?? '')

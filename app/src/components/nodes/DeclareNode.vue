@@ -2,22 +2,9 @@
 import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { BaseNodeProps } from '@/types'
 
-interface DeclareNodeProps {
-  id: string
-  data?: {
-    label?: string
-    width?: number
-    height?: number
-    isEmpty?: boolean
-    executing?: boolean
-    flashHighlight?: boolean
-  }
-  selected?: boolean
-  dragging?: boolean
-}
-
-const props = withDefaults(defineProps<DeclareNodeProps>(), {
+const props = withDefaults(defineProps<BaseNodeProps>(), {
   selected: false,
   dragging: false,
 })

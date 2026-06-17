@@ -5,9 +5,9 @@
 // 外部（index.vue）通过驱动 generator 来控制运行/步进/终止。
 // ============================================================
 
-import type { Program, Statement, IfStatement, WhileStatement, ForStatement, FunctionDef } from './fprg-ast'
-import { splitDeclareNames } from './fprg-ast'
-import { evaluateExpression, coerceValue, defaultValueForType, parseArrayAccess, type EvalFunctions } from './expression-evaluator'
+import type { Program, Statement, IfStatement, WhileStatement, ForStatement, FunctionDef } from './fprgAst'
+import { splitDeclareNames } from './fprgAst'
+import { evaluateExpression, coerceValue, defaultValueForType, parseArrayAccess, type EvalFunctions } from './expressionEvaluator'
 import { i18n } from '../i18n'
 const t = i18n.global.t
 
@@ -592,7 +592,6 @@ async function* executeOutput(
   const value = evaluateExpr(resolvedExpr, state)
   const text = formatOutputValue(value, stmt.newline)
   state.output.push(text)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const nodeId = (stmt as any)._nodeId as string | undefined
   yield { type: 'output', text, nodeId }
 }
@@ -1122,39 +1121,39 @@ function executeFunctionSync(
   try {
     // 1. 创建新作用域并绑定参数
     const newVars: Record<string, unknown> = {}
-  const newTypes: Record<string, string> = {}
+    const newTypes: Record<string, string> = {}
 
-  for (let i = 0; i < funcDef.parameters.length; i++) {
-    const param = funcDef.parameters[i]
-    const rawValue = i < args.length ? args[i] : undefined
-    const value = rawValue !== undefined && rawValue !== null
-      ? coerceValue(rawValue, param.type)
-      : defaultValueForType(param.type)
+    for (let i = 0; i < funcDef.parameters.length; i++) {
+      const param = funcDef.parameters[i]
+      const rawValue = i < args.length ? args[i] : undefined
+      const value = rawValue !== undefined && rawValue !== null
+        ? coerceValue(rawValue, param.type)
+        : defaultValueForType(param.type)
 
-    newVars[param.name] = param.array ? (Array.isArray(value) ? value : [value]) : value
-    newTypes[param.name] = param.array ? param.type + '[]' : param.type
-  }
-
-  // 2. 预扫描函数体中的 declare（类型信息 + 默认值）
-  collectDeclarations(funcDef.body, { variables: newVars, variableTypes: newTypes } as RuntimeState)
-
-  // 3. 保存调用者作用域
-  const savedVars = state.variables
-  const savedTypes = state.variableTypes
-
-  // 4. 切换到被调用者作用域
-  state.variables = newVars
-  state.variableTypes = newTypes
-
-  let returnValue: unknown = undefined
-
-  try {
-    executeBlockSync(funcDef.body, program, state)
-
-    // 5. 捕获返回值（仅在成功路径）
-    if (funcDef.variable) {
-      returnValue = state.variables[funcDef.variable]
+      newVars[param.name] = param.array ? (Array.isArray(value) ? value : [value]) : value
+      newTypes[param.name] = param.array ? param.type + '[]' : param.type
     }
+
+    // 2. 预扫描函数体中的 declare（类型信息 + 默认值）
+    collectDeclarations(funcDef.body, { variables: newVars, variableTypes: newTypes } as RuntimeState)
+
+    // 3. 保存调用者作用域
+    const savedVars = state.variables
+    const savedTypes = state.variableTypes
+
+    // 4. 切换到被调用者作用域
+    state.variables = newVars
+    state.variableTypes = newTypes
+
+    let returnValue: unknown = undefined
+
+    try {
+      executeBlockSync(funcDef.body, program, state)
+
+      // 5. 捕获返回值（仅在成功路径）
+      if (funcDef.variable) {
+        returnValue = state.variables[funcDef.variable]
+      }
     } finally {
       // 6. 始终恢复调用者作用域
       state.variables = savedVars

@@ -6,8 +6,8 @@
 // 因此所有在当前语句"之前"声明的变量均可见。
 // ============================================================
 
-import type { Statement, FunctionDef, DeclareStatement } from '../engine/fprg-ast'
-import { splitDeclareNames } from '../engine/fprg-ast'
+import type { Statement, FunctionDef, DeclareStatement } from '../engine/fprgAst'
+import { splitDeclareNames } from '../engine/fprgAst'
 
 /**
  * 收集目标语句之前的、当前作用域内可见的所有变量名。

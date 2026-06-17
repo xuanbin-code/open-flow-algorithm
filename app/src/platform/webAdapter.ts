@@ -11,7 +11,6 @@ const MAX_RECENT = 20
 const handleMap = new Map<string, FileSystemFileHandle>()
 
 function supportsFileSystemAccess(): boolean {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return typeof window !== 'undefined' && 'showOpenFilePicker' in (window as any)
 }
 
@@ -77,7 +76,6 @@ export const webFileSystem: PlatformFileSystem = {
       return openFallback(filters)
     }
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const [handle] = await (window as any).showOpenFilePicker({
         types: filters?.map(f => ({
           description: f.name,
@@ -102,7 +100,6 @@ export const webFileSystem: PlatformFileSystem = {
     }
     try {
       const ext = filters?.[0]?.extensions?.[0] ?? 'fprg'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const handle = await (window as any).showSaveFilePicker({
         types: filters?.map(f => ({
           description: f.name,

@@ -1,23 +1,10 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { BaseNodeProps } from '@/types'
 
-interface ForNodeProps {
-  id: string
-  data?: {
-    label?: string
-    width?: number
-    height?: number
-    isEmpty?: boolean
-    executing?: boolean
-    flashHighlight?: boolean
-  }
-  selected?: boolean
-  dragging?: boolean
-}
-
-const props = withDefaults(defineProps<ForNodeProps>(), {
+const props = withDefaults(defineProps<BaseNodeProps>(), {
   selected: false,
   dragging: false,
 })
@@ -29,12 +16,6 @@ const isEmpty = computed(() => props.data?.isEmpty ?? false)
 const executing = computed(() => props.data?.executing ?? false)
 const flashHighlight = computed(() => props.data?.flashHighlight ?? false)
 
-watch(
-  () => props.data?.executing,
-  (newVal, oldVal) => {
-    console.log(`[ForNode ${props.id}] executing changed: ${oldVal} → ${newVal}`)
-  }
-)
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FunctionDef, Parameter } from '../engine/fprg-ast'
+import type { FunctionDef, Parameter } from '../engine/fprgAst'
 import { Plus, Trash2, SquareFunction } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { VueFlow, useVueFlow, Panel, Handle, Position, type EdgeMarkerType } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
-import type { FlowNode, FlowEdge } from '../engine/flowchart-engine'
+import type { FlowNode, FlowEdge } from '../engine/flowchartEngine'
 import type { VariableEntry } from '@/types'
 import InvocationFlowNode from './InvocationFlowNode.vue'
 import { LocateFixed } from '@lucide/vue'

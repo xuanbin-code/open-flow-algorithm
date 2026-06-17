@@ -8,14 +8,14 @@ import {
 } from '@/components/ui/tooltip'
 import { Separator } from '@/components/ui/separator'
 
-defineProps<{
+const props = defineProps<{
   canSave: boolean
   canUndo: boolean
   canRedo: boolean
   isExecuting: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   save: []
   open: []
   undo: []
@@ -32,7 +32,7 @@ defineEmits<{
           <button
             class="qa-btn"
             :disabled="!canSave || isExecuting"
-            @click="$emit('save')"
+            @click="emit('save')"
           >
             <Save :size="16" />
           </button>
@@ -48,7 +48,7 @@ defineEmits<{
           <button
             class="qa-btn"
             :disabled="isExecuting"
-            @click="$emit('open')"
+            @click="emit('open')"
           >
             <FolderOpen :size="16" />
           </button>
@@ -67,7 +67,7 @@ defineEmits<{
           <button
             class="qa-btn"
             :disabled="!canUndo"
-            @click="$emit('undo')"
+            @click="emit('undo')"
           >
             <Undo2 :size="16" />
           </button>
@@ -83,7 +83,7 @@ defineEmits<{
           <button
             class="qa-btn"
             :disabled="!canRedo"
-            @click="$emit('redo')"
+            @click="emit('redo')"
           >
             <Redo2 :size="16" />
           </button>

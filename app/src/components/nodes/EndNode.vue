@@ -3,24 +3,11 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Handle, Position } from '@vue-flow/core'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { BaseNodeProps } from '@/types'
 
 const { t } = useI18n()
 
-interface EndNodeProps {
-  id: string
-  data?: {
-    label?: string
-    width?: number
-    height?: number
-    isEmpty?: boolean
-    executing?: boolean
-    flashHighlight?: boolean
-  }
-  selected?: boolean
-  dragging?: boolean
-}
-
-const props = withDefaults(defineProps<EndNodeProps>(), {
+const props = withDefaults(defineProps<BaseNodeProps>(), {
   selected: false,
   dragging: false,
 })

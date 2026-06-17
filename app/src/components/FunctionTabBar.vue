@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { FunctionDef } from '../engine/fprg-ast'
+import type { FunctionDef } from '../engine/fprgAst'
 import { SquareFunction, Clipboard, Plus, ChevronLeft, ChevronRight, Eye, EyeOff } from '@/lib/icons'
 
 const { t } = useI18n()

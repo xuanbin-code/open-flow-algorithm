@@ -3,8 +3,8 @@
 // ============================================================
 
 import type { PlatformFileSystem, FileDialogFilter, FileOpenResult, RecentEntry } from '@/types/platform'
-import { tauriFileSystem } from './tauri-adapter'
-import { webFileSystem } from './web-adapter'
+import { tauriFileSystem } from './tauriAdapter'
+import { webFileSystem } from './webAdapter'
 
 // Re-export types for consumers
 export type { FileDialogFilter, FileOpenResult, RecentEntry }

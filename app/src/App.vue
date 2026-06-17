@@ -4,35 +4,24 @@ import { useRefHistory } from '@vueuse/core'
 import { VueFlow, useVueFlow, Panel } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
-import StartNode from './components/nodes/StartNode.vue'
-import EndNode from './components/nodes/EndNode.vue'
-import DeclareNode from './components/nodes/DeclareNode.vue'
-import AssignNode from './components/nodes/AssignNode.vue'
-import InputNode from './components/nodes/InputNode.vue'
-import OutputNode from './components/nodes/OutputNode.vue'
-import IfNode from './components/nodes/IfNode.vue'
-import MergeNode from './components/nodes/MergeNode.vue'
-import ForNode from './components/nodes/ForNode.vue'
-import WhileNode from './components/nodes/WhileNode.vue'
-import InsertNodePanel from './components/panels/InsertNodePanel.vue'
-import LayoutDebugPanel from './components/panels/LayoutDebugPanel.vue'
-import QuickActionsBar from './components/panels/QuickActionsBar.vue'
-import NodeContextMenu from './components/panels/NodeContextMenu.vue'
-import ExecutionConsole from './components/panels/ExecutionConsole.vue'
-import VariableMonitor from './components/panels/VariableMonitor.vue'
+import {
+  StartNode, EndNode, DeclareNode, AssignNode, InputNode, OutputNode,
+  IfNode, MergeNode, ForNode, WhileNode, CallNode,
+} from './components/nodes'
+import {
+  InsertNodePanel, LayoutDebugPanel, QuickActionsBar,
+  NodeContextMenu, ExecutionConsole, VariableMonitor, SettingsDialog,
+} from './components/panels'
+import {
+  ExecutionCallCanvas, FunctionDialog, FunctionTabBar, MenuBar,
+  type InvocationViewState,
+} from './components'
 import type { ChatMessage, VariableEntry } from '@/types'
-
-import SettingsDialog from './components/SettingsDialog.vue'
-import FunctionTabBar from './components/FunctionTabBar.vue'
-import FunctionDialog from './components/FunctionDialog.vue'
-import CallNode from './components/nodes/CallNode.vue'
-import ExecutionCallCanvas, { type InvocationViewState } from './components/ExecutionCallCanvas.vue'
-import MenuBar from './components/MenuBar.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 
-import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, getFunctionByName, addFunction, deleteFunction, renameFunction, splitDeclareNames, type Program, type Statement, type FunctionDef, type DeclareStatement } from './engine/fprg-ast'
+import { parseFprgToAst, astToFprgXml, createEmptyProgram, findStatementLocation, getFunctionByName, addFunction, deleteFunction, renameFunction, splitDeclareNames, type Program, type Statement, type FunctionDef, type DeclareStatement } from './engine/fprgAst'
 import { showOpenDialog, showSaveDialog, readFile, writeFile, getLastFile } from '@/platform'
 import {
   FlowchartEngine,
@@ -41,7 +30,7 @@ import {
   type LayoutParams,
   type FlowNode,
   type FlowEdge,
-} from './engine/flowchart-engine'
+} from './engine/flowchartEngine'
 import { graphlib, layout as dagreLayout } from '@dagrejs/dagre'
 import { createInterpreter, resolveInput, abortExecution, type InterpreterEvent, type RuntimeState } from './engine/interpreter'
 import { useSettingsStore } from './stores/settings'
@@ -635,7 +624,6 @@ function redo() {
 /** 同步 selectedNodeId → nodes 数组中对应节点的 selected 属性 */
 function syncSelectionState() {
   for (const node of nodes.value) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(node as any).selected = node.id === selectedNodeId.value
   }
 }
@@ -1096,7 +1084,6 @@ const editingStatement = ref<Statement | null>(null)
 const selectedNodeId = ref<string | null>(null)
 watch(selectedNodeId, () => syncSelectionState())
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onEdgeClick(data: any) {
   if (isExecuting.value) return
   clickedEdgeId.value = data.edge.id
@@ -1104,14 +1091,12 @@ function onEdgeClick(data: any) {
   panelVisible.value = true
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onNodeClick(data: any) {
   if (isExecuting.value) return
   // 单击 → 选中节点
   selectedNodeId.value = data.node?.id ?? null
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onNodeDblClick(data: any) {
   if (isExecuting.value) return
   // 双击 → 打开属性编辑面板
@@ -1178,7 +1163,6 @@ function deleteNodeById(nodeId: string) {
   edges.value = [...engine.edges]
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function canDeleteNode(nodeProps: any): boolean {
   if (isExecuting.value) return false
   const stmt = nodeProps.data?.statement as Statement | undefined
@@ -1187,7 +1171,6 @@ function canDeleteNode(nodeProps: any): boolean {
   return true
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function canEditNode(nodeProps: any): boolean {
   if (isExecuting.value) return false
   return !!nodeProps.data?.statement

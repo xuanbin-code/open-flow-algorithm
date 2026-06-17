@@ -2,13 +2,13 @@
 import { computed, ref, watch } from 'vue'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Statement, FunctionDef, DeclareStatement } from '../../engine/fprg-ast'
+import type { Statement, FunctionDef, DeclareStatement } from '../../engine/fprgAst'
 import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Import } from '@/lib/icons'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { CodeEditor } from '@/components/ui/code-editor'
-import type { CompletionContextData } from '../../lib/flowgorithm-language'
-import { collectScopeVariables } from '../../lib/scope-resolver'
+import type { CompletionContextData } from '../../lib/flowgorithmLanguage'
+import { collectScopeVariables } from '../../lib/scopeResolver'
 
 const { t } = useI18n()
 
@@ -144,7 +144,6 @@ const DECLARE_TYPES = [
 // Helper: emit update after mutating a field
 // ============================================================
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setField(key: string, value: any) {
   if (!props.statement) return
   ;(props.statement as unknown as Record<string, unknown>)[key] = value
@@ -312,7 +311,6 @@ function syncFromExpression() {
   isCallSyncing.value = false
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onCallFuncChange(value: any) {
   const name = String(value ?? '')
   if (!name || !props.statement || props.statement.kind !== 'call' || isCallSyncing.value) return

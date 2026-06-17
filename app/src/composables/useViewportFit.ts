@@ -1,6 +1,6 @@
 import { type Ref, nextTick } from 'vue'
 import { useVueFlow } from '@vue-flow/core'
-import type { FlowNode } from '../engine/flowchart-engine'
+import type { FlowNode } from '../engine/flowchartEngine'
 
 export interface FitToStartOptions {
   zoom: number

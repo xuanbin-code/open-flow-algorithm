@@ -20,9 +20,9 @@ import {
   createDefaultStatement,
   findStatementLocation,
   isStatementEmpty,
-} from './fprg-ast'
+} from './fprgAst'
 import type { EdgeMarkerType } from '@vue-flow/core'
-import { measureTextWidth } from './text-measure'
+import { measureTextWidth } from './textMeasure'
 import { i18n } from '../i18n'
 const t = i18n.global.t
 
