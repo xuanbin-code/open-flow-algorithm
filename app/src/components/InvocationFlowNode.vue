@@ -121,7 +121,7 @@ onUnmounted(resetAllHighlights)
       <span class="invocation-status">{{ statusLabel }}</span>
     </div>
 
-    <div class="invocation-flow">
+    <div class="invocation-flow" @pointerdown.stop>
       <TooltipProvider :delay-duration="500">
         <VueFlow
           :id="flowId"
