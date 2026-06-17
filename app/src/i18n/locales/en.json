@@ -303,7 +303,10 @@
       "dangerousExpression": "Expression contains disallowed operations: \"{expr}\"\n  Pattern matched: {pattern}",
       "evalFailed": "Expression evaluation failed: \"{expr}\"\n  Normalized: \"{normalized}\"\n  Variables: {variables}\n  Reason: {reason}",
       "inputDuringExpressionEval": "Cannot request user input during expression evaluation",
-      "syncRecursionDepthExceeded": "Recursion depth exceeded ({max}); possible infinite recursion"
+      "syncRecursionDepthExceeded": "Recursion depth exceeded ({max}); possible infinite recursion",
+      "variableNotDeclared": "Variable \"{name}\" is not declared; please declare it first",
+      "variableNotDeclaredAssign": "Variable \"{name}\" in assignment is not declared; please declare it first",
+      "variableNotDeclaredInput": "Variable \"{name}\" in input is not declared; please declare it first"
     },
     "label": {
       "untitled": "Untitled",

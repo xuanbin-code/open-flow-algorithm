@@ -65,6 +65,21 @@ const MAX_ITERATIONS = 10000
 const MAX_SYNC_RECURSION_DEPTH = 1000
 
 /**
+ * 检查变量是否已在 state 中声明。
+ * 未声明则抛出包含 i18n 信息的 Error。
+ */
+function ensureDeclared(varName: string, state: RuntimeState, contextHint?: string): void {
+  if (!(varName in state.variableTypes)) {
+    const key = contextHint === 'assign'
+      ? 'engine.error.variableNotDeclaredAssign'
+      : contextHint === 'input'
+        ? 'engine.error.variableNotDeclaredInput'
+        : 'engine.error.variableNotDeclared'
+    throw new Error(t(key, { name: varName }))
+  }
+}
+
+/**
  * 解析调用表达式，提取函数名和参数列表。
  *
  * 例：
@@ -481,6 +496,7 @@ async function* executeAssign(
   if (access.indexExpr !== null) {
     // --- 数组元素赋值 ---
     const { name, indexExpr } = access
+    ensureDeclared(name, state, 'assign')
     const arr = state.variables[name]
     if (!Array.isArray(arr)) {
       throw new Error(t('engine.error.notArray', { name }))
@@ -500,6 +516,7 @@ async function* executeAssign(
     arr[index] = coerceValue(value, elemType)
   } else {
     // --- 普通标量赋值 ---
+    ensureDeclared(stmt.variable, state, 'assign')
     const varType = state.variableTypes[stmt.variable] || ''
     state.variables[stmt.variable] = coerceValue(value, varType)
   }
@@ -531,6 +548,7 @@ async function* executeInput(
   if (access.indexExpr !== null) {
     // --- 数组元素输入 ---
     const { name, indexExpr } = access
+    ensureDeclared(name, state, 'input')
     const arr = state.variables[name]
     if (!Array.isArray(arr)) {
       throw new Error(t('engine.error.notArray', { name }))
@@ -553,6 +571,7 @@ async function* executeInput(
     }
   } else {
     // --- 普通标量输入 ---
+    ensureDeclared(stmt.variable, state, 'input')
     const varType = state.variableTypes[stmt.variable] || ''
     state.variables[stmt.variable] = coerceValue(inputValue, varType)
     // 如果类型是 String，保留原始输入
@@ -1280,6 +1299,7 @@ function executeAssignSync(
 
   if (access.indexExpr !== null) {
     const { name, indexExpr } = access
+    ensureDeclared(name, state, 'assign')
     const arr = state.variables[name]
     if (!Array.isArray(arr)) {
       throw new Error(t('engine.error.notArray', { name }))
@@ -1297,6 +1317,7 @@ function executeAssignSync(
     const elemType = (state.variableTypes[name] || '').replace(/\[\]$/, '')
     arr[index] = coerceValue(value, elemType)
   } else {
+    ensureDeclared(stmt.variable, state, 'assign')
     const varType = state.variableTypes[stmt.variable] || ''
     state.variables[stmt.variable] = coerceValue(value, varType)
   }

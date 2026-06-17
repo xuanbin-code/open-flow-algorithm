@@ -303,7 +303,10 @@
       "dangerousExpression": "表达式包含不允许的操作: \"{expr}\"\n  匹配模式: {pattern}",
       "evalFailed": "表达式求值失败: \"{expr}\"\n  规范化后: \"{normalized}\"\n  变量: {variables}\n  原因: {reason}",
       "inputDuringExpressionEval": "表达式求值期间无法请求用户输入",
-      "syncRecursionDepthExceeded": "递归深度超出上限 ({max})，可能存在无限递归"
+      "syncRecursionDepthExceeded": "递归深度超出上限 ({max})，可能存在无限递归",
+      "variableNotDeclared": "变量 \"{name}\" 未声明，请先使用声明语句声明该变量",
+      "variableNotDeclaredAssign": "赋值语句中的变量 \"{name}\" 未声明，请先声明该变量",
+      "variableNotDeclaredInput": "输入语句中的变量 \"{name}\" 未声明，请先声明该变量"
     },
     "label": {
       "untitled": "未命名",
