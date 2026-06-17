@@ -96,6 +96,7 @@ export interface LayoutParams {
   BRANCH_H_GAP: number
   BRANCH_V_GAP: number
   FLOW_CENTER_X: number
+  NODE_MAX_W: number
 }
 
 // ============================================================
@@ -119,7 +120,8 @@ export const DEFAULT_PARAMS: LayoutParams = {
   START_END_H: 40,
   BRANCH_H_GAP: 50,
   BRANCH_V_GAP: 30,
-  FLOW_CENTER_X: 400
+  FLOW_CENTER_X: 600,
+  NODE_MAX_W: 800,
 }
 
 export const PARAM_DEFS = [
@@ -130,12 +132,13 @@ export const PARAM_DEFS = [
   { key: 'BRANCH_V_GAP', label: '垂直分支间距 BRANCH_V_GAP', min: 5, max: 200, step: 5 },
   { key: 'NODE_H', label: '普通节点高 NODE_H', min: 30, max: 200, step: 5 },
   { key: 'MIN_W', label: '普通节点最小宽 MIN_W', min: 40, max: 300, step: 10 },
+  { key: 'NODE_MAX_W', label: '节点最大宽 NODE_MAX_W', min: 200, max: 1200, step: 10 },
   { key: 'IF_NODE_H', label: 'If 节点高 IF_NODE_H', min: 40, max: 300, step: 5 },
-  { key: 'IF_NODE_MIN_W', label: 'If 节点最小宽 IF_NODE_MIN_W', min: 80, max: 500, step: 10 },
+  { key: 'IF_NODE_MIN_W', label: 'If 节点最小宽 IF_NODE_MIN_W', min: 80, max: 800, step: 10 },
   { key: 'FOR_NODE_H', label: 'For 节点高 FOR_NODE_H', min: 40, max: 300, step: 5 },
-  { key: 'FOR_NODE_MIN_W', label: 'For 节点最小宽 FOR_NODE_MIN_W', min: 80, max: 500, step: 10 },
+  { key: 'FOR_NODE_MIN_W', label: 'For 节点最小宽 FOR_NODE_MIN_W', min: 80, max: 800, step: 10 },
   { key: 'WHILE_NODE_H', label: 'While 节点高 WHILE_NODE_H', min: 40, max: 300, step: 5 },
-  { key: 'WHILE_NODE_MIN_W', label: 'While 节点最小宽 WHILE_NODE_MIN_W', min: 80, max: 500, step: 10 },
+  { key: 'WHILE_NODE_MIN_W', label: 'While 节点最小宽 WHILE_NODE_MIN_W', min: 80, max: 800, step: 10 },
   { key: 'MERGE_NODE_W', label: 'Merge 节点宽 MERGE_NODE_W', min: 10, max: 80, step: 2 },
   { key: 'MERGE_NODE_H', label: 'Merge 节点高 MERGE_NODE_H', min: 10, max: 80, step: 2 },
   { key: 'START_W', label: 'Start 节点宽 START_W', min: 40, max: 300, step: 5 },
@@ -166,8 +169,7 @@ const SHAPE_WIDTH_FACTOR: Partial<Record<FlowNodeType, number>> = {
   'fg-while': 1.7, // 六边形可视区约 60%
 }
 
-const NODE_MAX_W = 400   // 节点最大宽度
-const NODE_PAD_X = 28    // 左右 padding 总和
+const NODE_PAD_X = 36    // 左右 padding + border 总和 (CallNode: 14*2+2*2=32, +4 buffer)
 
 interface LayoutResult {
   endY: number
@@ -280,7 +282,7 @@ export class FlowchartEngine {
       const rawW = textW * factor + NODE_PAD_X
 
       // 夹紧到 [MIN_W, MAX_W]，允许调用方显式传入 width
-      nodeWidth = width ?? Math.min(Math.max(rawW, this.params.MIN_W), NODE_MAX_W)
+      nodeWidth = width ?? Math.min(Math.max(rawW, this.params.MIN_W), this.params.NODE_MAX_W)
     }
 
     const node: FlowNode = {

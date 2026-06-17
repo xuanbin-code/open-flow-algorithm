@@ -115,7 +115,7 @@ const derivedViewport = computed(() => {
   const targetScreenX = props.containerRect.width / 2  // X 轴居中
   const targetScreenY = props.yOffset ?? 30            // 距顶部 yOffset px
   // Start 节点参考点在流程图坐标中的位置（与 engine 的 DEFAULT_PARAMS 保持一致）
-  const flowCenterX = 400   // FLOW_CENTER_X，水平用中心
+  const flowCenterX = 600   // FLOW_CENTER_X，水平用中心
   const flowTopY = 50       // START_Y，垂直用顶部边缘
   return {
     zoom,
