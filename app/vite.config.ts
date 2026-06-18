@@ -30,9 +30,13 @@ export default defineConfig(({ mode }) => {
             ignored: ['**/src-tauri/**'],
           },
         },
-    // Web 构建 → dist-web，避免覆盖 Tauri 的 dist/
+    // 输出目录 + base 路径
+    //   - Tauri 模式 → dist/
+    //   - Web 模式   → dist-web/，base = '/'
+    //   - gh-pages 模式 → dist-web/，base = '/open-flow-algorithm/'
     build: {
       outDir: isWeb ? 'dist-web' : 'dist',
     },
+    base: mode === 'gh-pages' ? '/open-flow-algorithm/' : '/',
   }
 })

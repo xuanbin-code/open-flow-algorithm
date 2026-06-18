@@ -8,6 +8,7 @@
     "dev:web": "vite --mode web",
     "build": "vue-tsc -b && vite build",
     "build:web": "vue-tsc -b && vite build --mode web",
+    "build:gh-pages": "vue-tsc -b && vite build --mode gh-pages",
     "preview": "vite preview",
     "preview:web": "vite preview --mode web",
     "tauri": "tauri",
