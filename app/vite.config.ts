@@ -6,7 +6,7 @@ const host = process.env.TAURI_DEV_HOST
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  const isWeb = mode === 'web'
+  const isWeb = mode === 'web' || mode === 'gh-pages'
 
   return {
     plugins: [vue()],
