@@ -9,6 +9,15 @@ import { webFileSystem } from './webAdapter'
 // Re-export types for consumers
 export type { FileDialogFilter, FileOpenResult, RecentEntry }
 
+// Python backend bridge (Tauri mode only)
+export {
+  pythonBridge,
+  exportToPython,
+  validateAst,
+  isPythonBackendAvailable,
+  type PythonEvent,
+} from './pythonBridge'
+
 // ============================================================
 // 平台检测
 // ============================================================

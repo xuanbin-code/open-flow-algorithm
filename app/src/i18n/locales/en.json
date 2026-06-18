@@ -37,7 +37,8 @@
     "switchToDark": "Switch to Dark Mode",
     "switchToSystem": "Switch to Follow System",
     "manageFunctions": "Manage Functions",
-    "addFunction": "Add Function"
+    "addFunction": "Add Function",
+    "exportPython": "Export as Python Code…"
   },
   "quickActions": {
     "save": "Save",
@@ -372,10 +373,14 @@
     "errorPrefix": "[Error] {message}",
     "exceptionPrefix": "[Exception] {message}",
     "errorPrefixShort": "Error: {message}",
-    "exceptionPrefixShort": "Exception: {message}"
+    "exceptionPrefixShort": "Exception: {message}",
+    "pythonBackendNotAvailable": "Python backend not available (requires Tauri desktop app)",
+    "exportPythonSuccess": "Exported Python code: {path}",
+    "exportPythonError": "Export failed: {message}"
   },
   "fileDialog": {
-    "flowgorithmFile": "Flowgorithm File"
+    "flowgorithmFile": "Flowgorithm File",
+    "pythonFile": "Python File"
   },
   "sidebar": {
     "expand": "Expand sidebar",

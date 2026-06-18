@@ -37,7 +37,8 @@
     "switchToDark": "切换深色模式",
     "switchToSystem": "切换跟随系统",
     "manageFunctions": "管理函数",
-    "addFunction": "添加函数"
+    "addFunction": "添加函数",
+    "exportPython": "导出为 Python 代码…"
   },
   "quickActions": {
     "save": "保存",
@@ -372,10 +373,14 @@
     "errorPrefix": "[错误] {message}",
     "exceptionPrefix": "[异常] {message}",
     "errorPrefixShort": "错误: {message}",
-    "exceptionPrefixShort": "异常: {message}"
+    "exceptionPrefixShort": "异常: {message}",
+    "pythonBackendNotAvailable": "Python 后端不可用（需要 Tauri 桌面版）",
+    "exportPythonSuccess": "已导出 Python 代码: {path}",
+    "exportPythonError": "导出失败: {message}"
   },
   "fileDialog": {
-    "flowgorithmFile": "Flowgorithm 文件"
+    "flowgorithmFile": "Flowgorithm 文件",
+    "pythonFile": "Python 文件"
   },
   "sidebar": {
     "expand": "展开侧边栏",

@@ -26,6 +26,9 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "resources": {
+      "../../python-backend": "python-backend"
+    },
     "windows": {
       "webviewInstallMode": {
         "type": "downloadBootstrapper"

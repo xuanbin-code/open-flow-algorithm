@@ -10,6 +10,7 @@
         <parameters/>
         <body>
             <declare name="name" type="String" array="False" size="" expression="&quot;nihao&quot;"/>
+            <declare name="r" type="Integer" array="False" size="" expression="0"/>
             <call expression="fib(3)" result="r"/>
             <output expression="r" newline="True"/>
         </body>

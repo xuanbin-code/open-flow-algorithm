@@ -36,7 +36,7 @@ import "@vue-flow/core/dist/style.css";
 import "@vue-flow/core/dist/theme-default.css";
 import "@vue-flow/controls/dist/style.css";
 
-import { readFile } from "@/platform";
+import { readFile, showSaveDialog, writeFile, exportToPython, isPythonBackendAvailable } from "@/platform";
 import { PARAM_DEFS } from "./engine/flowchartEngine";
 import { useSettingsStore } from "./stores/settings";
 import { useSound } from "./composables/useSound";
@@ -208,6 +208,37 @@ const variableMonitorMode = ref<"embedded" | "window">("embedded");
 const varMonitorAnchor = ref<HTMLElement | null>(null);
 
 // ============================================
+// 导出为 Python 代码
+// ============================================
+
+async function handleExportPython() {
+  if (!isPythonBackendAvailable()) {
+    showToast(t("toasts.pythonBackendNotAvailable"), "error")
+    return
+  }
+
+  try {
+    // Show save dialog
+    const filePath = await showSaveDialog([
+      { name: t("fileDialog.pythonFile") || "Python Files", extensions: ["py"] },
+    ])
+
+    if (!filePath) return // User cancelled
+
+    // Generate Python code
+    const ast = JSON.parse(JSON.stringify(program.value))
+    const sourceCode = await exportToPython(ast)
+
+    // Write to file
+    await writeFile(filePath, sourceCode)
+    showToast(t("toasts.exportPythonSuccess", { path: filePath }), "success")
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    showToast(t("toasts.exportPythonError", { message: msg }), "error")
+  }
+}
+
+// ============================================
 // 菜单栏事件调度器
 // ============================================
 
@@ -277,6 +308,10 @@ async function onMenuAction(actionId: string) {
     }
     case "speed-fast": {
       setExecutionSpeed("fast");
+      break;
+    }
+    case "export-python": {
+      await handleExportPython();
       break;
     }
     case "open-settings": {

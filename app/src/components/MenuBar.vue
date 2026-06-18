@@ -127,6 +127,8 @@ const menus = computed<TopMenu[]>(() => {
         { id: 'speed-slow', label: t('menu.speedSlow') },
         { id: 'speed-normal', label: t('menu.speedNormal') },
         { id: 'speed-fast', label: t('menu.speedFast') },
+        { id: 'div-export', label: '', divider: true },
+        { id: 'export-python', label: t('menu.exportPython') },
       ],
     },
   ]

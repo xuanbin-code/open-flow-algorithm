@@ -30,6 +30,7 @@ import {
 import type { ChatMessage, VariableEntry } from '../types'
 import type { InvocationViewState } from '../components'
 import type { UseSoundReturn } from './useSound'
+import { pythonBridge, isPythonBackendAvailable, type PythonEvent } from '../platform'
 
 export type ExecutionStatus = 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
 
@@ -46,6 +47,8 @@ export interface UseExecutionOptions {
   LP: LayoutParams
   sound: UseSoundReturn
   showToast: (message: string, type?: 'success' | 'error') => void
+  /** Use Python backend for execution (Tauri mode). Default: auto-detect. */
+  usePythonBackend?: boolean
 }
 
 export function useExecution(options: UseExecutionOptions) {
@@ -58,8 +61,12 @@ export function useExecution(options: UseExecutionOptions) {
     LP,
     sound,
     showToast,
+    usePythonBackend,
   } = options
   const { t } = useI18n()
+
+  /** Whether to use the Python backend for execution. */
+  const usingPython = usePythonBackend ?? isPythonBackendAvailable()
 
   // ============================================
   // VueFlow access (internal)
@@ -693,6 +700,235 @@ export function useExecution(options: UseExecutionOptions) {
   }
 
   // ============================================
+  // Python 后端驱动循环
+  //
+  // 替代 driveInterpreter()，通过 JSON-RPC 与 Python 后端通信。
+  // 事件处理逻辑与 JS 版本保持一致，确保 UI 行为不变。
+  // ============================================
+
+  async function driveInterpreterPython(mode: 'run' | 'step') {
+    try {
+      while (true) {
+        if (stopped) {
+          resetEdgeAnimation()
+          executionStatus.value = 'stopped'
+          return
+        }
+
+        // Call Python backend for the next step
+        let event: PythonEvent
+        try {
+          event = await pythonBridge.call('step')
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e)
+          executionOutput.value = [...executionOutput.value, t('toasts.exceptionPrefix', { message: msg })]
+          chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.exceptionPrefixShort', { message: msg }), timestamp: Date.now() }]
+          resetEdgeAnimation()
+          executionStatus.value = 'stopped'
+          showToast(t('toasts.execException', { message: msg }), 'error')
+          syncExecutionHighlight()
+          return
+        }
+
+        switch (event.event) {
+          case 'statement-enter': {
+            const topFrame = executionCallStack[executionCallStack.length - 1]
+            handleInvocationStatementEnter(topFrame, event.nodeId ?? '')
+            handleMainStatementEnter(topFrame, event.nodeId ?? '')
+
+            // Sync variables from Python backend
+            try {
+              const varResult = await pythonBridge.call('get_variables')
+              const vars = varResult.variables ?? []
+              varEntries.value = vars.map((v: any) => ({
+                name: v.name,
+                type: v.type,
+                value: v.value,
+              }))
+            } catch { /* ignore variable sync errors */ }
+
+            if (topFrame?.functionName === 'Main' && topFrame.invocationId && invocations.value[topFrame.invocationId]) {
+              invocations.value[topFrame.invocationId].variables = [...varEntries.value]
+            }
+            if (mode === 'step') sound.playTick()
+            break
+          }
+          case 'statement-leave': {
+            const topFrame = executionCallStack[executionCallStack.length - 1]
+            handleInvocationStatementLeave(topFrame, event.nodeId ?? '')
+            handleMainStatementLeave(topFrame, event.nodeId ?? '')
+            break
+          }
+          case 'function-enter': {
+            pushInvocationFramePython(event)
+            await nextTick()
+            break
+          }
+          case 'function-leave': {
+            popInvocationFrame()
+            break
+          }
+          case 'output': {
+            executionOutput.value = [...executionOutput.value, event.text ?? '']
+            chatMessages.value = [...chatMessages.value, {
+              role: 'program',
+              text: event.text ?? '',
+              sourceNodeId: event.nodeId,
+              timestamp: Date.now(),
+            }]
+            break
+          }
+          case 'input-request': {
+            executionStatus.value = 'waiting-input'
+            sound.playInputPrompt()
+            const value = await new Promise<string>((resolve) => {
+              inputResolve = resolve
+            })
+            if (stopped) {
+              resetEdgeAnimation()
+              executionStatus.value = 'stopped'
+              return
+            }
+            // Send input to Python backend
+            try {
+              await pythonBridge.call('set_input', { value })
+            } catch (e: unknown) {
+              const msg = e instanceof Error ? e.message : String(e)
+              executionOutput.value = [...executionOutput.value, t('toasts.exceptionPrefix', { message: msg })]
+              chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.exceptionPrefixShort', { message: msg }), timestamp: Date.now() }]
+              resetEdgeAnimation()
+              executionStatus.value = 'stopped'
+              showToast(t('toasts.execException', { message: msg }), 'error')
+              return
+            }
+            inputResolve = null
+            executionStatus.value = mode === 'step' ? 'paused' : 'running'
+            break
+          }
+          case 'error': {
+            sound.playError()
+            const errorMsg = event.message ?? 'Unknown error'
+            executionOutput.value = [...executionOutput.value, t('toasts.errorPrefix', { message: errorMsg })]
+            chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.errorPrefixShort', { message: errorMsg }), timestamp: Date.now() }]
+            resetEdgeAnimation()
+            executionStatus.value = 'stopped'
+            showToast(t('toasts.execError', { message: errorMsg }), 'error')
+            syncExecutionHighlight()
+            return
+          }
+          case 'done': {
+            sound.playDone()
+            executionOutput.value = [...executionOutput.value, t('execution.execDoneDivider')]
+            chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.execDone'), timestamp: Date.now() }]
+            resetEdgeAnimation()
+            executionStatus.value = 'idle'
+            showToast(t('toasts.execDone'), 'success')
+            syncExecutionHighlight()
+            return
+          }
+        }
+
+        if (mode === 'run' && executionStatus.value === 'running') {
+          await new Promise<void>((resolve) => setTimeout(resolve, SPEED_DELAYS[executionSpeed.value]))
+        }
+
+        if (mode === 'run' && executionStatus.value === 'paused' && !stopped) {
+          await new Promise<void>((resolve) => {
+            stepResolve = resolve
+          })
+          stepResolve = null
+          if (stopped) {
+            resetEdgeAnimation()
+            executionStatus.value = 'stopped'
+            return
+          }
+          executionStatus.value = 'running'
+        }
+
+        if (mode === 'step' && event.event !== 'statement-leave') {
+          executionStatus.value = 'paused'
+          // Sync variables on pause
+          try {
+            const varResult = await pythonBridge.call('get_variables')
+            const vars = varResult.variables ?? []
+            varEntries.value = vars.map((v: any) => ({
+              name: v.name,
+              type: v.type,
+              value: v.value,
+            }))
+          } catch { /* ignore */ }
+          await new Promise<void>((resolve) => {
+            stepResolve = resolve
+          })
+          stepResolve = null
+          if (stopped) {
+            resetEdgeAnimation()
+            executionStatus.value = 'stopped'
+            return
+          }
+          executionStatus.value = 'running'
+        }
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
+      executionOutput.value = [...executionOutput.value, t('toasts.exceptionPrefix', { message: msg })]
+      chatMessages.value = [...chatMessages.value, { role: 'system', text: t('toasts.exceptionPrefixShort', { message: msg }), timestamp: Date.now() }]
+      resetEdgeAnimation()
+      executionStatus.value = 'stopped'
+      showToast(t('toasts.execException', { message: msg }), 'error')
+      syncExecutionHighlight()
+    }
+  }
+
+  /** Python-backend version of pushInvocationFrame. */
+  function pushInvocationFramePython(event: PythonEvent) {
+    const parentFrame = executionCallStack[executionCallStack.length - 1]
+    const parentId = parentFrame?.invocationId ?? null
+    let invocationId: string | null = null
+
+    if (event.functionName && functionExecutionEnabled[event.functionName]) {
+      const cachedEngine = subEngineCache.get(event.functionName)
+      if (cachedEngine) {
+        // Sync variables for the new frame from Python backend
+        pythonBridge.call('get_variables').then(varResult => {
+          const vars = (varResult.variables ?? []).map((v: any) => ({
+            name: v.name,
+            type: v.type,
+            value: v.value,
+          }))
+          const invocation = createInvocation(event.functionName!, cachedEngine, {
+            parentId,
+            callSiteNodeId: event.callerNodeId ?? null,
+            callExpression: event.callExpression,
+            variables: vars,
+          })
+          invocationId = invocation.id
+          invocations.value = {
+            ...invocations.value,
+            [invocation.id]: invocation,
+          }
+
+          if (parentId && event.callerNodeId) {
+            const parentInv = invocations.value[parentId]
+            if (parentInv) {
+              parentInv.executingNodeIds = parentInv.executingNodeIds.filter(
+                id => id !== event.callerNodeId,
+              )
+            }
+          }
+
+          layoutCallTree()
+        })
+      }
+    }
+
+    executionCallStack.push({
+      functionName: event.functionName ?? '',
+      invocationId,
+    })
+  }
+
+  // ============================================
   // 执行控制
   // ============================================
 
@@ -716,12 +952,28 @@ export function useExecution(options: UseExecutionOptions) {
 
     executionStatus.value = 'running'
 
-    const { state, generator } = createInterpreter(program.value, functionExecutionEnabled)
-    interpreterRuntime = state
-    interpreterGen = generator
+    if (usingPython) {
+      // Python backend path
+      try {
+        const ast = JSON.parse(JSON.stringify(program.value)) // deep clone AST
+        await pythonBridge.call('load_program', { ast })
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e)
+        showToast(t('toasts.execException', { message: msg }), 'error')
+        executionStatus.value = 'stopped'
+        return
+      }
+      sound.playStart()
+      await driveInterpreterPython('run')
+    } else {
+      // JavaScript interpreter path (original)
+      const { state, generator } = createInterpreter(program.value, functionExecutionEnabled)
+      interpreterRuntime = state
+      interpreterGen = generator
 
-    sound.playStart()
-    await driveInterpreter('run')
+      sound.playStart()
+      await driveInterpreter('run')
+    }
   }
 
   async function stepExecution() {
@@ -741,13 +993,28 @@ export function useExecution(options: UseExecutionOptions) {
         }]
       }
 
-      const { state, generator } = createInterpreter(program.value, functionExecutionEnabled)
-      interpreterRuntime = state
-      interpreterGen = generator
-
       executionStatus.value = 'running'
-      sound.playStart()
-      await driveInterpreter('step')
+
+      if (usingPython) {
+        try {
+          const ast = JSON.parse(JSON.stringify(program.value))
+          await pythonBridge.call('load_program', { ast })
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : String(e)
+          showToast(t('toasts.execException', { message: msg }), 'error')
+          executionStatus.value = 'stopped'
+          return
+        }
+        sound.playStart()
+        await driveInterpreterPython('step')
+      } else {
+        const { state, generator } = createInterpreter(program.value, functionExecutionEnabled)
+        interpreterRuntime = state
+        interpreterGen = generator
+
+        sound.playStart()
+        await driveInterpreter('step')
+      }
     } else if (executionStatus.value === 'paused') {
       executionStatus.value = 'running'
       stepResolve?.()
@@ -766,6 +1033,10 @@ export function useExecution(options: UseExecutionOptions) {
     }
     if (interpreterRuntime) {
       abortExecution(interpreterRuntime)
+    }
+    // Stop Python backend execution if active
+    if (usingPython) {
+      pythonBridge.call('stop').catch(() => { /* ignore */ })
     }
 
     const prevSet = lastHighlightedIds.value

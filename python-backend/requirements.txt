@@ -1,0 +1,12 @@
+# Open Flow Algorithm — Python Backend Dependencies
+#
+# The Python backend uses only the standard library for core functionality:
+# - json, sys, traceback (JSON-RPC communication)
+# - ast (sandbox security validation)
+# - math, random (built-in function support)
+# - typing (type annotations)
+#
+# No external dependencies are required.
+#
+# If additional functionality is needed in the future, add packages here
+# and install with: pip install -r requirements.txt
