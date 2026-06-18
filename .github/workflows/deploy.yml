@@ -31,6 +31,9 @@ jobs:
         with:
           version: latest
 
+      - name: Approve build scripts
+        run: cd app && pnpm approve-builds vue-demi
+
       - name: Install dependencies
         run: cd app && pnpm install --frozen-lockfile
 
