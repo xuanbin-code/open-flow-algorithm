@@ -35,6 +35,7 @@
     "speedFast": "快速",
     "switchToLight": "切换浅色模式",
     "switchToDark": "切换深色模式",
+    "switchToSystem": "切换跟随系统",
     "manageFunctions": "管理函数",
     "addFunction": "添加函数"
   },
@@ -57,6 +58,7 @@
     "darkLightDesc": "切换界面明暗主题",
     "dark": "深色",
     "light": "浅色",
+    "system": "跟随系统",
     "soundEffects": "音效",
     "soundEffectsDesc": "运行、结束、报错时播放提示音",
     "defaultZoom": "默认缩放",

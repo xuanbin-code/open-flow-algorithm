@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useSettingsStore } from '../../stores/settings'
+import type { ThemeMode } from '../../stores/settings'
 import { useShortcutStore } from '../../stores/shortcuts'
 import { ACCENT_PRESETS } from '../../lib/colorPalette'
-import { Sun, Moon, Settings, Keyboard, Check, Undo2 } from '@/lib/icons'
+import { Sun, Moon, Monitor, Settings, Keyboard, Check, Undo2 } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -100,12 +101,20 @@ function onCustomColorChange(e: Event) {
 }
 
 // ============================================================
-// Theme toggle
+// Theme options
 // ============================================================
 
-function toggleTheme() {
-  settingsStore.theme = settingsStore.theme === 'dark' ? 'light' : 'dark'
+interface ThemeOption {
+  value: ThemeMode
+  icon: typeof Sun  // any Lucide component type
+  labelKey: string   // i18n key under settings
 }
+
+const themeOptions: ThemeOption[] = [
+  { value: 'dark',   icon: Moon,    labelKey: 'settings.dark' },
+  { value: 'light',  icon: Sun,     labelKey: 'settings.light' },
+  { value: 'system', icon: Monitor, labelKey: 'settings.system' },
+]
 
 // ============================================================
 // Language (bidirectional binding)
@@ -285,7 +294,7 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
                     <span
                       class="flex size-7 items-center justify-center rounded-full border-2 transition-all"
                       :class="activePresetId === preset.id ? 'border-foreground scale-110' : 'border-transparent'"
-                      :style="{ background: settingsStore.theme === 'dark' ? preset.dark : preset.light }"
+                      :style="{ background: settingsStore.resolvedTheme === 'dark' ? preset.dark : preset.light }"
                     >
                       <Check v-if="activePresetId === preset.id" class="size-3.5 text-white drop-shadow" />
                     </span>
@@ -312,17 +321,26 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
 
               <Separator />
 
-              <!-- Dark/Light toggle -->
-              <div class="flex items-center justify-between">
-                <div class="flex flex-col gap-0.5">
+              <!-- Dark/Light/System toggle -->
+              <div class="flex flex-col gap-2">
+                <div>
                   <span class="text-sm font-medium leading-none">{{ $t('settings.darkLightMode') }}</span>
-                  <span class="text-xs text-muted-foreground">{{ $t('settings.darkLightDesc') }}</span>
+                  <span class="text-xs text-muted-foreground ml-1.5">{{ $t('settings.darkLightDesc') }}</span>
                 </div>
-                <Button variant="outline" @click="toggleTheme">
-                  <Moon v-if="settingsStore.theme === 'dark'" :size="16" />
-                  <Sun v-else :size="16" />
-                  <span>{{ settingsStore.theme === 'dark' ? $t('settings.dark') : $t('settings.light') }}</span>
-                </Button>
+                <div class="flex items-center rounded-md border border-input bg-secondary p-0.5 w-fit">
+                  <button
+                    v-for="opt in themeOptions"
+                    :key="opt.value"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium transition-all bg-transparent"
+                    :class="settingsStore.theme === opt.value
+                      ? 'bg-accent text-accent-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'"
+                    @click="settingsStore.theme = opt.value"
+                  >
+                    <component :is="opt.icon" :size="14" />
+                    <span>{{ $t(opt.labelKey) }}</span>
+                  </button>
+                </div>
               </div>
             </div>
 

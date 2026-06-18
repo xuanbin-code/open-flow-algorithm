@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useSettingsStore } from '../stores/settings'
-import { Sun, Moon, Settings, Play, StepForward, Pause, Square } from '@/lib/icons'
+import { Settings, Play, StepForward, Pause, Square } from '@/lib/icons'
 import { Button } from '@/components/ui/button'
 import {
   ToggleGroup,
@@ -170,15 +169,10 @@ const fileName = computed(() => {
 })
 
 // ============================================================
-// Theme toggle
+// Shortcut store
 // ============================================================
 
-const store = useSettingsStore()
 const shortcutStore = useShortcutStore()
-
-function toggleTheme() {
-  store.theme = store.theme === 'dark' ? 'light' : 'dark'
-}
 </script>
 
 <template>
@@ -281,15 +275,6 @@ function toggleTheme() {
     </div>
 
     <div class="right-zone">
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        :title="store.theme === 'dark' ? $t('menu.switchToLight') : $t('menu.switchToDark')"
-        @click="toggleTheme"
-      >
-        <Sun v-if="store.theme === 'dark'" :size="16" />
-        <Moon v-else :size="16" />
-      </Button>
       <Button
         variant="ghost"
         size="icon-sm"

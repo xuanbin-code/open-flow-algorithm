@@ -3,8 +3,9 @@
 // 提供 FOUC 防护：在首次访问 store 时立即应用主题/强调色
 // ============================================================
 
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { useMediaQuery } from '@vueuse/core'
 import { generateAccentPalette } from '../lib/colorPalette'
 import { setI18nLocale } from '../i18n'
 
@@ -12,8 +13,10 @@ import { setI18nLocale } from '../i18n'
 // Types
 // ============================================================
 
+export type ThemeMode = 'dark' | 'light' | 'system'
+
 export interface AppSettings {
-  theme: 'dark' | 'light'
+  theme: ThemeMode
   accentColor: string
   language: string
   soundEffects: boolean
@@ -27,13 +30,15 @@ export interface AppSettings {
 
 const STORAGE_KEY = 'flowgorithm-settings'
 
+const VALID_THEMES: ThemeMode[] = ['dark', 'light', 'system']
+
 function load(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       return {
-        theme: parsed.theme === 'light' ? 'light' : 'dark',
+        theme: VALID_THEMES.includes(parsed.theme) ? parsed.theme : 'dark',
         accentColor: typeof parsed.accentColor === 'string' && parsed.accentColor.length > 0
           ? parsed.accentColor
           : 'blue',
@@ -63,16 +68,16 @@ function persist(s: AppSettings) {
 // Theme / accent DOM helpers
 // ============================================================
 
-function applyTheme(theme: 'dark' | 'light') {
-  if (theme === 'light') {
+function applyTheme(resolved: 'dark' | 'light') {
+  if (resolved === 'light') {
     document.documentElement.setAttribute('data-theme', 'light')
   } else {
     document.documentElement.removeAttribute('data-theme')
   }
 }
 
-function applyAccentColor(accentColor: string, theme: 'dark' | 'light') {
-  const palette = generateAccentPalette(accentColor, theme)
+function applyAccentColor(accentColor: string, resolved: 'dark' | 'light') {
+  const palette = generateAccentPalette(accentColor, resolved)
   const root = document.documentElement
   for (const [key, value] of Object.entries(palette)) {
     root.style.setProperty(key, value)
@@ -86,13 +91,24 @@ function applyAccentColor(accentColor: string, theme: 'dark' | 'light') {
 let earlyStore: ReturnType<typeof useSettingsStore> | null = null
 
 export const useSettingsStore = defineStore('settings', () => {
+  // ── System media query ──
+  const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
+
   // ── State ──
-  const theme = ref<'dark' | 'light'>('dark')
+  const theme = ref<ThemeMode>('dark')
   const accentColor = ref('blue')
   const language = ref('zh-CN')
   const soundEffects = ref(false)
   const defaultZoom = ref(0.9)
   const yOffset = ref(30)
+
+  // ── Derived: resolved theme (dark/light, even when theme='system') ──
+  const resolvedTheme = computed<'dark' | 'light'>(() => {
+    if (theme.value === 'system') {
+      return prefersDark.value ? 'dark' : 'light'
+    }
+    return theme.value
+  })
 
   // ── Init from localStorage ──
   const saved = load()
@@ -104,8 +120,8 @@ export const useSettingsStore = defineStore('settings', () => {
   yOffset.value = saved.yOffset
 
   // ── FOUC 防护：store 首次创建时立即应用到 DOM ──
-  applyTheme(theme.value)
-  applyAccentColor(accentColor.value, theme.value)
+  applyTheme(resolvedTheme.value)
+  applyAccentColor(accentColor.value, resolvedTheme.value)
 
   // ── 持久化 ──
   function persistAll() {
@@ -120,14 +136,19 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   // ── 响应式同步到 DOM / i18n ──
-  watch(theme, (newTheme) => {
-    applyTheme(newTheme)
-    applyAccentColor(accentColor.value, newTheme)
+  // Watch resolved theme for DOM application (triggers on theme change OR system preference change)
+  watch(resolvedTheme, (newResolved) => {
+    applyTheme(newResolved)
+    applyAccentColor(accentColor.value, newResolved)
+  })
+
+  // Watch raw theme for persistence only
+  watch(theme, () => {
     persistAll()
   })
 
   watch(accentColor, (newAccent) => {
-    applyAccentColor(newAccent, theme.value)
+    applyAccentColor(newAccent, resolvedTheme.value)
     persistAll()
   })
 
@@ -140,7 +161,7 @@ export const useSettingsStore = defineStore('settings', () => {
     window.dispatchEvent(new CustomEvent('language-changed', { detail: newLang }))
   })
 
-  return { theme, accentColor, language, soundEffects, defaultZoom, yOffset }
+  return { theme, accentColor, language, soundEffects, defaultZoom, yOffset, resolvedTheme }
 })
 
 /**
