@@ -29,10 +29,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: latest
-
-      - name: Approve build scripts
-        run: cd app && pnpm approve-builds vue-demi
+          version: 11
 
       - name: Install dependencies
         run: cd app && pnpm install --frozen-lockfile
