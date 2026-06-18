@@ -32,6 +32,12 @@ const STORAGE_KEY = 'flowgorithm-settings'
 
 const VALID_THEMES: ThemeMode[] = ['dark', 'light', 'system']
 
+function detectLanguage(): string {
+  const lang = (navigator.language || 'en').toLowerCase()
+  if (lang.startsWith('zh')) return 'zh-CN'
+  return 'en'
+}
+
 function load(): AppSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -42,7 +48,7 @@ function load(): AppSettings {
         accentColor: typeof parsed.accentColor === 'string' && parsed.accentColor.length > 0
           ? parsed.accentColor
           : 'blue',
-        language: typeof parsed.language === 'string' ? parsed.language : 'zh-CN',
+        language: typeof parsed.language === 'string' ? parsed.language : detectLanguage(),
         soundEffects: parsed.soundEffects === true,
         defaultZoom: typeof parsed.defaultZoom === 'number' && parsed.defaultZoom >= 0.1 && parsed.defaultZoom <= 4.0
           ? parsed.defaultZoom : 0.9,
@@ -53,7 +59,7 @@ function load(): AppSettings {
   } catch {
     // ignore corrupt data
   }
-  return { theme: 'dark', accentColor: 'blue', language: 'zh-CN', soundEffects: false, defaultZoom: 0.9, yOffset: 30 }
+  return { theme: 'dark', accentColor: 'blue', language: detectLanguage(), soundEffects: false, defaultZoom: 0.9, yOffset: 30 }
 }
 
 function persist(s: AppSettings) {
@@ -97,7 +103,7 @@ export const useSettingsStore = defineStore('settings', () => {
   // ── State ──
   const theme = ref<ThemeMode>('dark')
   const accentColor = ref('blue')
-  const language = ref('zh-CN')
+  const language = ref(detectLanguage())
   const soundEffects = ref(false)
   const defaultZoom = ref(0.9)
   const yOffset = ref(30)
