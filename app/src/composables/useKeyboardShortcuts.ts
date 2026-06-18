@@ -62,6 +62,9 @@ export function useKeyboardShortcuts(options: UseKeyboardShortcutsOptions) {
     // deleteSelected ← shortcuts.deleteSelected（仅在 selectedNodeId 非空时生效）
     entries.push({ actionId: 'deleteSelected', combo: s.deleteSelected, handler: () => { if (options.selectedNodeId.value) options.deleteSelectedNode() } })
 
+    // Backspace — 始终作为 Delete 的补充快捷键（硬编码），绕过 VueFlow 内置 Backspace 处理
+    entries.push({ actionId: 'deleteSelected', combo: { ctrl: false, shift: false, alt: false, meta: false, key: 'Backspace', code: 'Backspace' }, handler: () => { if (options.selectedNodeId.value) options.deleteSelectedNode() } })
+
     // 可选处理器
     if (options.handleNew)  entries.push({ actionId: 'new',  combo: s.new,  handler: () => options.handleNew!() })
     if (options.handleOpen) entries.push({ actionId: 'open', combo: s.open, handler: () => options.handleOpen!() })

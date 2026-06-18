@@ -354,6 +354,7 @@ onUnmounted(() => {
               :default-viewport="{ zoom: 1, x: 50, y: 20 }"
               :min-zoom="0.1"
               :max-zoom="4"
+              :delete-key-code="null"
               @edge-click="onEdgeClick"
               @node-click="onNodeClick"
               @node-double-click="onNodeDblClick"
