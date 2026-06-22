@@ -326,6 +326,11 @@ async function* runProgram(
       yield { type: 'done' }
       return
     }
+    if (e instanceof ReturnSignal) {
+      yield { type: 'error', message: t('engine.error.returnOutsideFunction') }
+      yield { type: 'done' }
+      return
+    }
     const msg = e instanceof Error ? e.message : String(e)
     yield {
       type: 'error',
