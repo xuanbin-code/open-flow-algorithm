@@ -148,26 +148,29 @@ const categories: Category[] = [
 // Node button shape style
 // ============================================================
 
-function nodeStyle(n: InsertableNode): Record<string, string> {
-  const base: Record<string, string> = {
-    background: n.bg,
-    borderColor: n.border,
+/**
+ * 按钮外层样式。
+ * 菱形/六边形使用两层 clip-path 技术：button 作 border 层（背景=边框色），
+ * 内层 .node-btn-shape 作 fill 层（背景=填充色），通过 padding 留出边框间隙。
+ * 矩形/平行四边形保持 CSS border 方式。
+ */
+function nodeButtonStyle(n: InsertableNode): Record<string, string> {
+  const s: Record<string, string> = {}
+  if (n.shape === 'diamond' || n.shape === 'hexagon') {
+    // 两层 clip-path：button 背景 = 边框色，作为 border 层
+    s.background = n.border
+  } else {
+    // 矩形/平行四边形：使用 CSS border
+    s.background = n.bg
+    s.borderColor = n.border
   }
-  switch (n.shape) {
-    case 'parallelogram':
-      base.transform = 'skewX(-10deg)'
-      base.borderRadius = '3px'
-      break
-    case 'diamond':
-      base.clipPath = 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
-      break
-    case 'hexagon':
-      base.clipPath = 'polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%)'
-      break
-    default:
-      base.borderRadius = '4px'
+  if (n.shape === 'parallelogram') {
+    s.transform = 'skewX(-10deg)'
+    s.borderRadius = '3px'
+  } else if (n.shape === 'rect') {
+    s.borderRadius = '4px'
   }
-  return base
+  return s
 }
 
 function labelStyle(n: InsertableNode): Record<string, string> {
@@ -205,10 +208,23 @@ function labelStyle(n: InsertableNode): Record<string, string> {
                 v-for="node in cat.nodes"
                 :key="node.type"
                 class="node-btn"
-                :style="nodeStyle(node)"
+                :class="{
+                  'node-btn--diamond': node.shape === 'diamond',
+                  'node-btn--hexagon': node.shape === 'hexagon',
+                }"
+                :style="nodeButtonStyle(node)"
                 @click="emit('insert', node.type)"
               >
-                <span class="node-btn-label" :style="labelStyle(node)">{{ node.label }}</span>
+                <!-- 菱形/六边形：两层 clip-path 技术，button=border 层，node-btn-shape=fill 层 -->
+                <span
+                  v-if="node.shape === 'diamond' || node.shape === 'hexagon'"
+                  class="node-btn-shape"
+                  :style="{ background: node.bg }"
+                >
+                  <span class="node-btn-label">{{ node.label }}</span>
+                </span>
+                <!-- 矩形/平行四边形：CSS border 方式 -->
+                <span v-else class="node-btn-label" :style="labelStyle(node)">{{ node.label }}</span>
               </button>
             </div>
           </div>
@@ -246,8 +262,9 @@ function labelStyle(n: InsertableNode): Record<string, string> {
   font-size: 12px;
   box-shadow: var(--shadow-panel);
   backdrop-filter: blur(10px);
-  width: 420px;
-  max-width: calc(100vw - 48px);
+  width: auto;
+  min-width: 280px;
+  max-width: min(540px, calc(100vw - 48px));
   user-select: none;
 }
 
@@ -309,14 +326,17 @@ function labelStyle(n: InsertableNode): Record<string, string> {
 
 .select-view {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
+  row-gap: 8px;
 }
 
 .category-col {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  flex: 1;
+  flex: 0 1 auto;
+  min-width: 72px;
 }
 
 .category-name {
@@ -333,7 +353,8 @@ function labelStyle(n: InsertableNode): Record<string, string> {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
+  min-width: 68px;
+  width: 100%;
   height: 40px;
   border: 2px solid;
   color: #fff;
@@ -350,6 +371,38 @@ function labelStyle(n: InsertableNode): Record<string, string> {
 }
 .node-btn:active {
   transform: scale(0.95);
+}
+
+/* 菱形/六边形：两层 clip-path 边框技术（button = border 层，.node-btn-shape = fill 层） */
+.node-btn--diamond,
+.node-btn--hexagon {
+  border: none;
+  padding: 2px;
+}
+
+.node-btn--diamond {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.node-btn--hexagon {
+  clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
+}
+
+.node-btn-shape {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+.node-btn--diamond .node-btn-shape {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.node-btn--hexagon .node-btn-shape {
+  clip-path: polygon(20% 0%, 80% 0%, 100% 50%, 80% 100%, 20% 100%, 0% 50%);
 }
 
 .node-btn-label {
