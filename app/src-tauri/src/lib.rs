@@ -89,7 +89,7 @@ async fn python_backend_status(state: tauri::State<'_, AppState>) -> Result<bool
 /// Get the default Python path and script directory based on the app's resource directory.
 ///
 /// In production (bundled), Python is embedded alongside the app resources.
-/// In development, we look for `python-backend/` relative to the project root.
+/// In development, we look for `python-backend/` relative to the app directory.
 #[allow(unused_variables)]
 fn resolve_python_paths(app_handle: &tauri::AppHandle) -> (String, String) {
     // In dev mode (debug_assertions), use system python and the project's python-backend/ directory.
@@ -98,10 +98,9 @@ fn resolve_python_paths(app_handle: &tauri::AppHandle) -> (String, String) {
     let (python_path, script_dir) = {
         // In dev mode, use system python and the project's python-backend/ directory.
         // CARGO_MANIFEST_DIR is a compile-time macro → always available, always correct.
-        // From src-tauri/ → ../../python-backend reaches the repo root.
+        // From src-tauri/ → ../python-backend reaches the app/ directory.
         let manifest_dir = env!("CARGO_MANIFEST_DIR");
         let script_dir = std::path::PathBuf::from(manifest_dir)
-            .join("..")
             .join("..")
             .join("python-backend");
 
