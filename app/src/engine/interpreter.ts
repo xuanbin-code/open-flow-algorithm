@@ -316,6 +316,16 @@ async function* runProgram(
       yield { type: 'done' }
       return
     }
+    if (e instanceof BreakSignal) {
+      yield { type: 'error', message: t('engine.error.breakOutsideLoop') }
+      yield { type: 'done' }
+      return
+    }
+    if (e instanceof ContinueSignal) {
+      yield { type: 'error', message: t('engine.error.continueOutsideLoop') }
+      yield { type: 'done' }
+      return
+    }
     const msg = e instanceof Error ? e.message : String(e)
     yield {
       type: 'error',
@@ -394,6 +404,16 @@ async function* runFunction(
       yield { type: 'done' }
       return
     }
+    if (e instanceof BreakSignal) {
+      yield { type: 'error', message: t('engine.error.breakOutsideLoop') }
+      yield { type: 'done' }
+      return
+    }
+    if (e instanceof ContinueSignal) {
+      yield { type: 'error', message: t('engine.error.continueOutsideLoop') }
+      yield { type: 'done' }
+      return
+    }
     const msg = e instanceof Error ? e.message : String(e)
     yield {
       type: 'error',
@@ -434,6 +454,9 @@ async function* executeStatement(
     yield { type: 'statement-enter', statement: stmt, nodeId }
   }
 
+  // break/continue 抛出信号，必须在 finally 之后执行
+  let signal: Error | null = null
+
   try {
     switch (stmt.kind) {
       case 'declare':
@@ -463,6 +486,12 @@ async function* executeStatement(
       case 'do':
         yield* executeDo(stmt, state)
         break
+      case 'break':
+        signal = new BreakSignal()
+        break
+      case 'continue':
+        signal = new ContinueSignal()
+        break
       case 'more':
         // 占位节点，无操作
         break
@@ -475,6 +504,8 @@ async function* executeStatement(
     state.currentStatement = null
     state.currentNodeId = null
   }
+
+  if (signal) throw signal
 }
 
 // ============================================================
@@ -1073,7 +1104,17 @@ async function* executeWhile(
     }
 
     if (!cond) break
-    yield* executeBlock(stmt.body, state)
+    try {
+      yield* executeBlock(stmt.body, state)
+    } catch (e: unknown) {
+      if (e instanceof BreakSignal) {
+        break
+      }
+      if (e instanceof ContinueSignal) {
+        continue
+      }
+      throw e
+    }
   }
 }
 
@@ -1127,10 +1168,22 @@ async function* executeFor(
 
     if (shouldBreak) break
 
-    yield* executeBlock(stmt.body, state)
+    try {
+      yield* executeBlock(stmt.body, state)
 
-    // 递增循环变量
-    state.variables[varName] = current + step
+      // 递增循环变量
+      state.variables[varName] = current + step
+    } catch (e: unknown) {
+      if (e instanceof BreakSignal) {
+        break
+      }
+      if (e instanceof ContinueSignal) {
+        // continue 仍需递增循环变量再进入下一次迭代
+        state.variables[varName] = current + step
+        continue
+      }
+      throw e
+    }
   }
 }
 
@@ -1151,7 +1204,19 @@ async function* executeDo(
       yield { type: 'error', message: t('engine.error.loopMaxIterations', { kind: 'do', max: MAX_ITERATIONS }), statement: stmt }
       return
     }
-    yield* executeBlock(stmt.body, state)
+    try {
+      yield* executeBlock(stmt.body, state)
+    } catch (e: unknown) {
+      if (e instanceof BreakSignal) {
+        break
+      }
+      if (e instanceof ContinueSignal) {
+        // do-while 的 continue 跳到条件判断处
+        // 跳过本次迭代剩余部分，进入下一次条件判断
+      } else {
+        throw e
+      }
+    }
 
     // do-while 在 body 执行后才做条件判断
     if (nodeId) {
@@ -1295,6 +1360,10 @@ function executeStatementSync(
       break
     case 'input':
       throw new Error(t('engine.error.inputDuringExpressionEval'))
+    case 'break':
+      throw new BreakSignal()
+    case 'continue':
+      throw new ContinueSignal()
     case 'more':
       // 占位节点，无操作
       break
@@ -1434,7 +1503,17 @@ function executeWhileSync(
         t('engine.error.loopMaxIterations', { kind: 'while', max: MAX_ITERATIONS }),
       )
     }
-    executeBlockSync(stmt.body, program, state)
+    try {
+      executeBlockSync(stmt.body, program, state)
+    } catch (e: unknown) {
+      if (e instanceof BreakSignal) {
+        break
+      }
+      if (e instanceof ContinueSignal) {
+        continue
+      }
+      throw e
+    }
   }
 }
 
@@ -1469,8 +1548,19 @@ function executeForSync(
     const shouldBreak = step > 0 ? current > end : current < end
     if (shouldBreak) break
 
-    executeBlockSync(stmt.body, program, state)
-    state.variables[varName] = current + step
+    try {
+      executeBlockSync(stmt.body, program, state)
+      state.variables[varName] = current + step
+    } catch (e: unknown) {
+      if (e instanceof BreakSignal) {
+        break
+      }
+      if (e instanceof ContinueSignal) {
+        state.variables[varName] = current + step
+        continue
+      }
+      throw e
+    }
   }
 }
 
@@ -1488,7 +1578,19 @@ function executeDoSync(
         t('engine.error.loopMaxIterations', { kind: 'do', max: MAX_ITERATIONS }),
       )
     }
-    executeBlockSync(stmt.body, program, state)
+    try {
+      executeBlockSync(stmt.body, program, state)
+    } catch (e: unknown) {
+      if (e instanceof BreakSignal) {
+        break
+      }
+      if (e instanceof ContinueSignal) {
+        // do-while: continue 跳到条件判断处
+        // 此处不重新抛出，让循环继续
+      } else {
+        throw e
+      }
+    }
   } while (evaluateExpr(stmt.expression, state))
 }
 
@@ -1560,6 +1662,28 @@ class StopExecution extends Error {
   constructor(message: string = '执行已终止') {
     super(message)
     this.name = 'StopExecution'
+  }
+}
+
+/**
+ * 内部信号：break 语句抛出，由 while/for/do 执行器捕获，
+ * 跳出当前最内层循环。
+ */
+class BreakSignal extends Error {
+  constructor() {
+    super('break')
+    this.name = 'BreakSignal'
+  }
+}
+
+/**
+ * 内部信号：continue 语句抛出，由 while/for/do 执行器捕获，
+ * 跳到当前最内层循环的下一次迭代。
+ */
+class ContinueSignal extends Error {
+  constructor() {
+    super('continue')
+    this.name = 'ContinueSignal'
   }
 }
 

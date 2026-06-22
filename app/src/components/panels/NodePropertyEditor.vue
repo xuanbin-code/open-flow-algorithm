@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import type { Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Statement, FunctionDef, DeclareStatement } from '../../engine/fprgAst'
-import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Import } from '@/lib/icons'
+import { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Import, LogOut, SkipForward } from '@/lib/icons'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { CodeEditor } from '@/components/ui/code-editor'
@@ -41,6 +41,8 @@ const KIND_LABELS: Record<string, string> = {
   for: t('nodes.kind.for'),
   do: t('nodes.kind.do'),
   more: t('nodes.kind.more'),
+  break: t('nodes.kind.break'),
+  continue: t('nodes.kind.continue'),
 }
 
 const KIND_DESCRIPTIONS: Record<string, string> = {
@@ -51,6 +53,8 @@ const KIND_DESCRIPTIONS: Record<string, string> = {
   if: t('nodes.description.if'),
   for: t('nodes.description.for'),
   while: t('nodes.description.while'),
+  break: t('nodes.description.break'),
+  continue: t('nodes.description.continue'),
 }
 
 const KIND_ICONS: Record<string, Component> = {
@@ -61,6 +65,8 @@ const KIND_ICONS: Record<string, Component> = {
   if: GitBranch,
   for: Repeat,
   while: RefreshCw,
+  break: LogOut,
+  continue: SkipForward,
 }
 
 // 标记声明节点的 tag（仅 declare 类型）
@@ -754,6 +760,16 @@ function onConfirm() {
 
       <!-- ===== more ===== -->
       <template v-if="statement.kind === 'more'">
+        <div class="no-props">{{ $t('editor.form.noProperties') }}</div>
+      </template>
+
+      <!-- ===== break ===== -->
+      <template v-if="statement.kind === 'break'">
+        <div class="no-props">{{ $t('editor.form.noProperties') }}</div>
+      </template>
+
+      <!-- ===== continue ===== -->
+      <template v-if="statement.kind === 'continue'">
         <div class="no-props">{{ $t('editor.form.noProperties') }}</div>
       </template>
     </div>

@@ -15,6 +15,8 @@ import {
   ForNode,
   WhileNode,
   CallNode,
+  BreakNode,
+  ContinueNode,
 } from "./components/nodes";
 import {
   InsertNodePanel,
@@ -587,6 +589,34 @@ onUnmounted(() => {
                 <ContextMenu>
                   <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                     <CallNode v-bind="nodeProps" />
+                  </ContextMenuTrigger>
+                  <NodeContextMenu
+                    :node-id="nodeProps.id"
+                    :can-delete="canDeleteNode(nodeProps)"
+                    :can-edit="canEditNode(nodeProps)"
+                    @edit="handleNodeContextEdit"
+                    @delete="deleteNodeById"
+                  />
+                </ContextMenu>
+              </template>
+              <template #node-break="nodeProps">
+                <ContextMenu>
+                  <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
+                    <BreakNode v-bind="nodeProps" />
+                  </ContextMenuTrigger>
+                  <NodeContextMenu
+                    :node-id="nodeProps.id"
+                    :can-delete="canDeleteNode(nodeProps)"
+                    :can-edit="canEditNode(nodeProps)"
+                    @edit="handleNodeContextEdit"
+                    @delete="deleteNodeById"
+                  />
+                </ContextMenu>
+              </template>
+              <template #node-continue="nodeProps">
+                <ContextMenu>
+                  <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
+                    <ContinueNode v-bind="nodeProps" />
                   </ContextMenuTrigger>
                   <NodeContextMenu
                     :node-id="nodeProps.id"

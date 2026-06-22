@@ -208,6 +208,8 @@
       "more": "More",
       "start": "Start",
       "end": "End",
+      "break": "Break",
+      "continue": "Continue",
       "declareReturn": "Return Value",
       "declareParameter": "Parameter"
     },
@@ -219,6 +221,8 @@
       "if": "If — chooses different execution paths based on a condition.",
       "for": "For — repeats a set of statements a specified number of times.",
       "while": "While — repeats a set of statements while a condition is true.",
+      "break": "Break — immediately exits the current loop and continues execution after the loop.",
+      "continue": "Continue — skips the remaining statements in the current iteration and starts the next loop iteration.",
       "declareReturn": "Return Value — auto-generated to hold the function result. The name and type are determined by the function signature and cannot be changed here.",
       "declareParameter": "Parameter — auto-generated to represent a function input. Its value is provided by the caller at runtime—no initial value is needed. The name, type, and array property are determined by the function signature."
     },
@@ -344,7 +348,9 @@
       "syncRecursionDepthExceeded": "Recursion depth exceeded ({max}); possible infinite recursion",
       "variableNotDeclared": "Variable \"{name}\" is not declared; please declare it first",
       "variableNotDeclaredAssign": "Variable \"{name}\" in assignment is not declared; please declare it first",
-      "variableNotDeclaredInput": "Variable \"{name}\" in input is not declared; please declare it first"
+      "variableNotDeclaredInput": "Variable \"{name}\" in input is not declared; please declare it first",
+      "breakOutsideLoop": "break statement must be used inside a loop (while/for/do)",
+      "continueOutsideLoop": "continue statement must be used inside a loop (while/for/do)"
     },
     "label": {
       "untitled": "Untitled",
@@ -364,6 +370,8 @@
       "callPrefix": "Call ",
       "forTo": " to ",
       "forStep": " step ",
+      "break": "Break",
+      "continue": "Continue",
       "return": "Return {var}"
     }
   },

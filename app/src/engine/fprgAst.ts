@@ -101,6 +101,14 @@ export interface MoreStatement {
   kind: 'more'
 }
 
+export interface BreakStatement {
+  kind: 'break'
+}
+
+export interface ContinueStatement {
+  kind: 'continue'
+}
+
 /** 所有语句类型的联合，_nodeId 由消费者（VueFlow）在运行时挂载 */
 export type Statement = (
   | DeclareStatement
@@ -113,6 +121,8 @@ export type Statement = (
   | ForStatement
   | DoStatement
   | MoreStatement
+  | BreakStatement
+  | ContinueStatement
 ) & { _nodeId?: string }
 
 /** 函数定义 */
@@ -463,6 +473,12 @@ function parseStatement(el: Element): Statement | null {
         body: parseBody(el),
       }
 
+    case 'break':
+      return { kind: 'break' }
+
+    case 'continue':
+      return { kind: 'continue' }
+
     case 'more':
       return { kind: 'more' }
 
@@ -570,6 +586,10 @@ export function statementToLabel(stmt: Statement): string {
       return stmt.expression || t('engine.label.do')
     case 'more':
       return t('engine.label.ellipsis')
+    case 'break':
+      return t('engine.label.break')
+    case 'continue':
+      return t('engine.label.continue')
   }
 }
 
@@ -597,6 +617,10 @@ export function isStatementEmpty(stmt: Statement): boolean {
     case 'do':
       return !stmt.expression
     case 'more':
+      return false
+    case 'break':
+      return false
+    case 'continue':
       return false
   }
 }
@@ -645,6 +669,10 @@ export function createDefaultStatement(kind: Statement['kind']): Statement {
       return { kind: 'do', expression: '', body: [] }
     case 'more':
       return { kind: 'more' }
+    case 'break':
+      return { kind: 'break' }
+    case 'continue':
+      return { kind: 'continue' }
   }
 }
 
@@ -770,6 +798,10 @@ function stmtToXml(stmt: Statement, indent: string): string {
         + `${statementsToXml(stmt.body, i2)}\n`
         + `${indent}</do>`
 
+    case 'break':
+      return `${indent}<break/>`
+    case 'continue':
+      return `${indent}<continue/>`
     case 'more':
       return `${indent}<more/>`
   }

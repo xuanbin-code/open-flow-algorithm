@@ -42,6 +42,8 @@ export type FlowNodeType =
   | 'fg-for'
   | 'fg-while'
   | 'fg-merge'
+  | 'break'
+  | 'continue'
   | 'default'
 
 export interface FlowNode {
@@ -160,7 +162,9 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
   while: 'fg-while',
   for: 'fg-for',
   do: 'default',
-  more: 'default'
+  more: 'default',
+  break: 'break',
+  continue: 'continue',
 }
 
 /** clip-path 形状的文本可视区小于 CSS 宽度，需要放大系数 */
@@ -240,6 +244,13 @@ export class FlowchartEngine {
         prev = this.buildForStatement(stmt, prev)
       } else if (stmt.kind === 'while') {
         prev = this.buildWhileStatement(stmt, prev)
+      } else if (stmt.kind === 'break' || stmt.kind === 'continue') {
+        const nodeType = KIND_TO_NODE_TYPE[stmt.kind]
+        const label = statementToLabel(stmt)
+        const node = this.createNode(nodeType, label, undefined, stmt)
+        stmt._nodeId = node.id
+        this.connect(prev, node)
+        prev = node
       } else {
         const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
         const label = statementToLabel(stmt)
@@ -430,6 +441,14 @@ export class FlowchartEngine {
         const whileNode = this.buildWhileStatement(stmt, prev)
         if (!first) first = whileNode
         prev = whileNode
+      } else if (stmt.kind === 'break' || stmt.kind === 'continue') {
+        const nodeType = KIND_TO_NODE_TYPE[stmt.kind]
+        const label = statementToLabel(stmt)
+        const node = this.createNode(nodeType, label, undefined, stmt)
+        stmt._nodeId = node.id
+        if (prev) this.connect(prev, node)
+        if (!first) first = node
+        prev = node
       } else {
         const nodeType = KIND_TO_NODE_TYPE[stmt.kind] ?? 'default'
         const label = statementToLabel(stmt)

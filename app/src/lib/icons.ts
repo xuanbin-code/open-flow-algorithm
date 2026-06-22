@@ -13,7 +13,7 @@ export { Plus, Trash2, Copy } from '@lucide/vue'
 export { Play, StepForward, Pause, Square } from '@lucide/vue'
 
 // 节点类型图标 (NodePropertyEditor)
-export { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Redo2, Import } from '@lucide/vue'
+export { Package, Pencil, ArrowDownToLine, ArrowUpFromLine, GitBranch, Repeat, RefreshCw, Clipboard, Undo2, Redo2, Import, LogOut, SkipForward } from '@lucide/vue'
 
 // 调试面板
 export { Ruler, Eye, EyeOff, Crosshair } from '@lucide/vue'
