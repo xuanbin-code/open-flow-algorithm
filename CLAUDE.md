@@ -38,7 +38,7 @@ open-flow-algorithm/
 │   │   ├── App.vue           # Root component (thin orchestrator delegating to 9 composables)
 │   │   ├── main.ts           # Vue entry point
 │   │   ├── components/       # Vue components
-│   │   │   ├── nodes/        # 12 VueFlow node components
+│   │   │   ├── nodes/        # 14 VueFlow node components
 │   │   │   ├── panels/       # 10 panel components (console, monitor, editor, debug, settings, etc.)
 │   │   │   └── ui/           # 23 shadcn-vue component groups (auto-generated)
 │   │   ├── composables/      # 9 Vue composables (App.vue logic decomposed into focused modules)
@@ -50,10 +50,23 @@ open-flow-algorithm/
 │   │   ├── styles/           # Global styles (tailwind.css, variables.css)
 │   │   ├── types/            # Shared TypeScript type definitions (app, platform, nodes, shortcuts)
 │   │   └── fprg/             # 15 sample .fprg flowchart files
-│   └── src-tauri/            # Tauri Rust backend
-│       ├── Cargo.toml
-│       ├── tauri.conf.json
-│       └── src/
+│   ├── src-tauri/            # Tauri Rust backend
+│   │   ├── Cargo.toml
+│   │   ├── tauri.conf.json
+│   │   └── src/
+│   │       ├── lib.rs        # Tauri entry (registers plugins, manages Python bridge)
+│   │       └── python_bridge.rs  # Python subprocess management (stdin/stdout JSON-RPC)
+│   └── python-backend/       # Python backend (JSON-RPC server)
+│       ├── main.py           # JSON-RPC 2.0 stdin/stdout event loop
+│       ├── requirements.txt  # Dependencies (stdlib only)
+│       ├── setup_embedded_python.py  # Downloads portable Python for Tauri bundling
+│       └── flowgorithm/      # Core Python package
+│           ├── interpreter.py     # Flowgorithm AST interpreter
+│           ├── code_generator.py  # AST → Python source code exporter
+│           ├── sandbox.py         # Security validator for loaded ASTs
+│           ├── ast_parser.py      # FPRG XML parser (Python implementation)
+│           ├── builtins.py        # Built-in function implementations
+│           └── type_system.py     # Type system definitions
 ├── examples/                 # Sample .fprg flowchart files
 ├── docs/                     # Chinese docs for flowchart elements
 └── legacy/                   # Archived flowgorithm.js library
@@ -94,8 +107,8 @@ A Vue 3 + TypeScript app that parses `.fprg` XML and renders an interactive flow
 - `lib/flowgorithmLanguage.ts` — CodeMirror 6 language definition: Flowgorithm syntax highlighting + autocomplete keywords
 - `lib/scopeResolver.ts` — Scope variable resolution for CodeMirror autocomplete context
 
-**Components — nodes/ (12 VueFlow node components):**
-Start, End, Declare, Assign, Input, Output, If, Merge, For, While, Call, InvocationFlow
+**Components — nodes/ (14 VueFlow node components):**
+Start, End, Declare, Assign, Input, Output, If, Merge, For, While, Call, Break, Continue, Return, InvocationFlow
 - `InvocationFlowNode.vue` is used in the sub-function call tree visualization (not the main flowchart)
 
 **Components — root-level (4 files):**
@@ -169,6 +182,30 @@ src-tauri/
 - **CLI and API are separate:** `@tauri-apps/cli` (dev/build) ≠ `@tauri-apps/api` (runtime).
 - **Plugins:** Non-core features (dialog, fs, shell, http) are separate `@tauri-apps/plugin-<name>` packages.
 - **Vite config:** Dual-mode builds — Tauri mode binds to `127.0.0.1:1420` (not `localhost` which is IPv6 `::1`); Web mode uses port 5173. Controlled via `--mode` flag.
+
+### Python Backend (`app/python-backend/`)
+A Python 3.12+ JSON-RPC 2.0 server that communicates over stdin/stdout (newline-delimited JSON). Launched as a subprocess by the Tauri Rust backend (`python_bridge.rs`).
+
+**Key files:**
+- `main.py` — JSON-RPC event loop: reads requests from stdin, dispatches to registered handlers, writes responses to stdout. Requires `python -u` (unbuffered) for correct operation.
+- `setup_embedded_python.py` — Downloads Gregory Szorc's portable Python builds (python-build-standalone) for the target platform and extracts them into `src-tauri/python/` for Tauri bundling.
+
+**RPC methods (9 handlers):**
+- `ping` — Health check
+- `shutdown` — Graceful termination
+- `load_program` — Load Flowgorithm AST for execution
+- `step` — Execute one flowchart node, return event
+- `run` — Run to completion (stops on done/error/input-request)
+- `get_variables` — Return current execution state
+- `set_input` — Provide user input after input-request
+- `stop` — Terminate execution
+- `export_python` — Generate formatted Python source code from AST
+- `validate_ast` — Security validation of loaded AST
+
+**Tauri integration:**
+- Dev mode: uses system Python, locates `python-backend/` at `../python-backend` relative to `src-tauri/`
+- Production: uses bundled portable Python, locates `python-backend/` in Tauri resource directory
+- Resource mapping in `tauri.conf.json`: `"../python-backend": "python-backend"`
 
 ### Legacy Library (`legacy/flowgorithm.js`)
 Archived original library. Parses Flowgorithm's XML format and renders SVG flowcharts using jQuery. Key entry points:

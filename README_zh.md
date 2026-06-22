@@ -32,9 +32,11 @@
 - 🎨 **交互式渲染** — 基于 VueFlow 的拖拽、缩放、平移
 - ✏️ **可视化编辑** — 连线间插入节点、右键上下文菜单、属性编辑器
 - ▶️ **执行引擎** — 逐步/全速运行流程图，支持变量监控
+- 🐍 **Python 后端** — 可选 Python 运行时，原生 Flowgorithm 解释器与代码导出
 - 🔧 **表达式解释器** — 算术、比较、逻辑、数组索引运算，含边界检查
 - 🔗 **子函数可视化** — 函数调用树形图（dagre 布局）+ 浮动窗口显示子流程图
 - 📝 **代码编辑器** — CodeMirror 6 集成，Flowgorithm 语法高亮 + 作用域感知自动补全
+- 📤 **Python 代码导出** — 从流程图 AST 生成格式化的 Python 源代码
 - ⌨️ **自定义快捷键** — 9 个可配置操作，物理键位匹配，免疫键盘布局差异
 - 🌓 **主题切换** — 明/暗主题 + 14 种强调色预设
 - 🌍 **国际化** — 中文 / English
@@ -98,7 +100,7 @@ open-flow-algorithm/
 │   │   ├── App.vue           # 根组件
 │   │   ├── main.ts           # 入口
 │   │   ├── components/       # Vue 组件
-│   │   │   ├── nodes/        #   12 个流程图节点组件
+│   │   │   ├── nodes/        #   14 个流程图节点组件
 │   │   │   ├── panels/       #   10 个面板组件
 │   │   │   └── ui/           #   23 组 shadcn-vue UI 组件
 │   │   ├── composables/      # 9 个组合式函数
@@ -110,7 +112,8 @@ open-flow-algorithm/
 │   │   ├── platform/         # 平台适配 (Tauri / Web)
 │   │   ├── styles/           # 全局样式
 │   │   └── fprg/             # 15 个示例 .fprg 文件
-│   └── src-tauri/            # Tauri Rust 后端
+│   ├── src-tauri/            # Tauri Rust 后端
+│   └── python-backend/       # Python 后端 (JSON-RPC 解释器、代码生成器、沙箱)
 ├── examples/                 # 示例 .fprg 文件
 ├── docs/                     # 流程图元素文档
 └── legacy/                   # 原始 flowgorithm.js 库 (归档)
@@ -128,6 +131,7 @@ open-flow-algorithm/
 | 代码编辑器 | CodeMirror 6 |
 | 构建工具 | Vite 8 |
 | 桌面框架 | Tauri v2 (Rust) |
+| Python 运行时 | Python 3.12+ (JSON-RPC stdin/stdout) |
 | 国际化 | vue-i18n 10 |
 | 表单验证 | vee-validate + zod |
 | 包管理器 | pnpm |

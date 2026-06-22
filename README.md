@@ -32,9 +32,11 @@
 - 🎨 **Interactive rendering** — Drag, zoom, and pan powered by VueFlow
 - ✏️ **Visual editing** — Insert nodes between edges, right-click context menu, property editor
 - ▶️ **Execution engine** — Step-through or full-speed execution with variable monitoring
+- 🐍 **Python backend** — Optional Python runtime for native Flowgorithm interpreter and code export
 - 🔧 **Expression evaluator** — Arithmetic, comparison, logic, array indexing with bounds checking
 - 🔗 **Sub-function visualization** — Call tree diagram (dagre layout) + floating sub-flowchart window
 - 📝 **Code editor** — CodeMirror 6 integration with Flowgorithm syntax highlighting and scope-aware autocomplete
+- 📤 **Python code export** — Generate formatted Python source code from flowchart AST
 - ⌨️ **Customizable shortcuts** — 9 configurable actions with layout-immune physical key matching
 - 🌓 **Theme switching** — Light / dark themes + 14 accent color presets
 - 🌍 **Internationalization** — English / 中文
@@ -98,7 +100,7 @@ open-flow-algorithm/
 │   │   ├── App.vue           # Root component
 │   │   ├── main.ts           # Entry point
 │   │   ├── components/       # Vue components
-│   │   │   ├── nodes/        #   12 flowchart node components
+│   │   │   ├── nodes/        #   14 flowchart node components
 │   │   │   ├── panels/       #   10 panel components
 │   │   │   └── ui/           #   23 shadcn-vue UI component groups
 │   │   ├── composables/      # 9 Vue composables
@@ -110,7 +112,8 @@ open-flow-algorithm/
 │   │   ├── platform/         # Platform adapters (Tauri / Web)
 │   │   ├── styles/           # Global styles
 │   │   └── fprg/             # 15 sample .fprg files
-│   └── src-tauri/            # Tauri Rust backend
+│   ├── src-tauri/            # Tauri Rust backend
+│   └── python-backend/       # Python backend (JSON-RPC interpreter, code generator, sandbox)
 ├── examples/                 # Sample .fprg files
 ├── docs/                     # Flowchart element docs (Chinese)
 └── legacy/                   # Archived flowgorithm.js library
@@ -128,6 +131,7 @@ open-flow-algorithm/
 | Code Editor | CodeMirror 6 |
 | Bundler | Vite 8 |
 | Desktop Framework | Tauri v2 (Rust) |
+| Python Runtime | Python 3.12+ (JSON-RPC stdin/stdout) |
 | i18n | vue-i18n 10 |
 | Validation | vee-validate + zod |
 | Package Manager | pnpm |
