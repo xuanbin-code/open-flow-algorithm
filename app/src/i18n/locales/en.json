@@ -142,6 +142,13 @@
     "variablesTabLabel": "Variables",
     "historyTab": "History",
     "runDivider": "Run",
+    "executeFunction": "Execute Function",
+    "executeFunctionDesc": "Provide initial values for parameters of '{name}':",
+    "paramLabel": "{name} ({type})",
+    "integer": "Integer",
+    "real": "Real",
+    "string": "String",
+    "boolean": "Boolean",
     "noVariablesDesc": "Declare variables and run the program to watch values change.",
     "noStepsRecorded": "No steps recorded",
     "noStepsDesc": "Program output and input events will appear as a timeline.",
@@ -315,6 +322,7 @@
   "engine": {
     "error": {
       "noMainFunction": "No Main function found in program",
+      "functionNotFound": "Function \"{name}\" not found",
       "declareMissingName": "Declare statement missing variable name",
       "assignMissingTarget": "Assignment statement missing target variable",
       "assignMissingExpression": "Assignment statement missing expression",

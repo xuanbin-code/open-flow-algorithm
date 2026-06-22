@@ -215,10 +215,13 @@ function evaluateExpr(expr: string, state: RuntimeState): unknown {
 export function createInterpreter(
     program: Program,
     functionExecutionEnabled?: Record<string, boolean>,
+    entryFunctionName?: string,
+    entryParams?: Record<string, unknown>,
   ): {
     state: RuntimeState
     generator: AsyncGenerator<InterpreterEvent>
   } {
+    const effectiveEntry = entryFunctionName || 'Main'
     const state: RuntimeState = {
       variables: {},
       variableTypes: {},
@@ -226,21 +229,23 @@ export function createInterpreter(
       output: [],
       currentStatement: null,
       currentNodeId: null,
-      currentFunctionName: 'Main',
+      currentFunctionName: effectiveEntry,
       _program: program,
       _functionExecutionEnabled: functionExecutionEnabled,
     }
 
-  // 预先扫描 Main 函数体中所有 declare 语句，收集类型信息
-  const mainFunc = program.functions.find((f) => f.name === 'Main')
-  if (mainFunc) {
-    collectDeclarations(mainFunc.body, state)
+  // 预先扫描入口函数体中所有 declare 语句，收集类型信息
+  const entryFunc = program.functions.find((f) => f.name === effectiveEntry)
+  if (entryFunc) {
+    collectDeclarations(entryFunc.body, state)
   }
 
   // 预构建同步函数包装器（供表达式中的递归/交叉调用）
   state._syncFunctions = buildSyncFunctionWrappers(program, state)
 
-  const generator = runProgram(program, state)
+  const generator = entryFunctionName && entryFunctionName !== 'Main'
+    ? runFunction(program, state, entryFunctionName, entryParams)
+    : runProgram(program, state)
   return { state, generator }
 }
 
@@ -305,6 +310,84 @@ async function* runProgram(
 
   try {
     yield* executeBlock(mainFunc.body, state)
+    yield { type: 'done' }
+  } catch (e: unknown) {
+    if (e instanceof StopExecution) {
+      yield { type: 'done' }
+      return
+    }
+    const msg = e instanceof Error ? e.message : String(e)
+    yield {
+      type: 'error',
+      message: msg,
+      statement: state.currentStatement ?? undefined,
+    }
+  }
+}
+
+// ============================================================
+// Generator: 独立函数执行（用于直接执行子函数）
+// ============================================================
+
+async function* runFunction(
+  program: Program,
+  state: RuntimeState,
+  functionName: string,
+  entryParams?: Record<string, unknown>,
+): AsyncGenerator<InterpreterEvent> {
+  const funcDef = program.functions.find((f) => f.name === functionName)
+  if (!funcDef) {
+    yield { type: 'error', message: t('engine.error.functionNotFound', { name: functionName }) }
+    return
+  }
+
+  try {
+    // 1. 将入口参数绑定为初始变量作用域
+    state.currentFunctionName = functionName
+    state.variables = {}
+    state.variableTypes = {}
+
+    if (funcDef.parameters.length > 0 && entryParams) {
+      for (const param of funcDef.parameters) {
+        const rawValue = entryParams[param.name]
+        const value = rawValue !== undefined && rawValue !== null
+          ? coerceValue(rawValue, param.type)
+          : defaultValueForType(param.type)
+
+        state.variables[param.name] = param.array
+          ? (Array.isArray(value) ? value : [value])
+          : value
+        state.variableTypes[param.name] = param.array ? param.type + '[]' : param.type
+      }
+    }
+
+    // 2. 预扫描函数体中的 declare 语句，补充局部变量类型信息
+    collectDeclarations(funcDef.body, state)
+
+    // 3. 发射 function-enter 事件，触发子窗口可视化
+    yield {
+      type: 'function-enter',
+      functionName,
+      callerNodeId: undefined,
+      callExpression: undefined,
+    }
+
+    // 4. 执行函数体
+    yield* executeBlock(funcDef.body, state)
+
+    // 5. 发射 function-leave 事件
+    yield { type: 'function-leave', functionName }
+
+    // 6. 如果有返回值，输出返回值
+    if (funcDef.variable && state.variables[funcDef.variable] !== undefined) {
+      const retVal = state.variables[funcDef.variable]
+      yield {
+        type: 'output',
+        text: `${functionName} → ${formatOutputValue(retVal, false)}`,
+        nodeId: undefined,
+      }
+    }
+
     yield { type: 'done' }
   } catch (e: unknown) {
     if (e instanceof StopExecution) {

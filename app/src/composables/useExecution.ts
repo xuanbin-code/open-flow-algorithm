@@ -578,6 +578,38 @@ export function useExecution(options: UseExecutionOptions) {
   let inputResolve: ((value: string) => void) | null = null
   let stopped = false
 
+  // ============================================
+  // 子函数直接执行 — 参数输入对话框状态
+  // ============================================
+  const showParamDialog = ref(false)
+  const paramDialogFunction = ref<FunctionDef | null>(null)
+  let paramDialogResolve: ((params: Record<string, unknown> | undefined) => void) | null = null
+
+  /** 弹出参数输入对话框，返回用户填写的参数值（取消则返回 undefined） */
+  function requestParamInput(funcDef: FunctionDef): Promise<Record<string, unknown> | undefined> {
+    return new Promise((resolve) => {
+      paramDialogFunction.value = funcDef
+      showParamDialog.value = true
+      paramDialogResolve = resolve
+    })
+  }
+
+  /** 用户确认参数输入 */
+  function onParamDialogConfirm(params: Record<string, unknown>) {
+    showParamDialog.value = false
+    paramDialogFunction.value = null
+    paramDialogResolve?.(params)
+    paramDialogResolve = null
+  }
+
+  /** 用户取消参数输入 */
+  function onParamDialogCancel() {
+    showParamDialog.value = false
+    paramDialogFunction.value = null
+    paramDialogResolve?.(undefined)
+    paramDialogResolve = null
+  }
+
   async function syncVariablesFromPython(): Promise<VariableEntry[]> {
     const varResult = await pythonBridge.call('get_variables')
     const vars = (varResult.variables ?? []).map((v: any) => ({
@@ -969,6 +1001,19 @@ export function useExecution(options: UseExecutionOptions) {
 
     resetExecution()
 
+    // ---- 子函数直接执行：弹窗收集参数 ----
+    const targetFunc = activeFunction.value
+    const isDirectExecution = targetFunc && targetFunc.name !== 'Main'
+    let entryParams: Record<string, unknown> | undefined
+
+    if (isDirectExecution && targetFunc.parameters.length > 0) {
+      entryParams = await requestParamInput(targetFunc)
+      if (entryParams === undefined) {
+        // 用户取消
+        return
+      }
+    }
+
     preBuildSubEngines()
     createRootInvocation()
 
@@ -985,6 +1030,12 @@ export function useExecution(options: UseExecutionOptions) {
     executionStatus.value = 'running'
 
     if (usingPython) {
+      // Python backend: direct function execution not yet supported
+      if (isDirectExecution) {
+        showToast(t('toasts.execException', { message: 'Direct function execution is not supported with Python backend yet.' }), 'error')
+        executionStatus.value = 'stopped'
+        return
+      }
       // Python backend path
       try {
         const ast = JSON.parse(JSON.stringify(program.value)) // deep clone AST
@@ -998,8 +1049,13 @@ export function useExecution(options: UseExecutionOptions) {
       sound.playStart()
       await driveInterpreterPython('run')
     } else {
-      // JavaScript interpreter path (original)
-      const { state, generator } = createInterpreter(program.value, functionExecutionEnabled)
+      // JavaScript interpreter path
+      const { state, generator } = createInterpreter(
+        program.value,
+        functionExecutionEnabled,
+        isDirectExecution ? targetFunc.name : undefined,
+        entryParams,
+      )
       interpreterRuntime = state
       interpreterGen = generator
 
@@ -1011,6 +1067,19 @@ export function useExecution(options: UseExecutionOptions) {
   async function stepExecution() {
     if (executionStatus.value === 'idle' || executionStatus.value === 'stopped') {
       resetExecution()
+
+      // ---- 子函数直接执行：弹窗收集参数 ----
+      const targetFunc = activeFunction.value
+      const isDirectExecution = targetFunc && targetFunc.name !== 'Main'
+      let entryParams: Record<string, unknown> | undefined
+
+      if (isDirectExecution && targetFunc.parameters.length > 0) {
+        entryParams = await requestParamInput(targetFunc)
+        if (entryParams === undefined) {
+          // 用户取消
+          return
+        }
+      }
 
       preBuildSubEngines()
       createRootInvocation()
@@ -1028,6 +1097,12 @@ export function useExecution(options: UseExecutionOptions) {
       executionStatus.value = 'running'
 
       if (usingPython) {
+        // Python backend: direct function execution not supported yet
+        if (isDirectExecution) {
+          showToast(t('toasts.execException', { message: 'Direct function execution is not supported with Python backend yet.' }), 'error')
+          executionStatus.value = 'stopped'
+          return
+        }
         try {
           const ast = JSON.parse(JSON.stringify(program.value))
           await pythonBridge.call('load_program', { ast })
@@ -1040,7 +1115,12 @@ export function useExecution(options: UseExecutionOptions) {
         sound.playStart()
         await driveInterpreterPython('step')
       } else {
-        const { state, generator } = createInterpreter(program.value, functionExecutionEnabled)
+        const { state, generator } = createInterpreter(
+          program.value,
+          functionExecutionEnabled,
+          isDirectExecution ? targetFunc.name : undefined,
+          entryParams,
+        )
         interpreterRuntime = state
         interpreterGen = generator
 
@@ -1147,5 +1227,11 @@ export function useExecution(options: UseExecutionOptions) {
     // Lifecycle helpers
     resetExecution,
     preBuildSubEngines,
+
+    // Direct function execution — parameter dialog
+    showParamDialog,
+    paramDialogFunction,
+    onParamDialogConfirm,
+    onParamDialogCancel,
   }
 }

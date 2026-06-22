@@ -24,6 +24,7 @@ import {
   ExecutionConsole,
   VariableMonitor,
   SettingsDialog,
+  FunctionParamInputDialog,
 } from "./components/panels";
 import {
   ExecutionCallCanvas,
@@ -122,6 +123,10 @@ const {
   onInputCancel,
   resetExecution,
   onHighlightNode,
+  showParamDialog,
+  paramDialogFunction,
+  onParamDialogConfirm,
+  onParamDialogCancel,
 } = useExecution({
   program,
   activeFunction,
@@ -663,6 +668,12 @@ onUnmounted(() => {
     <SettingsDialog
       :visible="showSettingsDialog"
       @close="showSettingsDialog = false"
+    />
+    <FunctionParamInputDialog
+      :visible="showParamDialog"
+      :func-def="paramDialogFunction"
+      @confirm="onParamDialogConfirm"
+      @cancel="onParamDialogCancel"
     />
     <!-- Toast 消息 -->
     <Transition name="toast-fade">

@@ -142,6 +142,13 @@
     "variablesTabLabel": "变量",
     "historyTab": "历史",
     "runDivider": "运行",
+    "executeFunction": "执行函数",
+    "executeFunctionDesc": "为「{name}」的参数提供初始值：",
+    "paramLabel": "{name}（{type}）",
+    "integer": "整数",
+    "real": "实数",
+    "string": "字符串",
+    "boolean": "布尔",
     "noVariablesDesc": "声明变量并运行程序以观察值变化。",
     "noStepsRecorded": "暂无步骤记录",
     "noStepsDesc": "程序输出和输入事件将显示为时间线。",
@@ -315,6 +322,7 @@
   "engine": {
     "error": {
       "noMainFunction": "程序中没有 Main 函数",
+      "functionNotFound": "未找到函数 \"{name}\"",
       "declareMissingName": "声明语句缺少变量名称",
       "assignMissingTarget": "赋值语句缺少目标变量",
       "assignMissingExpression": "赋值语句缺少表达式",

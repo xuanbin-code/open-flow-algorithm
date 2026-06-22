@@ -1,4 +1,5 @@
 export { default as ExecutionConsole } from './ExecutionConsole.vue'
+export { default as FunctionParamInputDialog } from './FunctionParamInputDialog.vue'
 export { default as InputDialog } from './InputDialog.vue'
 export { default as InsertNodePanel } from './InsertNodePanel.vue'
 export { default as LayoutDebugPanel } from './LayoutDebugPanel.vue'
