@@ -191,11 +191,11 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
       <!-- Sidebar + Content layout -->
       <div class="flex h-[420px] gap-0">
         <!-- Sidebar -->
-        <nav class="w-36 shrink-0 border-r pr-2 pt-1 flex flex-col gap-0.5">
+        <nav class="nav-sidebar w-fit shrink-0 border-r pr-2 pt-1 flex flex-col gap-0.5">
           <button
             v-for="item in navItems"
             :key="item.id"
-            class="nav-btn flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors text-left"
+            class="nav-btn w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors text-left"
             :class="activePanel === item.id
               ? 'bg-accent/15 text-accent font-medium'
               : 'text-muted-foreground hover:text-foreground hover:bg-accent/5'"
@@ -331,10 +331,10 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
                   <button
                     v-for="opt in themeOptions"
                     :key="opt.value"
-                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium transition-all bg-transparent"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-medium transition-all"
                     :class="settingsStore.theme === opt.value
-                      ? 'bg-accent text-accent-foreground shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'"
+                      ? 'bg-accent !text-white shadow-sm'
+                      : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent/10'"
                     @click="settingsStore.theme = opt.value"
                   >
                     <component :is="opt.icon" :size="14" />
@@ -442,6 +442,11 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
 </template>
 
 <style scoped>
+/* Nav sidebar — soft divider */
+.nav-sidebar {
+  border-right-color: var(--border-soft);
+}
+
 /* Nav button styling */
 .nav-btn {
   border: none;
