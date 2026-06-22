@@ -210,6 +210,7 @@
       "end": "结束",
       "break": "break 跳出",
       "continue": "continue 继续",
+      "return": "返回",
       "declareReturn": "返回值",
       "declareParameter": "形参"
     },
@@ -223,6 +224,7 @@
       "while": "While 循环，当条件为真时重复执行一组语句。",
       "break": "Break — 立即跳出当前循环，继续执行循环之后的语句。",
       "continue": "Continue — 跳过当前迭代的剩余语句，立即开始下一次循环迭代。",
+      "return": "Return — 立即退出当前函数，返回指定的表达式值。",
       "declareReturn": "返回值 — 系统自动生成，存储函数返回结果。名称和类型由函数签名决定，不可在此修改。",
       "declareParameter": "形参 — 系统自动生成，表示函数输入。值由调用者运行时提供，无需初始值。名称、类型和数组属性由函数签名决定。"
     },
@@ -350,7 +352,8 @@
       "variableNotDeclaredAssign": "赋值语句中的变量 \"{name}\" 未声明，请先声明该变量",
       "variableNotDeclaredInput": "输入语句中的变量 \"{name}\" 未声明，请先声明该变量",
       "breakOutsideLoop": "break 语句必须在循环（while/for/do）内部使用",
-      "continueOutsideLoop": "continue 语句必须在循环（while/for/do）内部使用"
+      "continueOutsideLoop": "continue 语句必须在循环（while/for/do）内部使用",
+      "returnOutsideFunction": "return 语句必须在函数内部使用"
     },
     "label": {
       "untitled": "未命名",

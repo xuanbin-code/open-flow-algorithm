@@ -43,6 +43,7 @@ const KIND_LABELS: Record<string, string> = {
   more: t('nodes.kind.more'),
   break: t('nodes.kind.break'),
   continue: t('nodes.kind.continue'),
+  return: t('nodes.kind.return'),
 }
 
 const KIND_DESCRIPTIONS: Record<string, string> = {
@@ -55,6 +56,7 @@ const KIND_DESCRIPTIONS: Record<string, string> = {
   while: t('nodes.description.while'),
   break: t('nodes.description.break'),
   continue: t('nodes.description.continue'),
+  return: t('nodes.description.return'),
 }
 
 const KIND_ICONS: Record<string, Component> = {
@@ -67,6 +69,7 @@ const KIND_ICONS: Record<string, Component> = {
   while: RefreshCw,
   break: LogOut,
   continue: SkipForward,
+  return: Undo2,
 }
 
 // 标记声明节点的 tag（仅 declare 类型）
@@ -771,6 +774,20 @@ function onConfirm() {
       <!-- ===== continue ===== -->
       <template v-if="statement.kind === 'continue'">
         <div class="no-props">{{ $t('editor.form.noProperties') }}</div>
+      </template>
+
+      <!-- ===== return ===== -->
+      <template v-if="statement.kind === 'return'">
+        <label class="field">
+          <span class="field-label">{{ $t('editor.form.expression') }}</span>
+          <CodeEditor
+            class="field-input"
+            :model-value="statement.expression"
+            :single-line="true"
+            :completion-context="completionContext"
+            @update:model-value="setField('expression', $event)"
+          />
+        </label>
       </template>
     </div>
 

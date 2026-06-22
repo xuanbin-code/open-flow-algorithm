@@ -59,6 +59,7 @@ const KIND_LABELS: Record<string, string> = {
   for: t('nodes.kind.for'),
   do: t('nodes.kind.do'),
   more: t('nodes.kind.more'),
+  return: t('nodes.kind.return'),
 }
 
 const editTitle = computed(() => {
@@ -125,6 +126,7 @@ const categories: Category[] = [
       { type: 'if', label: t('nodes.kind.if'), category: t('editor.categories.control'), bg: '#f39c12', border: '#e67e22', shape: 'diamond' },
       { type: 'break', label: t('nodes.kind.break'), category: t('editor.categories.control'), bg: '#e74c3c', border: '#c0392b', shape: 'rect' },
       { type: 'continue', label: t('nodes.kind.continue'), category: t('editor.categories.control'), bg: '#3498db', border: '#2980b9', shape: 'rect' },
+      { type: 'return', label: t('nodes.kind.return'), category: t('editor.categories.control'), bg: '#d35400', border: '#a04030', shape: 'rect' },
     ],
   },
   {

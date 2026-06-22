@@ -603,7 +603,7 @@ export function statementToLabel(stmt: Statement): string {
     case 'continue':
       return t('engine.label.continue')
     case 'return':
-      return stmt.expression || t('engine.label.return')
+      return stmt.expression || t('nodes.kind.return')
   }
 }
 

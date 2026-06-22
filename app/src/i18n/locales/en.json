@@ -210,6 +210,7 @@
       "end": "End",
       "break": "Break",
       "continue": "Continue",
+      "return": "Return",
       "declareReturn": "Return Value",
       "declareParameter": "Parameter"
     },
@@ -223,6 +224,7 @@
       "while": "While — repeats a set of statements while a condition is true.",
       "break": "Break — immediately exits the current loop and continues execution after the loop.",
       "continue": "Continue — skips the remaining statements in the current iteration and starts the next loop iteration.",
+      "return": "Return — immediately exits the current function with the given expression value.",
       "declareReturn": "Return Value — auto-generated to hold the function result. The name and type are determined by the function signature and cannot be changed here.",
       "declareParameter": "Parameter — auto-generated to represent a function input. Its value is provided by the caller at runtime—no initial value is needed. The name, type, and array property are determined by the function signature."
     },
@@ -350,7 +352,8 @@
       "variableNotDeclaredAssign": "Variable \"{name}\" in assignment is not declared; please declare it first",
       "variableNotDeclaredInput": "Variable \"{name}\" in input is not declared; please declare it first",
       "breakOutsideLoop": "break statement must be used inside a loop (while/for/do)",
-      "continueOutsideLoop": "continue statement must be used inside a loop (while/for/do)"
+      "continueOutsideLoop": "continue statement must be used inside a loop (while/for/do)",
+      "returnOutsideFunction": "return statement must be used inside a function"
     },
     "label": {
       "untitled": "Untitled",

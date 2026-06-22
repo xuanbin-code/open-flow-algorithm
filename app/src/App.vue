@@ -17,6 +17,7 @@ import {
   CallNode,
   BreakNode,
   ContinueNode,
+  ReturnNode,
 } from "./components/nodes";
 import {
   InsertNodePanel,
@@ -617,6 +618,20 @@ onUnmounted(() => {
                 <ContextMenu>
                   <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                     <ContinueNode v-bind="nodeProps" />
+                  </ContextMenuTrigger>
+                  <NodeContextMenu
+                    :node-id="nodeProps.id"
+                    :can-delete="canDeleteNode(nodeProps)"
+                    :can-edit="canEditNode(nodeProps)"
+                    @edit="handleNodeContextEdit"
+                    @delete="deleteNodeById"
+                  />
+                </ContextMenu>
+              </template>
+              <template #node-return="nodeProps">
+                <ContextMenu>
+                  <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
+                    <ReturnNode v-bind="nodeProps" />
                   </ContextMenuTrigger>
                   <NodeContextMenu
                     :node-id="nodeProps.id"

@@ -6,7 +6,7 @@ import type { FlowNode, FlowEdge } from '../engine/flowchartEngine'
 import type { VariableEntry } from '@/types'
 import {
   StartNode, EndNode, DeclareNode, AssignNode, InputNode, OutputNode,
-  IfNode, MergeNode, ForNode, WhileNode, CallNode,
+  IfNode, MergeNode, ForNode, WhileNode, CallNode, ReturnNode,
 } from './nodes'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
@@ -325,6 +325,9 @@ function onClose() {
               </template>
               <template #node-call="nodeProps">
                 <CallNode v-bind="nodeProps" />
+              </template>
+              <template #node-return="nodeProps">
+                <ReturnNode v-bind="nodeProps" />
               </template>
             </VueFlow>
           </TooltipProvider>
