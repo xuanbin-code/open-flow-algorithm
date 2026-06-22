@@ -182,7 +182,6 @@ function formatValue(value: unknown): string {
                   <TableCell class="py-1 text-xs font-mono">
                     <span class="inline-flex items-center gap-1">
                       {{ v.name }}
-                      <Badge v-if="v.tag === 'return'" variant="default" class="tag-badge tag-badge--return">{{ $t('execution.varTagReturn') }}</Badge>
                       <Badge v-if="v.tag === 'parameter'" variant="secondary" class="tag-badge tag-badge--param">{{ $t('execution.varTagParameter') }}</Badge>
                     </span>
                   </TableCell>
@@ -246,11 +245,6 @@ function formatValue(value: unknown): string {
   padding: 0 3px;
   height: 15px;
   line-height: 1;
-}
-
-.tag-badge--return {
-  background: color-mix(in srgb, var(--accent-yellow, #f39c12) 75%, transparent) !important;
-  color: #fff !important;
 }
 
 .tag-badge--param {

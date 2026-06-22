@@ -78,14 +78,12 @@ const declareTag = computed(() => {
   return (props.statement as DeclareStatement).tag
 })
 
-const isDeclareReadonly = computed(() => declareTag.value !== undefined)
+const isDeclareReadonly = computed(() => declareTag.value === 'parameter')
 
 const kindIcon = computed(() => {
   if (!props.statement) return Clipboard
   if (props.statement.kind === 'declare') {
-    const tag = declareTag.value
-    if (tag === 'return') return Undo2
-    if (tag === 'parameter') return Import
+    if (declareTag.value === 'parameter') return Import
   }
   return KIND_ICONS[props.statement.kind] ?? Clipboard
 })
@@ -93,9 +91,7 @@ const kindIcon = computed(() => {
 const kindLabel = computed(() => {
   if (!props.statement) return ''
   if (props.statement.kind === 'declare') {
-    const tag = declareTag.value
-    if (tag === 'return') return t('nodes.kind.declareReturn')
-    if (tag === 'parameter') return t('nodes.kind.declareParameter')
+    if (declareTag.value === 'parameter') return t('nodes.kind.declareParameter')
   }
   return KIND_LABELS[props.statement.kind] ?? props.statement.kind
 })
@@ -103,17 +99,15 @@ const kindLabel = computed(() => {
 const kindDescription = computed(() => {
   if (!props.statement) return ''
   if (props.statement.kind === 'declare') {
-    const tag = declareTag.value
-    if (tag === 'return') return t('nodes.description.declareReturn')
-    if (tag === 'parameter') return t('nodes.description.declareParameter')
+    if (declareTag.value === 'parameter') return t('nodes.description.declareParameter')
   }
   return KIND_DESCRIPTIONS[props.statement.kind] ?? ''
 })
 
-/** 仅普通声明节点显示初始值字段；tag 节点不需要（参数值来自调用者，返回值来自函数体赋值） */
+/** 参数声明节点不显示初始值字段（参数值来自调用者） */
 const showExpression = computed(() => {
   if (!props.statement || props.statement.kind !== 'declare') return true
-  return declareTag.value === undefined
+  return declareTag.value !== 'parameter'
 })
 
 // ============================================================
@@ -230,7 +224,6 @@ function spinValue(field: 'start' | 'end' | 'step', delta: number) {
 const callMode = ref<'guided' | 'free'>('guided')
 const callSelectedFuncName = ref('')
 const callParamValues = ref<string[]>([])
-const callResultVar = ref('')
 const isCallSyncing = ref(false)
 
 const availableCallFunctions = computed(() =>
@@ -240,22 +233,6 @@ const availableCallFunctions = computed(() =>
 const callSelectedFunc = computed(() =>
   props.allFunctions?.find(f => f.name === callSelectedFuncName.value),
 )
-
-const callParsedFuncType = computed(() => {
-  if (!props.statement || props.statement.kind !== 'call') return undefined
-  const parsed = parseCallExpression(props.statement.expression)
-  if (!parsed) return undefined
-  const func = props.allFunctions?.find(f => f.name === parsed.name)
-  return func?.type
-})
-
-const callShowResultField = computed(() => {
-  if (callMode.value === 'guided') {
-    return callSelectedFunc.value?.type !== 'None'
-  }
-  const ft = callParsedFuncType.value
-  return ft !== undefined && ft !== 'None'
-})
 
 /** 解析 "FuncName(arg1, arg2, ...)" 格式的调用表达式 */
 function parseCallExpression(expr: string): { name: string; args: string[] } | null {
@@ -294,7 +271,6 @@ function syncFromExpression() {
     callMode.value = 'guided'
     callSelectedFuncName.value = ''
     callParamValues.value = []
-    callResultVar.value = props.statement.result || ''
     isCallSyncing.value = false
     return
   }
@@ -304,7 +280,6 @@ function syncFromExpression() {
 
   if (!parsed || !func) {
     callMode.value = 'free'
-    callResultVar.value = props.statement.result || ''
     isCallSyncing.value = false
     return
   }
@@ -316,7 +291,6 @@ function syncFromExpression() {
     values[i] = parsed.args[i].trim()
   }
   callParamValues.value = values
-  callResultVar.value = props.statement.result || ''
   isCallSyncing.value = false
 }
 
@@ -327,8 +301,6 @@ function onCallFuncChange(value: any) {
   if (!func) return
   callSelectedFuncName.value = name
   callParamValues.value = new Array(func.parameters.length).fill('')
-  callResultVar.value = ''
-  setField('result', undefined)
   setField('expression', func.name + '(' + func.parameters.map(() => '').join(', ') + ')')
 }
 
@@ -338,12 +310,6 @@ function onCallParamInput(index: number, value: string) {
   newValues[index] = value
   callParamValues.value = newValues
   setField('expression', buildCallExpression())
-}
-
-function onCallResultVarInput(value: string) {
-  if (!props.statement || props.statement.kind !== 'call') return
-  callResultVar.value = value
-  setField('result', value || undefined)
 }
 
 function switchCallMode(target: 'guided' | 'free') {
@@ -593,19 +559,6 @@ function onConfirm() {
             <div v-if="callSelectedFunc.parameters.length === 0" class="call-hint">
               {{ $t('editor.form.callEditor.noParams') }}
             </div>
-
-            <!-- 返回值变量（仅当函数有返回类型） -->
-            <label v-if="callShowResultField" class="field">
-              <span class="field-label">{{ $t('editor.form.callEditor.resultVar') }}</span>
-              <CodeEditor
-                class="field-input"
-                :placeholder="$t('editor.form.callEditor.resultVarPlaceholder')"
-                :model-value="callResultVar"
-                :single-line="true"
-                :completion-context="nameCompletionContext"
-                @update:model-value="onCallResultVarInput($event)"
-              />
-            </label>
           </template>
           <div v-else class="call-hint">
             {{ $t('editor.form.callEditor.pickFunction') }}
@@ -623,18 +576,6 @@ function onConfirm() {
               :single-line="true"
               :completion-context="completionContext"
               @update:model-value="setField('expression', $event)"
-            />
-          </label>
-          <!-- 自由模式下：如果表达式匹配到有返回类型的函数，也显示返回值字段 -->
-          <label v-if="callShowResultField" class="field">
-            <span class="field-label">{{ $t('editor.form.callEditor.resultVar') }}</span>
-            <CodeEditor
-              class="field-input"
-              :placeholder="$t('editor.form.callEditor.resultVarPlaceholder')"
-              :model-value="callResultVar"
-              :single-line="true"
-              :completion-context="nameCompletionContext"
-              @update:model-value="onCallResultVarInput($event)"
             />
           </label>
         </template>

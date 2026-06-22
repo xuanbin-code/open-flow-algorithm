@@ -20,14 +20,13 @@
             <parameter name="n" type="Integer" array="False"/>
         </parameters>
         <body>
-            <declare name="res" type="Integer" array="False" size="" tag="return"/>
             <declare name="n" type="Integer" array="False" size="" tag="parameter"/>
             <if expression="n &lt;= 1">
                 <then>
-                    <assign variable="res" expression="n"/>
+                    <return expression="n"/>
                 </then>
                 <else>
-                    <assign variable="res" expression="fib(n-1)+fib(n-2)"/>
+                    <return expression="fib(n-1)+fib(n-2)"/>
                 </else>
             </if>
         </body>

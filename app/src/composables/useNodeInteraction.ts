@@ -111,7 +111,7 @@ export function useNodeInteraction(options: UseNodeInteractionOptions) {
 
     const stmt = node.data.statement
 
-    if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag) {
+    if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag === 'parameter') {
       return
     }
 
@@ -131,7 +131,7 @@ export function useNodeInteraction(options: UseNodeInteractionOptions) {
     if (!node?.data?.statement) return
 
     const stmt = node.data.statement
-    if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag) return
+    if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag === 'parameter') return
 
     const loc = findStatementLocation(program.value, stmt)
     if (!loc) {
@@ -149,7 +149,7 @@ export function useNodeInteraction(options: UseNodeInteractionOptions) {
     if (isExecuting.value) return false
     const stmt = nodeProps.data?.statement as Statement | undefined
     if (!stmt) return false
-    if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag) return false
+    if (stmt.kind === 'declare' && (stmt as DeclareStatement).tag === 'parameter') return false
     return true
   }
 

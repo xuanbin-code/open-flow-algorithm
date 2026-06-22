@@ -118,12 +118,12 @@ const isExecuting = computed(
 
 const varsCollapsed = ref(false)
 
-/** Sort: parameters first, then return value, then other locals */
+/** Sort: parameters first, then other locals */
 const sortedVariables = computed(() => {
   const vars = [...props.windowState.variables]
   return vars.sort((a, b) => {
     const order = (tag: string | undefined) =>
-      tag === 'parameter' ? 0 : tag === 'return' ? 1 : 2
+      tag === 'parameter' ? 0 : 1
     return order(a.tag) - order(b.tag)
   })
 })
@@ -249,12 +249,6 @@ function onClose() {
                       class="sub-fn-var-row"
                     >
                       <div class="sub-fn-var-name">
-                        <Badge
-                          v-if="v.tag === 'return'"
-                          variant="default"
-                          class="var-tag var-tag--return"
-                          >{{ $t('execution.varTagReturn') }}</Badge
-                        >
                         <Badge
                           v-if="v.tag === 'parameter'"
                           variant="secondary"
@@ -606,15 +600,6 @@ function onClose() {
   padding: 0 3px;
   line-height: 14px;
   flex-shrink: 0;
-}
-
-.var-tag--return {
-  background: color-mix(
-    in srgb,
-    var(--accent-yellow, #f1c40f) 85%,
-    transparent
-  );
-  color: #1a1a1a;
 }
 
 .var-tag--param {

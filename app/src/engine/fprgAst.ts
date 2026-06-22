@@ -552,9 +552,7 @@ export function statementToLabel(stmt: Statement): string {
       }
 
       // 为带 tag 的变量添加标记前缀
-      if (stmt.tag === 'return') {
-        return `⟐ ${core}`
-      } else if (stmt.tag === 'parameter') {
+      if (stmt.tag === 'parameter') {
         return `◎ ${core}`
       }
       return core

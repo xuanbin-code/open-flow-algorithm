@@ -53,13 +53,9 @@ const emit = defineEmits<{
 const isNew = computed(() => props.function === null)
 
 const name = ref('')
-const returnType = ref('None')
-const returnVariable = ref('')
 const params = reactive<Parameter[]>([])
 
 const nameError = ref('')
-
-const RETURN_TYPES = ['None', 'Integer', 'Real', 'String', 'Boolean']
 
 // ============================================================
 // Watch: sync props → local state
@@ -71,13 +67,9 @@ watch(
     if (visible) {
       if (func) {
         name.value = func.name
-        returnType.value = func.type || 'None'
-        returnVariable.value = func.variable || ''
         params.splice(0, params.length, ...func.parameters.map(p => ({ ...p })))
       } else {
         name.value = ''
-        returnType.value = 'None'
-        returnVariable.value = ''
         params.length = 0
       }
       nameError.value = ''
@@ -89,8 +81,6 @@ watch(
 // ============================================================
 // Computed
 // ============================================================
-
-const showReturnVar = computed(() => returnType.value !== 'None' && returnType.value !== '')
 
 const canSave = computed(() => name.value.trim().length > 0 && !nameError.value)
 
@@ -141,8 +131,8 @@ function onSave() {
   const funcDef: FunctionDef = {
     kind: 'function',
     name: name.value.trim(),
-    type: returnType.value,
-    variable: showReturnVar.value ? returnVariable.value.trim() : '',
+    type: '',
+    variable: '',
     parameters: params.filter(p => p.name.trim()).map(p => ({
       name: p.name.trim(),
       type: p.type,
@@ -182,31 +172,6 @@ function onSave() {
             @keydown.enter="onSave"
           />
           <span v-if="nameError" class="text-xs text-destructive">{{ nameError }}</span>
-        </div>
-
-        <!-- Return Type -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {{ $t('functions.returnType') }}
-          </label>
-          <Select v-model="returnType">
-            <SelectTrigger class="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem v-for="rt in RETURN_TYPES" :key="rt" :value="rt">
-                {{ rt === 'None' ? $t('functions.noReturn') : rt }}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <!-- Return Variable -->
-        <div v-if="showReturnVar" class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {{ $t('functions.returnVariable') }}
-          </label>
-          <Input v-model="returnVariable" :placeholder="$t('functions.returnVarPlaceholder')" />
         </div>
 
         <!-- Parameters -->

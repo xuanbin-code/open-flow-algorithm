@@ -264,9 +264,7 @@ export class FlowchartEngine {
     }
 
     // 始终创建 END 节点
-    const endLabel = this.funcDef.name === 'Main'
-      ? t('engine.label.end')
-      : t('engine.label.return', { var: this.funcDef.variable || this.funcDef.name })
+    const endLabel = t('engine.label.end')
     const endNode = this.createNode('end', endLabel, 80)
     this.connect(prev, endNode)
   }

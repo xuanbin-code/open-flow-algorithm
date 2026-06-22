@@ -4,7 +4,7 @@ import { VueFlow, useVueFlow, Panel } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import type { InvocationViewState } from './ExecutionCallCanvas.vue'
 import {
-  StartNode, EndNode, DeclareNode, AssignNode, InputNode, OutputNode,
+  StartNode, EndNode, ReturnNode, DeclareNode, AssignNode, InputNode, OutputNode,
   IfNode, MergeNode, ForNode, WhileNode, CallNode,
 } from './nodes'
 import { Badge } from '@/components/ui/badge'
@@ -27,7 +27,7 @@ const sortedVariables = computed(() => {
   const vars = [...inv.value.variables]
   return vars.sort((a, b) => {
     const order = (tag: string | undefined) =>
-      tag === 'parameter' ? 0 : tag === 'return' ? 1 : 2
+      tag === 'parameter' ? 0 : 1
     return order(a.tag) - order(b.tag)
   })
 })
@@ -146,7 +146,6 @@ onUnmounted(resetAllHighlights)
               <div v-if="!varsCollapsed && hasVariables" class="invocation-var-body">
                 <div v-for="v in sortedVariables" :key="v.name" class="invocation-var-row">
                   <div class="invocation-var-name">
-                    <Badge v-if="v.tag === 'return'" variant="default" class="var-tag var-tag--return">返回</Badge>
                     <Badge v-if="v.tag === 'parameter'" variant="secondary" class="var-tag var-tag--param">参数</Badge>
                     <div class="invocation-var-info">
                       <span class="invocation-var-label">{{ v.name }}</span>
@@ -166,6 +165,9 @@ onUnmounted(resetAllHighlights)
           </template>
           <template #node-end="nodeProps">
             <EndNode v-bind="nodeProps" />
+          </template>
+          <template #node-return="nodeProps">
+            <ReturnNode v-bind="nodeProps" />
           </template>
           <template #node-default="nodeProps">
             <div

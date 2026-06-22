@@ -63,26 +63,11 @@ export function useFunctionManagement(options: UseFunctionManagementOptions) {
       // 更新其他属性
       const existing = getFunctionByName(program.value, funcDef.name)
       if (existing) {
-        existing.type = funcDef.type
-        existing.variable = funcDef.variable
         existing.parameters = funcDef.parameters
       }
     } else {
-      // 新建函数：自动生成带 tag 标记的 declare 语句
+      // 新建函数：自动生成带 tag 标记的形参 declare 语句
       const autoDeclares: Statement[] = []
-
-      // 返回值变量（tag: return，不可删除）
-      if (funcDef.type !== 'None' && funcDef.variable) {
-        autoDeclares.push({
-          kind: 'declare',
-          name: funcDef.variable,
-          type: funcDef.type,
-          array: false,
-          size: '',
-          expression: '',
-          tag: 'return',
-        })
-      }
 
       // 形参变量（tag: parameter）
       for (const p of funcDef.parameters) {
