@@ -1,15 +1,17 @@
 <?xml version="1.0"?>
 <flowgorithm fileversion="4.2">
     <attributes>
-        <attribute name="name" value="未命名"/>
+        <attribute name="name" value="Function Demo"/>
         <attribute name="authors" value=""/>
-        <attribute name="about" value=""/>
+        <attribute name="about" value="Demonstrates calling a function, receiving its return value, and printing the result."/>
         <attribute name="saved" value="2026-06-15"/>
     </attributes>
     <function name="Main" type="" variable="">
         <parameters/>
         <body>
-            <call expression="add(10, 20)"/>
+            <declare name="result" type="Integer" array="False" size=""/>
+            <call expression="add(10, 20)" result="result"/>
+            <output expression="&quot;add(10, 20) = &quot; &amp; result" newline="True"/>
         </body>
     </function>
     <function name="add" type="Integer" variable="sum">

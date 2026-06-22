@@ -57,6 +57,8 @@ export function useFunctionManagement(options: UseFunctionManagementOptions) {
       const oldName = editingFunction.value.name
       if (funcDef.name !== oldName) {
         if (!renameFunction(program.value, oldName, funcDef.name)) return
+        functionExecutionEnabled[funcDef.name] = functionExecutionEnabled[oldName] ?? true
+        delete functionExecutionEnabled[oldName]
       }
       // 更新其他属性
       const existing = getFunctionByName(program.value, funcDef.name)
@@ -99,6 +101,7 @@ export function useFunctionManagement(options: UseFunctionManagementOptions) {
       funcDef.body = [...autoDeclares, ...funcDef.body]
 
       addFunction(program.value, funcDef)
+      functionExecutionEnabled[funcDef.name] = true
       activeFunctionName.value = funcDef.name
     }
     showFunctionDialog.value = false
@@ -108,6 +111,8 @@ export function useFunctionManagement(options: UseFunctionManagementOptions) {
 
   function onRenameFunction(oldName: string, newName: string) {
     if (renameFunction(program.value, oldName, newName)) {
+      functionExecutionEnabled[newName] = functionExecutionEnabled[oldName] ?? true
+      delete functionExecutionEnabled[oldName]
       if (activeFunctionName.value === oldName) {
         activeFunctionName.value = newName
       }
@@ -117,6 +122,7 @@ export function useFunctionManagement(options: UseFunctionManagementOptions) {
 
   function onDeleteFunction(name: string) {
     if (!deleteFunction(program.value, name)) return
+    delete functionExecutionEnabled[name]
     if (activeFunctionName.value === name) {
       activeFunctionName.value = 'Main'
     }

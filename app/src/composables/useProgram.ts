@@ -136,6 +136,17 @@ export function useProgram(options: UseProgramOptions): UseProgramReturn {
   const fileLoadVersion = ref(0) // 每次 loadProgram 递增，强制 FunctionTabBar 重建
 
   /** 视图参数（仅影响视口，不触发 re-layout） */
+  function resetFunctionExecutionToggles(enableSubFunctions = true) {
+    for (const key of Object.keys(functionExecutionEnabled)) {
+      delete functionExecutionEnabled[key]
+    }
+    for (const func of program.value.functions) {
+      if (func.name !== 'Main') {
+        functionExecutionEnabled[func.name] = enableSubFunctions
+      }
+    }
+  }
+
   const vpZoom = ref(1)
   const vpX = ref(50)
   const vpY = ref(20)
@@ -204,11 +215,8 @@ export function useProgram(options: UseProgramOptions): UseProgramReturn {
     // 清理执行状态（来自 useExecution 的 resetExecution）
     onBeforeLoad?.value?.()
     // 清理上一个文件的执行可视化标记
-    for (const key of Object.keys(functionExecutionEnabled)) {
-      delete functionExecutionEnabled[key]
-    }
-
     program.value = parseFprgToAst(xml)
+    resetFunctionExecutionToggles(true)
     activeFunctionName.value = 'Main'
     engine.value = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
     nodes.value = [...engine.value.nodes]

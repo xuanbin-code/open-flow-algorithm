@@ -30,7 +30,7 @@ import {
 import type { ChatMessage, VariableEntry } from '../types'
 import type { InvocationViewState } from '../components'
 import type { UseSoundReturn } from './useSound'
-import { pythonBridge, isPythonBackendAvailable, type PythonEvent } from '../platform'
+import { pythonBridge, type PythonEvent } from '../platform'
 
 export type ExecutionStatus = 'idle' | 'running' | 'paused' | 'waiting-input' | 'stopped'
 
@@ -66,7 +66,7 @@ export function useExecution(options: UseExecutionOptions) {
   const { t } = useI18n()
 
   /** Whether to use the Python backend for execution. */
-  const usingPython = usePythonBackend ?? isPythonBackendAvailable()
+  const usingPython = usePythonBackend ?? false
 
   // ============================================
   // VueFlow access (internal)
@@ -128,6 +128,25 @@ export function useExecution(options: UseExecutionOptions) {
       type: state.variableTypes[name] || '',
       value: state.variables[name],
       tag: tagMap[name],
+    }))
+  }
+
+  function tagVariablesForFunction(vars: VariableEntry[], funcName: string): VariableEntry[] {
+    const funcDef = program.value.functions.find(f => f.name === funcName)
+    if (!funcDef) return vars
+
+    const tagMap: Record<string, 'return' | 'parameter'> = {}
+    for (const stmt of funcDef.body) {
+      if (stmt.kind === 'declare' && stmt.tag) {
+        for (const n of splitDeclareNames(stmt.name)) {
+          tagMap[n] = stmt.tag
+        }
+      }
+    }
+
+    return vars.map((v) => ({
+      ...v,
+      tag: tagMap[v.name],
     }))
   }
 
@@ -322,7 +341,7 @@ export function useExecution(options: UseExecutionOptions) {
     nodeId: string,
   ) {
     const invocation = frame?.invocationId ? invocations.value[frame.invocationId] : null
-    if (!invocation || !interpreterRuntime) return
+    if (!invocation) return
 
     invocation.executingNodeIds = [...invocation.executingNodeIds, nodeId]
     if (invocation.previousNodeId) {
@@ -342,9 +361,11 @@ export function useExecution(options: UseExecutionOptions) {
       }
     }
     invocation.previousNodeId = nodeId
-    invocation.variables = invocation.functionName === 'Main'
-      ? [...varEntries.value]
-      : syncSubWindowVariables(interpreterRuntime, invocation.functionName)
+    if (interpreterRuntime) {
+      invocation.variables = invocation.functionName === 'Main'
+        ? [...varEntries.value]
+        : syncSubWindowVariables(interpreterRuntime, invocation.functionName)
+    }
   }
 
   function handleInvocationStatementLeave(
@@ -352,7 +373,7 @@ export function useExecution(options: UseExecutionOptions) {
     nodeId: string,
   ) {
     const invocation = frame?.invocationId ? invocations.value[frame.invocationId] : null
-    if (!invocation || !interpreterRuntime) return
+    if (!invocation) return
 
     invocation.executingNodeIds = invocation.executingNodeIds.filter(id => id !== nodeId)
 
@@ -366,9 +387,11 @@ export function useExecution(options: UseExecutionOptions) {
       invocation.activeEdgeId = null
     }
 
-    invocation.variables = invocation.functionName === 'Main'
-      ? [...varEntries.value]
-      : syncSubWindowVariables(interpreterRuntime, invocation.functionName)
+    if (interpreterRuntime) {
+      invocation.variables = invocation.functionName === 'Main'
+        ? [...varEntries.value]
+        : syncSubWindowVariables(interpreterRuntime, invocation.functionName)
+    }
   }
 
   function handleMainStatementEnter(
@@ -483,9 +506,11 @@ export function useExecution(options: UseExecutionOptions) {
 
   function popInvocationFrame() {
     const frame = executionCallStack.pop()
-    if (!frame?.invocationId || !interpreterRuntime || !invocations.value[frame.invocationId]) return
-    invocations.value[frame.invocationId].variables =
-      syncSubWindowVariables(interpreterRuntime, frame.functionName)
+    if (!frame?.invocationId || !invocations.value[frame.invocationId]) return
+    if (interpreterRuntime) {
+      invocations.value[frame.invocationId].variables =
+        syncSubWindowVariables(interpreterRuntime, frame.functionName)
+    }
     markInvocationCompleted(frame.invocationId)
   }
 
@@ -552,6 +577,26 @@ export function useExecution(options: UseExecutionOptions) {
   let stepResolve: (() => void) | null = null
   let inputResolve: ((value: string) => void) | null = null
   let stopped = false
+
+  async function syncVariablesFromPython(): Promise<VariableEntry[]> {
+    const varResult = await pythonBridge.call('get_variables')
+    const vars = (varResult.variables ?? []).map((v: any) => ({
+      name: v.name,
+      type: v.type,
+      value: v.value,
+    }))
+    const topFrame = executionCallStack[executionCallStack.length - 1]
+    const tagged = topFrame
+      ? tagVariablesForFunction(vars, topFrame.functionName)
+      : vars
+    if (topFrame?.functionName === 'Main') {
+      varEntries.value = tagged
+    }
+    if (topFrame?.invocationId && invocations.value[topFrame.invocationId]) {
+      invocations.value[topFrame.invocationId].variables = tagged
+    }
+    return tagged
+  }
 
   // ============================================
   // 核心驱动循环
@@ -736,20 +781,10 @@ export function useExecution(options: UseExecutionOptions) {
             handleInvocationStatementEnter(topFrame, event.nodeId ?? '')
             handleMainStatementEnter(topFrame, event.nodeId ?? '')
 
-            // Sync variables from Python backend
             try {
-              const varResult = await pythonBridge.call('get_variables')
-              const vars = varResult.variables ?? []
-              varEntries.value = vars.map((v: any) => ({
-                name: v.name,
-                type: v.type,
-                value: v.value,
-              }))
+              await syncVariablesFromPython()
             } catch { /* ignore variable sync errors */ }
 
-            if (topFrame?.functionName === 'Main' && topFrame.invocationId && invocations.value[topFrame.invocationId]) {
-              invocations.value[topFrame.invocationId].variables = [...varEntries.value]
-            }
             if (mode === 'step') sound.playTick()
             break
           }
@@ -760,11 +795,14 @@ export function useExecution(options: UseExecutionOptions) {
             break
           }
           case 'function-enter': {
-            pushInvocationFramePython(event)
+            await pushInvocationFramePython(event)
             await nextTick()
             break
           }
           case 'function-leave': {
+            try {
+              await syncVariablesFromPython()
+            } catch { /* ignore variable sync errors */ }
             popInvocationFrame()
             break
           }
@@ -849,13 +887,7 @@ export function useExecution(options: UseExecutionOptions) {
           executionStatus.value = 'paused'
           // Sync variables on pause
           try {
-            const varResult = await pythonBridge.call('get_variables')
-            const vars = varResult.variables ?? []
-            varEntries.value = vars.map((v: any) => ({
-              name: v.name,
-              type: v.type,
-              value: v.value,
-            }))
+            await syncVariablesFromPython()
           } catch { /* ignore */ }
           await new Promise<void>((resolve) => {
             stepResolve = resolve
@@ -881,7 +913,7 @@ export function useExecution(options: UseExecutionOptions) {
   }
 
   /** Python-backend version of pushInvocationFrame. */
-  function pushInvocationFramePython(event: PythonEvent) {
+  async function pushInvocationFramePython(event: PythonEvent) {
     const parentFrame = executionCallStack[executionCallStack.length - 1]
     const parentId = parentFrame?.invocationId ?? null
     let invocationId: string | null = null
@@ -889,13 +921,13 @@ export function useExecution(options: UseExecutionOptions) {
     if (event.functionName && functionExecutionEnabled[event.functionName]) {
       const cachedEngine = subEngineCache.get(event.functionName)
       if (cachedEngine) {
-        // Sync variables for the new frame from Python backend
-        pythonBridge.call('get_variables').then(varResult => {
-          const vars = (varResult.variables ?? []).map((v: any) => ({
+        try {
+          const varResult = await pythonBridge.call('get_variables')
+          const vars = tagVariablesForFunction((varResult.variables ?? []).map((v: any) => ({
             name: v.name,
             type: v.type,
             value: v.value,
-          }))
+          })), event.functionName)
           const invocation = createInvocation(event.functionName!, cachedEngine, {
             parentId,
             callSiteNodeId: event.callerNodeId ?? null,
@@ -918,7 +950,7 @@ export function useExecution(options: UseExecutionOptions) {
           }
 
           layoutCallTree()
-        })
+        } catch { /* ignore variable sync errors */ }
       }
     }
 
