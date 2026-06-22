@@ -127,6 +127,7 @@ const categories: Category[] = [
       { type: 'break', label: t('nodes.kind.break'), category: t('editor.categories.control'), bg: '#e74c3c', border: '#c0392b', shape: 'rect' },
       { type: 'continue', label: t('nodes.kind.continue'), category: t('editor.categories.control'), bg: '#3498db', border: '#2980b9', shape: 'rect' },
       { type: 'return', label: t('nodes.kind.return'), category: t('editor.categories.control'), bg: '#d35400', border: '#a04030', shape: 'rect' },
+      { type: 'breakpoint', label: t('nodes.kind.breakpoint'), category: t('editor.categories.control'), bg: '#e74c3c', border: '#c0392b', shape: 'rect' },
     ],
   },
   {

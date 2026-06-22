@@ -211,6 +211,7 @@
       "break": "Break",
       "continue": "Continue",
       "return": "Return",
+      "breakpoint": "Breakpoint",
       "declareReturn": "Return Value",
       "declareParameter": "Parameter"
     },
@@ -225,6 +226,7 @@
       "break": "Break — immediately exits the current loop and continues execution after the loop.",
       "continue": "Continue — skips the remaining statements in the current iteration and starts the next loop iteration.",
       "return": "Return — immediately exits the current function with the given expression value.",
+      "breakpoint": "Breakpoint — pauses execution for debugging when reached.",
       "declareReturn": "Return Value — auto-generated to hold the function result. The name and type are determined by the function signature and cannot be changed here.",
       "declareParameter": "Parameter — auto-generated to represent a function input. Its value is provided by the caller at runtime—no initial value is needed. The name, type, and array property are determined by the function signature."
     },
@@ -375,6 +377,7 @@
       "forStep": " step ",
       "break": "Break",
       "continue": "Continue",
+      "breakpoint": "Breakpoint",
       "return": "Return {var}"
     }
   },

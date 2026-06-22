@@ -109,6 +109,10 @@ export interface ContinueStatement {
   kind: 'continue'
 }
 
+export interface BreakpointStatement {
+  kind: 'breakpoint'
+}
+
 export interface ReturnStatement {
   kind: 'return'
   expression: string
@@ -128,6 +132,7 @@ export type Statement = (
   | MoreStatement
   | BreakStatement
   | ContinueStatement
+  | BreakpointStatement
   | ReturnStatement
 ) & { _nodeId?: string }
 
@@ -491,6 +496,9 @@ function parseStatement(el: Element): Statement | null {
     case 'continue':
       return { kind: 'continue' }
 
+    case 'breakpoint':
+      return { kind: 'breakpoint' }
+
     case 'more':
       return { kind: 'more' }
 
@@ -600,6 +608,8 @@ export function statementToLabel(stmt: Statement): string {
       return t('engine.label.break')
     case 'continue':
       return t('engine.label.continue')
+    case 'breakpoint':
+      return t('engine.label.breakpoint')
     case 'return':
       return stmt.expression || t('nodes.kind.return')
   }
@@ -633,6 +643,8 @@ export function isStatementEmpty(stmt: Statement): boolean {
     case 'break':
       return false
     case 'continue':
+      return false
+    case 'breakpoint':
       return false
     case 'return':
       return !stmt.expression
@@ -687,6 +699,8 @@ export function createDefaultStatement(kind: Statement['kind']): Statement {
       return { kind: 'break' }
     case 'continue':
       return { kind: 'continue' }
+    case 'breakpoint':
+      return { kind: 'breakpoint' }
     case 'return':
       return { kind: 'return', expression: '' }
   }
@@ -818,6 +832,8 @@ function stmtToXml(stmt: Statement, indent: string): string {
       return `${indent}<break/>`
     case 'continue':
       return `${indent}<continue/>`
+    case 'breakpoint':
+      return `${indent}<breakpoint/>`
     case 'return':
       return `${indent}<return expression="${escapeAttr(stmt.expression)}"/>`
     case 'more':

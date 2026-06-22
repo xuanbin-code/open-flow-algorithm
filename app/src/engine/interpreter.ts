@@ -516,6 +516,9 @@ async function* executeStatement(
       case 'more':
         // 占位节点，无操作
         break
+      case 'breakpoint':
+        // 断点节点：不执行任何操作，仅产生 statement-enter / statement-leave 事件
+        break
     }
   } finally {
     // 离开语句（仅叶子语句在此发出 leave）
@@ -1427,6 +1430,8 @@ function executeStatementSync(
       throw new ReturnSignal()
     case 'more':
       // 占位节点，无操作
+      break
+    case 'breakpoint':
       break
   }
 }

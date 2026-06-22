@@ -14,6 +14,7 @@ import {
   MergeNode,
   ForNode,
   WhileNode,
+  BreakpointNode,
   CallNode,
   BreakNode,
   ContinueNode,
@@ -632,6 +633,20 @@ onUnmounted(() => {
                 <ContextMenu>
                   <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
                     <ReturnNode v-bind="nodeProps" />
+                  </ContextMenuTrigger>
+                  <NodeContextMenu
+                    :node-id="nodeProps.id"
+                    :can-delete="canDeleteNode(nodeProps)"
+                    :can-edit="canEditNode(nodeProps)"
+                    @edit="handleNodeContextEdit"
+                    @delete="deleteNodeById"
+                  />
+                </ContextMenu>
+              </template>
+              <template #node-breakpoint="nodeProps">
+                <ContextMenu>
+                  <ContextMenuTrigger as-child @contextmenu="onNodeContextMenu">
+                    <BreakpointNode v-bind="nodeProps" />
                   </ContextMenuTrigger>
                   <NodeContextMenu
                     :node-id="nodeProps.id"

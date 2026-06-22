@@ -45,6 +45,7 @@ export type FlowNodeType =
   | 'break'
   | 'continue'
   | 'return'
+  | 'breakpoint'
   | 'default'
 
 export interface FlowNode {
@@ -167,6 +168,7 @@ const KIND_TO_NODE_TYPE: Record<Statement['kind'], FlowNodeType> = {
   break: 'break',
   continue: 'continue',
   return: 'return',
+  breakpoint: 'breakpoint',
 }
 
 /** clip-path 形状的文本可视区小于 CSS 宽度，需要放大系数 */
@@ -246,7 +248,7 @@ export class FlowchartEngine {
         prev = this.buildForStatement(stmt, prev)
       } else if (stmt.kind === 'while') {
         prev = this.buildWhileStatement(stmt, prev)
-      } else if (stmt.kind === 'break' || stmt.kind === 'continue' || stmt.kind === 'return') {
+      } else if (stmt.kind === 'break' || stmt.kind === 'continue' || stmt.kind === 'return' || stmt.kind === 'breakpoint') {
         const nodeType = KIND_TO_NODE_TYPE[stmt.kind]
         const label = statementToLabel(stmt)
         const node = this.createNode(nodeType, label, undefined, stmt)
@@ -441,7 +443,7 @@ export class FlowchartEngine {
         const whileNode = this.buildWhileStatement(stmt, prev)
         if (!first) first = whileNode
         prev = whileNode
-      } else if (stmt.kind === 'break' || stmt.kind === 'continue' || stmt.kind === 'return') {
+      } else if (stmt.kind === 'break' || stmt.kind === 'continue' || stmt.kind === 'return' || stmt.kind === 'breakpoint') {
         const nodeType = KIND_TO_NODE_TYPE[stmt.kind]
         const label = statementToLabel(stmt)
         const node = this.createNode(nodeType, label, undefined, stmt)

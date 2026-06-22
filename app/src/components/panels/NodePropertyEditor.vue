@@ -44,6 +44,7 @@ const KIND_LABELS: Record<string, string> = {
   break: t('nodes.kind.break'),
   continue: t('nodes.kind.continue'),
   return: t('nodes.kind.return'),
+  breakpoint: t('nodes.kind.breakpoint'),
 }
 
 const KIND_DESCRIPTIONS: Record<string, string> = {
@@ -57,6 +58,7 @@ const KIND_DESCRIPTIONS: Record<string, string> = {
   break: t('nodes.description.break'),
   continue: t('nodes.description.continue'),
   return: t('nodes.description.return'),
+  breakpoint: t('nodes.description.breakpoint'),
 }
 
 const KIND_ICONS: Record<string, Component> = {
@@ -729,6 +731,11 @@ function onConfirm() {
             @update:model-value="setField('expression', $event)"
           />
         </label>
+      </template>
+
+      <!-- ===== breakpoint ===== -->
+      <template v-if="statement.kind === 'breakpoint'">
+        <div class="no-props">{{ $t('editor.form.noProperties') }}</div>
       </template>
     </div>
 

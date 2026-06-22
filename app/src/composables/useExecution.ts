@@ -26,6 +26,7 @@ import {
   splitDeclareNames,
   type Program,
   type FunctionDef,
+  type Statement,
 } from '../engine/fprgAst'
 import type { ChatMessage, VariableEntry } from '../types'
 import type { InvocationViewState } from '../components'
@@ -664,6 +665,20 @@ export function useExecution(options: UseExecutionOptions) {
               invocations.value[topFrame.invocationId].variables = [...varEntries.value]
             }
             if (mode === 'step') sound.playTick()
+
+            // 断点节点：在 run 模式下暂停执行
+            if (mode === 'run' && (event.statement as Statement)?.kind === 'breakpoint') {
+              sound.playTick()
+              executionStatus.value = 'paused'
+              await new Promise<void>((resolve) => { stepResolve = resolve })
+              stepResolve = null
+              if (stopped) {
+                resetEdgeAnimation()
+                executionStatus.value = 'stopped'
+                return
+              }
+              executionStatus.value = 'running'
+            }
             break
           }
           case 'statement-leave': {
@@ -818,6 +833,10 @@ export function useExecution(options: UseExecutionOptions) {
             } catch { /* ignore variable sync errors */ }
 
             if (mode === 'step') sound.playTick()
+
+            // 断点节点：在 run 模式下暂停执行
+            // Python 后端的 statement-enter 事件不携带 statement 对象，无法直接检查 kind。
+            // 这里暂不支持 Python 后端的断点功能。
             break
           }
           case 'statement-leave': {
