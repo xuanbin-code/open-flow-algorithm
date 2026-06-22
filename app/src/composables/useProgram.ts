@@ -240,6 +240,7 @@ export function useProgram(options: UseProgramOptions): UseProgramReturn {
       delete functionExecutionEnabled[key]
     }
     activeFunctionName.value = 'Main'
+    program.value = createEmptyProgram()
     engine.value = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
     nodes.value = [...engine.value.nodes]
     edges.value = [...engine.value.edges]

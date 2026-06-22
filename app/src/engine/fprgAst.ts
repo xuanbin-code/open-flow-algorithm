@@ -109,6 +109,11 @@ export interface ContinueStatement {
   kind: 'continue'
 }
 
+export interface ReturnStatement {
+  kind: 'return'
+  expression: string
+}
+
 /** 所有语句类型的联合，_nodeId 由消费者（VueFlow）在运行时挂载 */
 export type Statement = (
   | DeclareStatement
@@ -123,6 +128,7 @@ export type Statement = (
   | MoreStatement
   | BreakStatement
   | ContinueStatement
+  | ReturnStatement
 ) & { _nodeId?: string }
 
 /** 函数定义 */
@@ -262,7 +268,7 @@ function updateCallReferences(body: Statement[], oldName: string, newName: strin
           `${newName}(`,
         )
       }
-    } else if (stmt.kind === 'assign' || stmt.kind === 'output') {
+    } else if (stmt.kind === 'assign' || stmt.kind === 'output' || stmt.kind === 'return') {
       stmt.expression = stmt.expression.replace(
         new RegExp(`\\b${escapeRegExp(oldName)}\\s*\\(`),
         `${newName}(`,
@@ -476,6 +482,12 @@ function parseStatement(el: Element): Statement | null {
     case 'break':
       return { kind: 'break' }
 
+    case 'return':
+      return {
+        kind: 'return',
+        expression: attr(el, 'expression'),
+      }
+
     case 'continue':
       return { kind: 'continue' }
 
@@ -590,6 +602,8 @@ export function statementToLabel(stmt: Statement): string {
       return t('engine.label.break')
     case 'continue':
       return t('engine.label.continue')
+    case 'return':
+      return stmt.expression || t('engine.label.return')
   }
 }
 
@@ -622,6 +636,8 @@ export function isStatementEmpty(stmt: Statement): boolean {
       return false
     case 'continue':
       return false
+    case 'return':
+      return !stmt.expression
   }
 }
 
@@ -673,6 +689,8 @@ export function createDefaultStatement(kind: Statement['kind']): Statement {
       return { kind: 'break' }
     case 'continue':
       return { kind: 'continue' }
+    case 'return':
+      return { kind: 'return', expression: '' }
   }
 }
 
@@ -802,6 +820,8 @@ function stmtToXml(stmt: Statement, indent: string): string {
       return `${indent}<break/>`
     case 'continue':
       return `${indent}<continue/>`
+    case 'return':
+      return `${indent}<return expression="${escapeAttr(stmt.expression)}"/>`
     case 'more':
       return `${indent}<more/>`
   }

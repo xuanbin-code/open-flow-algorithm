@@ -414,6 +414,18 @@ async function* runFunction(
       yield { type: 'done' }
       return
     }
+    if (e instanceof ReturnSignal) {
+      yield { type: 'function-leave', functionName }
+      if (funcDef.variable && state.variables[funcDef.variable] !== undefined) {
+        yield {
+          type: 'output',
+          text: `${functionName} → ${formatOutputValue(state.variables[funcDef.variable], false)}`,
+          nodeId: undefined,
+        }
+      }
+      yield { type: 'done' }
+      return
+    }
     const msg = e instanceof Error ? e.message : String(e)
     yield {
       type: 'error',
@@ -491,6 +503,10 @@ async function* executeStatement(
         break
       case 'continue':
         signal = new ContinueSignal()
+        break
+      case 'return':
+        yield* executeReturn(stmt, state)
+        signal = new ReturnSignal()
         break
       case 'more':
         // 占位节点，无操作
@@ -809,18 +825,22 @@ async function* executeCall(
 
   try {
     yield* executeBlock(funcDef.body, state)
-    yield { type: 'function-leave', functionName: funcDef.name }
   } catch (e: unknown) {
-    // 异常时也 yield function-leave，确保调用栈正确弹出
-    yield { type: 'function-leave', functionName: funcDef.name }
-    state.currentFunctionName = callerName
-    const frame = state.callFrames.pop()
-    if (frame) {
-      state.variables = frame.variables
-      state.variableTypes = frame.variableTypes
+    if (e instanceof ReturnSignal) {
+      // return 正常退出，落入下方的返回值捕获逻辑
+    } else {
+      // 异常时也 yield function-leave，确保调用栈正确弹出
+      yield { type: 'function-leave', functionName: funcDef.name }
+      state.currentFunctionName = callerName
+      const frame = state.callFrames.pop()
+      if (frame) {
+        state.variables = frame.variables
+        state.variableTypes = frame.variableTypes
+      }
+      throw e
     }
-    throw e
   }
+  yield { type: 'function-leave', functionName: funcDef.name }
 
   state.currentFunctionName = callerName
 
@@ -899,18 +919,22 @@ async function* executeFunctionFromExpression(
 
   try {
     yield* executeBlock(funcDef.body, state)
-    yield { type: 'function-leave', functionName: funcDef.name }
   } catch (e: unknown) {
-    // 异常时也 yield function-leave，确保调用栈正确弹出
-    yield { type: 'function-leave', functionName: funcDef.name }
-    state.currentFunctionName = callerName
-    const frame = state.callFrames.pop()
-    if (frame) {
-      state.variables = frame.variables
-      state.variableTypes = frame.variableTypes
+    if (e instanceof ReturnSignal) {
+      // return 正常退出，落入下方的返回值捕获逻辑
+    } else {
+      // 异常时也 yield function-leave，确保调用栈正确弹出
+      yield { type: 'function-leave', functionName: funcDef.name }
+      state.currentFunctionName = callerName
+      const frame = state.callFrames.pop()
+      if (frame) {
+        state.variables = frame.variables
+        state.variableTypes = frame.variableTypes
+      }
+      throw e
     }
-    throw e
   }
+  yield { type: 'function-leave', functionName: funcDef.name }
 
   state.currentFunctionName = callerName
 
@@ -1240,6 +1264,30 @@ async function* executeDo(
 }
 
 // ============================================================
+// return 语句执行器
+// ============================================================
+
+async function* executeReturn(
+  stmt: Statement & { kind: 'return' },
+  state: RuntimeState,
+): AsyncGenerator<InterpreterEvent> {
+  if (!stmt.expression) return
+
+  const funcDef = state._program?.functions.find(
+    (f) => f.name === state.currentFunctionName,
+  )
+
+  if (funcDef?.variable) {
+    const resolvedExpr = yield* resolveExpression(stmt.expression, state)
+    const value = evaluateExpr(resolvedExpr, state)
+    state.variables[funcDef.variable] = funcDef.type
+      ? coerceValue(value, funcDef.type)
+      : value
+    state.variableTypes[funcDef.variable] = funcDef.type || 'Integer'
+  }
+}
+
+// ============================================================
 // 同步函数执行器（供表达式中的函数调用使用）
 //
 // 这些函数是异步 Generator 执行器的同步镜像，用于
@@ -1296,9 +1344,14 @@ function executeFunctionSync(
     let returnValue: unknown = undefined
 
     try {
-      executeBlockSync(funcDef.body, program, state)
+      try {
+        executeBlockSync(funcDef.body, program, state)
+      } catch (e: unknown) {
+        if (!(e instanceof ReturnSignal)) throw e
+        // ReturnSignal: 正常提前退出，落入下方的返回值捕获逻辑
+      }
 
-      // 5. 捕获返回值（仅在成功路径）
+      // 5. 捕获返回值（成功路径和 return 信号均走到这里）
       if (funcDef.variable) {
         returnValue = state.variables[funcDef.variable]
       }
@@ -1364,6 +1417,9 @@ function executeStatementSync(
       throw new BreakSignal()
     case 'continue':
       throw new ContinueSignal()
+    case 'return':
+      executeReturnSync(stmt, state)
+      throw new ReturnSignal()
     case 'more':
       // 占位节点，无操作
       break
@@ -1643,6 +1699,26 @@ function executeCallSync(
   }
 }
 
+/** 同步执行 return 语句 */
+function executeReturnSync(
+  stmt: Statement & { kind: 'return' },
+  state: RuntimeState,
+): void {
+  if (!stmt.expression) return
+
+  const funcDef = state._program?.functions.find(
+    (f) => f.name === state.currentFunctionName,
+  )
+
+  if (funcDef?.variable) {
+    const value = evaluateExpr(stmt.expression, state)
+    state.variables[funcDef.variable] = funcDef.type
+      ? coerceValue(value, funcDef.type)
+      : value
+    state.variableTypes[funcDef.variable] = funcDef.type || 'Integer'
+  }
+}
+
 // ============================================================
 // Utilities
 // ============================================================
@@ -1684,6 +1760,18 @@ class ContinueSignal extends Error {
   constructor() {
     super('continue')
     this.name = 'ContinueSignal'
+  }
+}
+
+/**
+ * 内部信号：return 语句抛出，由 runFunction / executeCall /
+ * executeFunctionFromExpression（及它们的同步版本）捕获，
+ * 立即退出当前函数并返回指定值。
+ */
+class ReturnSignal extends Error {
+  constructor() {
+    super('return')
+    this.name = 'ReturnSignal'
   }
 }
 
