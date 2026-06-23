@@ -1,5 +1,17 @@
 @import './variables.css';
 
+/* ===================================================================
+   Font: Source Han Sans SC (思源黑体)
+   Fallback for systems without PingFang SC (苹方)
+   =================================================================== */
+@font-face {
+  font-family: 'Source Han Sans SC';
+  src: url('/fonts/SourceHanSansSC-Regular-2.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -59,7 +71,7 @@ textarea {
   --popover: #1c222b;
   --popover-foreground: #eef2f7;
   --radius: 0.5rem;
-  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-sans: 'PingFang SC', 'Source Han Sans SC', system-ui, -apple-system, sans-serif;
   --font-mono: 'Consolas', 'Monaco', monospace;
 
   /* ---- 项目特有变量（保留，不映射到 shadcn 语义） ---- */

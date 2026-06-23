@@ -450,7 +450,7 @@ function onNodeDragStop(event: any) {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--accent);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
 }
 

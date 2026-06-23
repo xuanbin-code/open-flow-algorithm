@@ -585,7 +585,7 @@ function onClose() {
 
 .sub-fn-var-value {
   font-size: 10px;
-  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: var(--font-mono);
   color: var(--accent);
   max-width: 70px;
   overflow: hidden;

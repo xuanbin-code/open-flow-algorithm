@@ -460,7 +460,7 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
   align-items: center;
   padding: 2px 8px;
   font-size: 11px;
-  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-family: var(--font-mono);
   line-height: 1.4;
   color: var(--text-secondary);
   background: var(--bg-toggle-btn);
