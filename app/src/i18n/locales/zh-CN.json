@@ -38,7 +38,8 @@
     "switchToSystem": "切换跟随系统",
     "manageFunctions": "管理函数",
     "addFunction": "添加函数",
-    "exportPython": "导出为 Python 代码…"
+    "exportPython": "导出为 Python 代码…",
+    "importPython": "导入 Python 代码…"
   },
   "quickActions": {
     "save": "保存",
@@ -412,6 +413,74 @@
   "fileDialog": {
     "flowgorithmFile": "Flowgorithm 文件",
     "pythonFile": "Python 文件"
+  },
+  "newFileDialog": {
+    "title": "新建文件",
+    "description": "选择新建流程图的方式",
+    "blankTitle": "空白流程图",
+    "blankDesc": "创建一个包含开始和结束节点的空白流程图",
+    "pasteTitle": "粘贴 Python 代码",
+    "pasteDesc": "粘贴 Python 代码自动生成流程图",
+    "openTitle": "打开 Python 文件",
+    "openDesc": "导入 .py 文件并转换为流程图",
+    "pastePlaceholder": "在此粘贴 Python 代码...",
+    "createButton": "创建",
+    "pythonNotAvailable": "Python 代码转换需要桌面版应用",
+    "parseError": "解析 Python 代码失败: {message}",
+    "parsing": "正在解析 Python 代码...",
+    "convertSuccess": "已从 Python 代码创建流程图",
+    "browseButton": "浏览...",
+    "noFileSelected": "未选择文件",
+    "presetTitle": "预设模板",
+    "presetDesc": "从内置的常用算法模板开始",
+    "presetLoaded": "已加载预设模板",
+    "presetCategories": {
+      "math": "数学计算",
+      "loops": "序列与循环",
+      "arrays": "数组与算法"
+    },
+    "presets": {
+      "fibonacci": {
+        "name": "斐波那契数列",
+        "desc": "递归计算斐波那契数列第 N 项"
+      },
+      "factorial": {
+        "name": "阶乘计算",
+        "desc": "输入正整数 N，计算 N 的阶乘"
+      },
+      "gcd": {
+        "name": "最大公约数",
+        "desc": "辗转相除法求两个正整数的最大公约数"
+      },
+      "fizzBuzz": {
+        "name": "FizzBuzz",
+        "desc": "1 到 N 循环，3的倍数输出Fizz，5的倍数输出Buzz"
+      },
+      "isPrime": {
+        "name": "素数判断",
+        "desc": "判断输入的正整数是否为素数"
+      },
+      "sum1toN": {
+        "name": "累加求和",
+        "desc": "计算 1+2+...+N 的累加和"
+      },
+      "multiplicationTable": {
+        "name": "九九乘法表",
+        "desc": "打印九九乘法表（嵌套循环）"
+      },
+      "maxOfThree": {
+        "name": "三数最大值",
+        "desc": "比较三个整数并输出最大值"
+      },
+      "bubbleSort": {
+        "name": "冒泡排序",
+        "desc": "输入数组并执行冒泡排序"
+      },
+      "binarySearch": {
+        "name": "二分查找",
+        "desc": "在有序数组中二分查找目标值"
+      }
+    }
   },
   "sidebar": {
     "expand": "展开侧边栏",

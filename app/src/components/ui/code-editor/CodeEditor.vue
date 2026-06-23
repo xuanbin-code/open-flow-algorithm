@@ -31,11 +31,16 @@ const props = withDefaults(defineProps<{
   readonly?: boolean
   placeholder?: string
   completionContext?: CompletionContextData | null
+  /** Optional language extension (e.g. python() from @codemirror/lang-python).
+   *  When provided, replaces the default Flowgorithm language and skips
+   *  Flowgorithm-specific autocomplete / highlight style. */
+  language?: Extension | null
 }>(), {
   singleLine: true,
   readonly: false,
   placeholder: '',
   completionContext: null,
+  language: null,
 })
 
 const emit = defineEmits<{
@@ -63,12 +68,22 @@ const autocompleteCompartment = new Compartment()
 // ============================================================
 
 function buildExtensions(): Extension[] {
+  const isCustomLanguage = props.language !== null
+
   const extensions: Extension[] = [
-    // Core
-    flowgorithmLanguage,
+    // Core language — use prop if provided, fall back to Flowgorithm
+    props.language ?? flowgorithmLanguage,
     flowgorithmTheme,
-    syntaxHighlighting(flowgorithmHighlightStyle),
-    syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+
+    // Highlight style: Flowgorithm-specific when using built-in language,
+    // default only when using a custom language
+    ...(isCustomLanguage
+      ? [syntaxHighlighting(defaultHighlightStyle)]
+      : [
+          syntaxHighlighting(flowgorithmHighlightStyle),
+          syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+        ]),
+
     drawSelection(),
     highlightActiveLine(),
 
@@ -127,17 +142,19 @@ function buildExtensions(): Extension[] {
     )
   }
 
-  // Autocomplete (dynamic via compartment)
-  const completionSource = createFlowgorithmCompletions(props.completionContext ?? null)
-  extensions.push(
-    autocompleteCompartment.of(
-      autocompletion({
-        override: [completionSource],
-        activateOnTyping: true,
-        defaultKeymap: true,
-      }),
-    ),
-  )
+  // Autocomplete: skip Flowgorithm completions when a custom language is used
+  if (!isCustomLanguage) {
+    const completionSource = createFlowgorithmCompletions(props.completionContext ?? null)
+    extensions.push(
+      autocompleteCompartment.of(
+        autocompletion({
+          override: [completionSource],
+          activateOnTyping: true,
+          defaultKeymap: true,
+        }),
+      ),
+    )
+  }
 
   return extensions
 }
@@ -231,6 +248,33 @@ watch(
     // Recreating editor is the simplest way to toggle readonly
     // since EditorState.readOnly is a facet set at state creation
     if (!editorHost.value) return
+
+    const currentDoc = view.state.doc.toString()
+    view.destroy()
+
+    const state = EditorState.create({
+      doc: currentDoc,
+      extensions: buildExtensions(),
+    })
+
+    const newView = new EditorView({
+      state,
+      parent: editorHost.value,
+    })
+
+    editorView.value = newView
+  },
+)
+
+// ============================================================
+// Watch language — recreate editor when language extension changes
+// ============================================================
+
+watch(
+  () => props.language,
+  () => {
+    const view = editorView.value
+    if (!view || !editorHost.value) return
 
     const currentDoc = view.state.doc.toString()
     view.destroy()

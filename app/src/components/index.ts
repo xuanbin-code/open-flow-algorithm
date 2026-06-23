@@ -9,6 +9,7 @@ export { default as FunctionDialog } from './FunctionDialog.vue'
 export { default as FunctionTabBar } from './FunctionTabBar.vue'
 export { default as InvocationFlowNode } from './InvocationFlowNode.vue'
 export { default as MenuBar } from './MenuBar.vue'
+export { default as NewFileDialog } from './NewFileDialog.vue'
 export { default as SubFunctionFlowWindow } from './SubFunctionFlowWindow.vue'
 
 // 子目录

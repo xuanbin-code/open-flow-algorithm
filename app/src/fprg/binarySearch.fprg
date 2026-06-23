@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="二分查找"/>
+        <attribute name="authors" value="Open Flow Algorithm"/>
+        <attribute name="about" value="在有序数组中二分查找目标值"/>
+        <attribute name="saved" value="2026-06-23"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="N, i, left, right, mid, target, found, result, val" type="Integer" array="False" size=""/>
+            <declare name="arr" type="Integer" array="True" size=""/>
+            <output expression="&quot;请输入有序数组大小 N：&quot;" newline="True"/>
+            <input variable="N"/>
+            <output expression="&quot;请按升序输入 &quot; &amp; N &amp; &quot; 个整数：&quot;" newline="True"/>
+            <for variable="i" start="0" end="N - 1" step="1">
+                <input variable="val"/>
+                <assign variable="arr[i]" expression="val"/>
+            </for>
+            <output expression="&quot;请输入要查找的目标值：&quot;" newline="True"/>
+            <input variable="target"/>
+            <assign variable="left" expression="0"/>
+            <assign variable="right" expression="N - 1"/>
+            <assign variable="found" expression="0"/>
+            <while expression="(left &lt;= right) and (found = 0)">
+                <assign variable="mid" expression="(left + right) / 2"/>
+                <if expression="arr[mid] = target">
+                    <then>
+                        <assign variable="found" expression="1"/>
+                        <assign variable="result" expression="mid"/>
+                    </then>
+                    <else>
+                        <if expression="arr[mid] &lt; target">
+                            <then>
+                                <assign variable="left" expression="mid + 1"/>
+                            </then>
+                            <else>
+                                <assign variable="right" expression="mid - 1"/>
+                            </else>
+                        </if>
+                    </else>
+                </if>
+            </while>
+            <if expression="found = 1">
+                <then>
+                    <output expression="&quot;找到目标值，位于索引 &quot; &amp; result" newline="True"/>
+                </then>
+                <else>
+                    <output expression="&quot;未找到目标值 &quot; &amp; target" newline="True"/>
+                </else>
+            </if>
+        </body>
+    </function>
+</flowgorithm>

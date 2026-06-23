@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="Untitled"/>
+        <attribute name="authors" value=""/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2026-06-23"/>
+    </attributes>
+    <function name="Main" type="" variable="">
+        <parameters/>
+        <body>
+        </body>
+    </function>
+    <function name="fib" type="" variable="">
+        <parameters>
+            <parameter name="n" type="" array="False"/>
+        </parameters>
+        <body>
+            <if expression="n &lt;= 0">
+                <then>
+                    <return expression="0"/>
+                </then>
+                <else></else>
+            </if>
+            <if expression="n = 1">
+                <then>
+                    <return expression="1"/>
+                </then>
+                <else></else>
+            </if>
+            <return expression="fib(n-1)+fib(n-2)"/>
+        </body>
+    </function>
+</flowgorithm>

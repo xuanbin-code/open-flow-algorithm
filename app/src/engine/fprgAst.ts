@@ -373,14 +373,46 @@ function parseFunction(el: Element): FunctionDef {
   const bodyEl = el.querySelector(':scope > body')
   const body = bodyEl ? parseBody(bodyEl) : []
 
+  const funcName = attr(el, 'name')
+  let funcType = attr(el, 'type')
+  let funcVar = attr(el, 'variable')
+
+  // Fallback: if variable is empty but function has return values,
+  // default variable to function name and type to Integer.
+  // This fixes .fprg files saved from Python import before python_parser.py
+  // was patched to set variable/type correctly.
+  if (!funcVar) {
+    if (funcType) {
+      funcVar = funcName
+    } else if (hasReturnWithValue(body)) {
+      funcType = 'Integer'
+      funcVar = funcName
+    }
+  }
+
   return {
     kind: 'function',
-    name: attr(el, 'name'),
-    type: attr(el, 'type'),
-    variable: attr(el, 'variable'),
+    name: funcName,
+    type: funcType,
+    variable: funcVar,
     parameters: params,
     body,
   }
+}
+
+/** Recursively check if a statement body contains a return with a non-empty expression. */
+function hasReturnWithValue(statements: Statement[]): boolean {
+  for (const stmt of statements) {
+    if (stmt.kind === 'return' && 'expression' in stmt && (stmt as any).expression) {
+      return true
+    }
+    if (stmt.kind === 'if') {
+      const ifStmt = stmt as any
+      if (hasReturnWithValue(ifStmt.thenBranch ?? [])) return true
+      if (hasReturnWithValue(ifStmt.elseBranch ?? [])) return true
+    }
+  }
+  return false
 }
 
 /**

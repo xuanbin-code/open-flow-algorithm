@@ -18,6 +18,7 @@ from typing import Any, Callable
 from flowgorithm.interpreter import FlowgorithmInterpreter
 from flowgorithm.code_generator import FlowgorithmCodeGenerator
 from flowgorithm.sandbox import SandboxValidator
+from flowgorithm.python_parser import parse_python_code
 
 
 # ── JSON-RPC Types ──────────────────────────────────────────────────────────
@@ -197,6 +198,21 @@ def handle_validate_ast(params: dict | None) -> dict:
     validator = SandboxValidator()
     warnings = validator.validate(params["ast"])
     return {"warnings": warnings, "isValid": len(warnings) == 0}
+
+
+@handler.register("parse_python_code")
+def handle_parse_python_code(params: dict | None) -> dict:
+    """Parse Python source code into a Flowgorithm program AST.
+
+    Expects params.code (the Python source code string).
+    Returns the complete Program AST.
+    """
+    if not params or "code" not in params:
+        raise ValueError("Missing required parameter: code")
+
+    code = params["code"]
+    ast_result = parse_python_code(code)
+    return {"ast": ast_result}
 
 
 # ── Main Event Loop ─────────────────────────────────────────────────────────

@@ -82,6 +82,7 @@ const menuFileItems = computed<MenuItem[]>(() => {
     { id: 'open', label: t('menu.open'), shortcutAction: 'open' },
     { id: 'save', label: t('menu.save'), shortcutAction: 'save' },
     { id: 'saveAs', label: t('menu.saveAs') },
+    { id: 'import-python', label: t('menu.importPython') },
   ]
 
   const recents = props.recentFiles ?? []

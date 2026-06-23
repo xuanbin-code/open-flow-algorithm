@@ -35,13 +35,14 @@ import {
   FunctionDialog,
   FunctionTabBar,
   MenuBar,
+  NewFileDialog,
 } from "./components";
-import { Check, X } from "@/lib/icons";
+import { Check, Copy, X } from "@/lib/icons";
 import "@vue-flow/core/dist/style.css";
 import "@vue-flow/core/dist/theme-default.css";
 import "@vue-flow/controls/dist/style.css";
 
-import { readFile, showSaveDialog, writeFile, exportToPython, isPythonBackendAvailable } from "@/platform";
+import { readFile, showOpenDialog, showSaveDialog, writeFile, exportToPython, isPythonBackendAvailable } from "@/platform";
 import { PARAM_DEFS } from "./engine/flowchartEngine";
 import { useSettingsStore } from "./stores/settings";
 import { useSound } from "./composables/useSound";
@@ -62,6 +63,21 @@ import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
 const { t } = useI18n();
 const sound = useSound();
 const { toast, showToast, hideToast } = useToast();
+
+// Toast error message copy
+const toastCopied = ref(false);
+let toastCopyTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function copyToastMessage() {
+  try {
+    await navigator.clipboard.writeText(toast.message);
+    toastCopied.value = true;
+    if (toastCopyTimer) clearTimeout(toastCopyTimer);
+    toastCopyTimer = setTimeout(() => { toastCopied.value = false; }, 2000);
+  } catch {
+    // fallback silently
+  }
+}
 
 // 跨 composable 回调桥接
 const beforeLoadRef = ref<(() => void) | null>(null);
@@ -97,6 +113,7 @@ const {
   handleOpen,
   handleSave,
   handleSaveAs,
+  loadProgramFromPython,
   initApp,
   refreshRecentFiles,
   doFitToStartNode,
@@ -193,6 +210,13 @@ const {
 });
 
 // ---- useKeyboardShortcuts ----
+const showNewFileDialog = ref(false);
+
+/** Show the New File dialog (called from keyboard shortcut and menu action). */
+function handleNew() {
+  showNewFileDialog.value = true;
+}
+
 const { onKeydown } = useKeyboardShortcuts({
   isExecuting,
   selectedNodeId,
@@ -200,7 +224,7 @@ const { onKeydown } = useKeyboardShortcuts({
   undo,
   redo,
   deleteSelectedNode,
-  handleNew: () => { resetToEmpty(); nextTick(() => { doFitToStartNode(); }); },
+  handleNew: () => { handleNew(); },
   handleOpen,
   run: startExecution,
   step: stepExecution,
@@ -212,6 +236,42 @@ const { onKeydown } = useKeyboardShortcuts({
 // ============================================
 
 const showSettingsDialog = ref(false);
+
+/** Handle the result from NewFileDialog. */
+async function onNewFileCreate(
+  result: { type: 'blank' }
+    | { type: 'paste'; code: string }
+    | { type: 'open'; filePath: string }
+    | { type: 'preset'; xml: string },
+) {
+  showNewFileDialog.value = false;
+
+  try {
+    if (result.type === 'blank') {
+      resetToEmpty();
+    } else if (result.type === 'paste') {
+      await loadProgramFromPython(result.code);
+      showToast(t('newFileDialog.convertSuccess'), 'success');
+    } else if (result.type === 'open') {
+      const fileContent = await readFile(result.filePath);
+      await loadProgramFromPython(fileContent);
+      showToast(t('newFileDialog.convertSuccess'), 'success');
+    } else if (result.type === 'preset') {
+      loadProgram(result.xml);
+      showToast(t('newFileDialog.presetLoaded'), 'success');
+    }
+    await nextTick();
+    await doFitToStartNode();
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    showToast(t('newFileDialog.parseError', { message: msg }), 'error');
+    // Fall back to blank on error
+    resetToEmpty();
+    await nextTick();
+    await doFitToStartNode();
+  }
+}
+
 const showVariableMonitor = ref(true);
 const variableMonitorMode = ref<"embedded" | "window">("embedded");
 const varMonitorAnchor = ref<HTMLElement | null>(null);
@@ -248,6 +308,36 @@ async function handleExportPython() {
 }
 
 // ============================================
+// 从 Python 代码导入
+// ============================================
+
+async function handleImportPython() {
+  if (!isPythonBackendAvailable()) {
+    showToast(t("toasts.pythonBackendNotAvailable"), "error")
+    return
+  }
+
+  try {
+    const result = await showOpenDialog([
+      { name: t("fileDialog.pythonFile") || "Python Files", extensions: ["py"] },
+    ])
+
+    if (!result) return // User cancelled
+
+    await loadProgramFromPython(result.content)
+    showToast(t("newFileDialog.convertSuccess"), "success")
+    await nextTick()
+    await doFitToStartNode()
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e)
+    showToast(t("newFileDialog.parseError", { message: msg }), "error")
+    resetToEmpty()
+    await nextTick()
+    await doFitToStartNode()
+  }
+}
+
+// ============================================
 // 菜单栏事件调度器
 // ============================================
 
@@ -270,9 +360,7 @@ async function onMenuAction(actionId: string) {
 
   switch (actionId) {
     case "new": {
-      resetToEmpty();
-      await nextTick();
-      await doFitToStartNode();
+      showNewFileDialog.value = true;
       break;
     }
     case "open": {
@@ -321,6 +409,10 @@ async function onMenuAction(actionId: string) {
     }
     case "export-python": {
       await handleExportPython();
+      break;
+    }
+    case "import-python": {
+      await handleImportPython();
       break;
     }
     case "open-settings": {
@@ -725,6 +817,11 @@ onUnmounted(() => {
       "
       @save="onSaveFunction"
     />
+    <NewFileDialog
+      :visible="showNewFileDialog"
+      @close="showNewFileDialog = false"
+      @create="onNewFileCreate"
+    />
     <SettingsDialog
       :visible="showSettingsDialog"
       @close="showSettingsDialog = false"
@@ -746,6 +843,15 @@ onUnmounted(() => {
             :size="16"
           />
           <span class="toast-text">{{ toast.message }}</span>
+          <button
+            v-if="toast.type === 'error'"
+            class="toast-copy"
+            :title="toastCopied ? 'Copied!' : 'Copy error message'"
+            @click="copyToastMessage"
+          >
+            <Check v-if="toastCopied" :size="14" />
+            <Copy v-else :size="14" />
+          </button>
           <button class="toast-close" @click="hideToast">
             <X :size="14" />
           </button>
@@ -919,6 +1025,29 @@ onUnmounted(() => {
 .toast-close:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
+}
+
+/* 复制错误按钮 */
+.toast-copy {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.toast-copy:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
 }
 
 @keyframes toast-shrink {
