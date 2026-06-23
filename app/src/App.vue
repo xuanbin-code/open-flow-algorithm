@@ -241,7 +241,8 @@ const showSettingsDialog = ref(false);
 async function onNewFileCreate(
   result: { type: 'blank' }
     | { type: 'paste'; code: string }
-    | { type: 'open'; filePath: string },
+    | { type: 'open'; filePath: string }
+    | { type: 'preset'; xml: string },
 ) {
   showNewFileDialog.value = false;
 
@@ -255,6 +256,9 @@ async function onNewFileCreate(
       const fileContent = await readFile(result.filePath);
       await loadProgramFromPython(fileContent);
       showToast(t('newFileDialog.convertSuccess'), 'success');
+    } else if (result.type === 'preset') {
+      loadProgram(result.xml);
+      showToast(t('newFileDialog.presetLoaded'), 'success');
     }
     await nextTick();
     await doFitToStartNode();

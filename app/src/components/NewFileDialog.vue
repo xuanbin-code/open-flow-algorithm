@@ -3,9 +3,11 @@ import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { File, Clipboard, FolderOpen } from '@/lib/icons'
+import { CodeEditor } from '@/components/ui/code-editor'
+import { python } from '@codemirror/lang-python'
+import { File, Clipboard, FolderOpen, LayoutTemplate } from '@/lib/icons'
 import { showOpenDialog, isPythonBackendAvailable } from '@/platform'
+import { PRESET_TEMPLATES, type PresetTemplate } from '@/engine/presets'
 
 const { t: _t } = useI18n()
 
@@ -17,19 +19,24 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   close: []
-  create: [payload: { type: 'blank' } | { type: 'paste'; code: string } | { type: 'open'; filePath: string }]
+  create: [payload: { type: 'blank' } | { type: 'paste'; code: string } | { type: 'open'; filePath: string } | { type: 'preset'; xml: string }]
 }>()
 
 // ── State ──
 
-type OptionId = 'blank' | 'paste' | 'open'
+type OptionId = 'blank' | 'paste' | 'open' | 'preset'
 
 const selectedOption = ref<OptionId>('blank')
 const pastedCode = ref('')
 const selectedFilePath = ref('')
+const selectedPresetId = ref<string | null>(null)
 const isLoading = ref(false)
 
+const pythonLanguage = python()
+
 const pythonAvailable = computed(() => isPythonBackendAvailable())
+
+// ── Options ──
 
 interface CardOption {
   id: OptionId
@@ -61,7 +68,16 @@ const options = computed<CardOption[]>(() => [
     icon: FolderOpen,
     disabled: !pythonAvailable.value,
   },
+  {
+    id: 'preset',
+    titleKey: 'newFileDialog.presetTitle',
+    descKey: 'newFileDialog.presetDesc',
+    icon: LayoutTemplate,
+    disabled: false,
+  },
 ])
+
+// ── Create validation ──
 
 const canCreate = computed(() => {
   if (isLoading.value) return false
@@ -72,9 +88,27 @@ const canCreate = computed(() => {
       return pastedCode.value.trim().length > 0
     case 'open':
       return selectedFilePath.value.length > 0
+    case 'preset':
+      return selectedPresetId.value !== null
     default:
       return false
   }
+})
+
+// ── Grouped presets ──
+
+const categoryOrder = ['math', 'loops', 'arrays'] as const
+
+const presetsByCategory = computed(() => {
+  const map = new Map<string, PresetTemplate[]>()
+  for (const p of PRESET_TEMPLATES) {
+    const list = map.get(p.category) ?? []
+    list.push(p)
+    map.set(p.category, list)
+  }
+  return categoryOrder
+    .filter(cat => map.has(cat))
+    .map(cat => ({ category: cat, presets: map.get(cat)! }))
 })
 
 // ── Watchers ──
@@ -85,6 +119,7 @@ watch(() => props.visible, (val) => {
     selectedOption.value = 'blank'
     pastedCode.value = ''
     selectedFilePath.value = ''
+    selectedPresetId.value = null
     isLoading.value = false
   }
 })
@@ -96,6 +131,15 @@ function selectOption(id: OptionId) {
   if (!opt || opt.disabled) return
   selectedOption.value = id
 }
+
+function selectPreset(id: string) {
+  selectedPresetId.value = id
+}
+
+const selectedPresetXml = computed(() => {
+  if (!selectedPresetId.value) return ''
+  return PRESET_TEMPLATES.find(p => p.id === selectedPresetId.value)?.xml ?? ''
+})
 
 async function handleBrowse() {
   try {
@@ -126,6 +170,12 @@ async function handleCreate() {
       case 'open':
         emit('create', { type: 'open', filePath: selectedFilePath.value })
         break
+      case 'preset': {
+        const xml = selectedPresetXml.value
+        if (!xml) return
+        emit('create', { type: 'preset', xml })
+        break
+      }
     }
   } finally {
     isLoading.value = false
@@ -139,7 +189,7 @@ function onOpenChange(open: boolean) {
 
 <template>
   <Dialog :open="props.visible" @update:open="onOpenChange">
-    <DialogContent class="sm:max-w-xl">
+    <DialogContent class="sm:max-w-2xl">
       <DialogHeader>
         <DialogTitle class="flex items-center gap-2">
           <File class="h-5 w-5 text-accent" />
@@ -150,8 +200,8 @@ function onOpenChange(open: boolean) {
         </DialogDescription>
       </DialogHeader>
 
-      <!-- Option cards -->
-      <div class="option-cards">
+      <!-- 2×2 Option Grid -->
+      <div class="option-grid">
         <button
           v-for="opt in options"
           :key="opt.id"
@@ -167,7 +217,7 @@ function onOpenChange(open: boolean) {
           <div class="option-card-icon">
             <component :is="opt.icon" class="h-6 w-6" />
           </div>
-          <div class="option-card-text">
+          <div class="option-card-body">
             <div class="option-card-title">{{ $t(opt.titleKey) }}</div>
             <div class="option-card-desc">
               <template v-if="opt.disabled">
@@ -181,15 +231,20 @@ function onOpenChange(open: boolean) {
         </button>
       </div>
 
-      <!-- Conditional input area -->
+      <!-- Conditional areas -->
+
+      <!-- Paste: Python Code Editor -->
       <div v-if="selectedOption === 'paste' && pythonAvailable" class="paste-area">
-        <Textarea
-          v-model="pastedCode"
+        <CodeEditor
+          v-model:model-value="pastedCode"
+          :single-line="false"
+          :language="pythonLanguage"
           :placeholder="$t('newFileDialog.pastePlaceholder')"
-          class="paste-textarea"
+          class="paste-editor"
         />
       </div>
 
+      <!-- Open: Browse button -->
       <div v-if="selectedOption === 'open' && pythonAvailable" class="open-area">
         <Button variant="outline" @click="handleBrowse">
           <FolderOpen class="h-4 w-4 mr-1" />
@@ -201,6 +256,37 @@ function onOpenChange(open: boolean) {
         <span v-else class="no-file-text">
           {{ $t('newFileDialog.noFileSelected') }}
         </span>
+      </div>
+
+      <!-- Preset: Categorized template grid -->
+      <div v-if="selectedOption === 'preset'" class="preset-section">
+        <div
+          v-for="group in presetsByCategory"
+          :key="group.category"
+          class="preset-category"
+        >
+          <div class="preset-category-header">
+            {{ $t(`newFileDialog.presetCategories.${group.category}`) }}
+          </div>
+          <div class="preset-grid">
+            <button
+              v-for="preset in group.presets"
+              :key="preset.id"
+              type="button"
+              class="preset-card"
+              :class="{ selected: selectedPresetId === preset.id }"
+              @click="selectPreset(preset.id)"
+            >
+              <div class="preset-card-icon">
+                <LayoutTemplate class="h-3.5 w-3.5" />
+              </div>
+              <div class="preset-card-text">
+                <div class="preset-card-title">{{ $t(preset.nameKey) }}</div>
+                <div class="preset-card-desc">{{ $t(preset.descKey) }}</div>
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
 
       <DialogFooter>
@@ -216,24 +302,26 @@ function onOpenChange(open: boolean) {
 </template>
 
 <style scoped>
-/* ── Option Cards ── */
-.option-cards {
-  display: flex;
-  flex-direction: column;
+/* ── 2×2 Option Grid ── */
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-bottom: 4px;
 }
 
 .option-card {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 14px 16px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 22px 16px 20px;
   border: 2px solid var(--border-soft);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--bg-panel);
   cursor: pointer;
-  text-align: left;
+  text-align: center;
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
@@ -260,9 +348,9 @@ function onOpenChange(open: boolean) {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--accent) 10%, transparent);
   color: var(--accent);
   flex-shrink: 0;
@@ -277,11 +365,10 @@ function onOpenChange(open: boolean) {
   color: var(--text-muted);
 }
 
-.option-card-text {
+.option-card-body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 0;
 }
 
 .option-card-title {
@@ -292,22 +379,35 @@ function onOpenChange(open: boolean) {
 }
 
 .option-card-desc {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
   line-height: 1.4;
+  max-width: 200px;
 }
 
-/* ── Paste Area ── */
+/* ── Paste Area (CodeEditor) ── */
 .paste-area {
   margin-top: 4px;
 }
 
-.paste-textarea {
-  min-height: 160px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.5;
-  resize: vertical;
+.paste-editor {
+  min-height: 200px;
+  max-height: 320px;
+}
+
+.paste-editor :deep(.code-editor-host) {
+  height: 200px;
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.paste-editor :deep(.cm-editor) {
+  height: 100%;
+}
+
+.paste-editor :deep(.cm-scroller) {
+  overflow-y: auto !important;
 }
 
 /* ── Open Area ── */
@@ -330,5 +430,130 @@ function onOpenChange(open: boolean) {
 .no-file-text {
   font-size: 13px;
   color: var(--text-muted);
+}
+
+/* ── Preset Section ── */
+.preset-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 340px;
+  overflow-y: auto;
+  margin-top: 4px;
+  padding-right: 6px;
+}
+
+/* Category header */
+.preset-category {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preset-category-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 0 2px;
+}
+
+/* Preset grid within each category */
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+}
+
+/* Preset card */
+.preset-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 8px;
+  background: var(--bg-panel);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.preset-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  background: color-mix(in srgb, var(--accent) 4%, var(--bg-panel));
+}
+
+.preset-card.selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-panel));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.preset-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.preset-card.selected .preset-card-icon {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.preset-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.preset-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.preset-card-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Preset Section Scrollbar ── */
+.preset-section::-webkit-scrollbar {
+  width: 4px;
+}
+
+.preset-section::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.preset-section::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 2px;
+}
+
+.preset-section::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--scrollbar-thumb) 80%, var(--text-muted));
+}
+
+/* Firefox */
+.preset-section {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 </style>
