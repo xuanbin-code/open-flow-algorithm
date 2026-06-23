@@ -189,7 +189,7 @@ function onOpenChange(open: boolean) {
 
 <template>
   <Dialog :open="props.visible" @update:open="onOpenChange">
-    <DialogContent class="sm:max-w-4xl">
+    <DialogContent class="max-w-4xl">
       <DialogHeader>
         <DialogTitle class="flex items-center gap-2">
           <File class="h-5 w-5 text-accent" />
@@ -314,28 +314,15 @@ function onOpenChange(open: boolean) {
 /* ── Side-by-side body container ── */
 .new-file-body {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-@media (min-width: 640px) {
-  .new-file-body {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 24px;
-  }
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
 }
 
 /* ── Left panel (2×2 grid wrapper) ── */
 .option-grid-panel {
-  width: 100%;
-}
-
-@media (min-width: 640px) {
-  .option-grid-panel {
-    flex-shrink: 0;
-    width: 320px;
-  }
+  flex-shrink: 0;
+  width: 320px;
 }
 
 /* ── Right panel (conditional content wrapper) ── */
@@ -431,13 +418,7 @@ function onOpenChange(open: boolean) {
 /* ── Paste Area (CodeEditor) ── */
 .paste-editor {
   min-height: 200px;
-  max-height: 320px;
-}
-
-@media (min-width: 640px) {
-  .paste-editor {
-    max-height: 500px;
-  }
+  max-height: 500px;
 }
 
 .paste-editor :deep(.code-editor-host) {
@@ -481,17 +462,11 @@ function onOpenChange(open: boolean) {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: 340px;
+  max-height: 55vh;
+  min-height: 300px;
   overflow-y: auto;
   padding-right: 6px;
   flex: 1;
-}
-
-@media (min-width: 640px) {
-  .preset-section {
-    max-height: 55vh;
-    min-height: 300px;
-  }
 }
 
 /* Category header */
