@@ -417,12 +417,15 @@ function onOpenChange(open: boolean) {
 
 /* ── Paste Area (CodeEditor) ── */
 .paste-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 320px;
   max-height: 600px;
 }
 
 .paste-editor :deep(.code-editor-host) {
-  height: 320px;
+  flex: 1;
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   overflow: hidden;
