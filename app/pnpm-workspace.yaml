@@ -1,5 +1,6 @@
 # pnpm v11 构建脚本白名单
 # v11 废弃了 package.json#pnpm / .npmrc 中的 onlyBuiltDependencies 等配置，
 # 统一使用此文件的 allowBuilds 映射。
+packages: []
 allowBuilds:
   vue-demi: true
