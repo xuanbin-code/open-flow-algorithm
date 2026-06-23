@@ -14,6 +14,7 @@ export {
   pythonBridge,
   exportToPython,
   validateAst,
+  parsePythonCode,
   isPythonBackendAvailable,
   type PythonEvent,
 } from './pythonBridge'

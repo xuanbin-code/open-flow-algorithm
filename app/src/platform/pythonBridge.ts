@@ -179,3 +179,20 @@ export async function validateAst(ast: Record<string, unknown>): Promise<{
     isValid: result.isValid ?? true,
   }
 }
+
+/**
+ * Parse Python source code into a Flowgorithm program AST.
+ *
+ * Calls the Python backend's parse_python_code method.
+ * Available only in Tauri mode (requires Python backend).
+ *
+ * @param code - Python source code string
+ * @returns The Program AST object
+ */
+export async function parsePythonCode(code: string): Promise<Record<string, unknown>> {
+  const result = await pythonBridge.call('parse_python_code', { code })
+  if (!result || !(result as any).ast) {
+    throw new Error('Python backend returned no AST')
+  }
+  return (result as any).ast
+}
