@@ -4,7 +4,7 @@
 // ============================================================
 
 // 导航 / UI 装饰
-export { Sun, Moon, Monitor, Settings, X, ChevronRight, ChevronLeft, GripVertical, Keyboard, Check, Circle, SquareFunction, Save, FolderOpen } from '@lucide/vue'
+export { Sun, Moon, Monitor, Settings, X, ChevronRight, ChevronLeft, GripVertical, Keyboard, Check, Circle, SquareFunction, Save, FolderOpen, Info } from '@lucide/vue'
 
 // 操作按钮
 export { Plus, Trash2, Copy } from '@lucide/vue'

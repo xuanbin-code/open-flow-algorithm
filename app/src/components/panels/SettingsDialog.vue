@@ -4,7 +4,9 @@ import { useSettingsStore } from '../../stores/settings'
 import type { ThemeMode } from '../../stores/settings'
 import { useShortcutStore } from '../../stores/shortcuts'
 import { ACCENT_PRESETS } from '../../lib/colorPalette'
-import { Sun, Moon, Monitor, Settings, Keyboard, Check, Undo2 } from '@/lib/icons'
+import { Sun, Moon, Monitor, Settings, Keyboard, Check, Undo2, Info, ExternalLink } from '@/lib/icons'
+import { openUrl } from '@tauri-apps/plugin-opener'
+import { isTauri } from '@/platform'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -51,7 +53,7 @@ const shortcutStore = useShortcutStore()
 // Sidebar navigation
 // ============================================================
 
-type PanelId = 'general' | 'appearance' | 'shortcuts'
+type PanelId = 'general' | 'appearance' | 'shortcuts' | 'about'
 const activePanel = ref<PanelId>('general')
 
 interface NavItem {
@@ -64,6 +66,7 @@ const navItems: NavItem[] = [
   { id: 'general',    icon: Settings, labelKey: 'settings.sidebar.general' },
   { id: 'appearance', icon: Sun,      labelKey: 'settings.sidebar.appearance' },
   { id: 'shortcuts',  icon: Keyboard, labelKey: 'settings.sidebar.shortcuts' },
+  { id: 'about',      icon: Info,     labelKey: 'settings.sidebar.about' },
 ]
 
 // 设置窗口打开/关闭时暂停/恢复全局快捷键
@@ -173,6 +176,25 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
   { id: 'step',           labelKey: 'shortcuts.actions.step' },
   { id: 'stop',           labelKey: 'shortcuts.actions.stop' },
 ]
+
+// ============================================================
+// External link helper
+// ============================================================
+
+const GITHUB_REPO = 'https://github.com/xuanbin-code/open-flow-algorithm'
+
+async function openExternal(url: string) {
+  if (isTauri()) {
+    try {
+      await openUrl(url)
+      console.log('[openExternal] Opened via Tauri opener:', url)
+    } catch (err) {
+      console.error('[openExternal] Failed via Tauri opener:', url, err)
+    }
+  } else {
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+}
 </script>
 
 <template>
@@ -428,6 +450,57 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
               </div>
             </div>
 
+            <!-- =============================== -->
+            <!-- Panel: About                    -->
+            <!-- =============================== -->
+            <div v-if="activePanel === 'about'" class="flex flex-col gap-6 py-1">
+              <!-- App info -->
+              <div class="flex flex-col items-center gap-3 py-4">
+                <div class="flex size-14 items-center justify-center rounded-xl bg-accent/15">
+                  <Info :size="28" class="text-accent" />
+                </div>
+                <div class="text-center">
+                  <h3 class="text-base font-semibold">{{ $t('about.title') }}</h3>
+                  <p class="text-xs text-muted-foreground mt-1">{{ $t('about.description') }}</p>
+                </div>
+                <span class="text-xs text-muted-foreground bg-secondary px-2.5 py-0.5 rounded-full">
+                  {{ $t('about.version') }} 0.1.0
+                </span>
+              </div>
+
+              <Separator />
+
+              <!-- GitHub repo link -->
+              <div class="flex flex-col gap-2">
+                <span class="text-sm font-medium">{{ $t('about.repo') }}</span>
+                <button
+                  class="repo-link-btn flex items-center gap-2.5 px-3.5 py-2.5 rounded-md text-sm text-left group"
+                  @click="openExternal(GITHUB_REPO)"
+                >
+                  <span class="repo-link-url truncate flex-1">{{ GITHUB_REPO }}</span>
+                  <ExternalLink :size="14" class="repo-link-icon shrink-0 transition-colors" />
+                </button>
+              </div>
+
+              <Separator />
+
+              <!-- Report issue -->
+              <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-medium">{{ $t('about.reportIssue') }}</span>
+                  <span class="text-xs text-muted-foreground">{{ $t('about.reportIssueDesc') }}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  class="w-full"
+                  @click="openExternal(GITHUB_REPO + '/issues/new')"
+                >
+                  <ExternalLink :size="15" class="mr-2" />
+                  {{ $t('about.reportIssue') }}
+                </Button>
+              </div>
+            </div>
+
           </div>
         </ScrollArea>
       </div>
@@ -515,5 +588,43 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
   height: 4px;
   accent-color: var(--accent);
   cursor: pointer;
+}
+
+/* ============================================================
+   Repo link button — About panel
+   ============================================================ */
+.repo-link-btn {
+  background: var(--bg-input-alt);
+  border: 1px solid var(--border-soft);
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+}
+
+.repo-link-btn:hover {
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-input-alt));
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-color));
+}
+
+.repo-link-btn:active {
+  background: color-mix(in srgb, var(--accent) 18%, var(--bg-input-alt));
+}
+
+.repo-link-url {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.repo-link-btn:hover .repo-link-url {
+  color: var(--text-primary);
+}
+
+.repo-link-icon {
+  color: var(--text-muted);
+}
+
+.repo-link-btn:hover .repo-link-icon {
+  color: var(--accent);
 }
 </style>

@@ -67,8 +67,17 @@
     "sidebar": {
       "general": "General",
       "appearance": "Appearance",
-      "shortcuts": "Shortcuts"
+      "shortcuts": "Shortcuts",
+      "about": "About"
     }
+  },
+  "about": {
+    "title": "About Open Flow Algorithm",
+    "description": "A flowchart editor and execution tool built with Vue 3 + Tauri.",
+    "version": "Version",
+    "repo": "GitHub Repository",
+    "reportIssue": "Report an Issue",
+    "reportIssueDesc": "Found a bug or have a feature request? Feel free to open an issue."
   },
   "shortcuts": {
     "title": "Keyboard Shortcuts",

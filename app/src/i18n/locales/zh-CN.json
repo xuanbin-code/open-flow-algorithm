@@ -67,8 +67,17 @@
     "sidebar": {
       "general": "通用",
       "appearance": "外观",
-      "shortcuts": "快捷键"
+      "shortcuts": "快捷键",
+      "about": "关于"
     }
+  },
+  "about": {
+    "title": "关于 Open Flow Algorithm",
+    "description": "一个基于 Vue 3 + Tauri 的流程图编辑与执行工具。",
+    "version": "版本",
+    "repo": "GitHub 仓库",
+    "reportIssue": "反馈问题",
+    "reportIssueDesc": "发现 bug 或有功能建议？欢迎提交 Issue。"
   },
   "shortcuts": {
     "title": "键盘快捷键",
