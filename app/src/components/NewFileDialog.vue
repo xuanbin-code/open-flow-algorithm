@@ -189,7 +189,7 @@ function onOpenChange(open: boolean) {
 
 <template>
   <Dialog :open="props.visible" @update:open="onOpenChange">
-    <DialogContent class="sm:max-w-2xl">
+    <DialogContent class="sm:max-w-4xl">
       <DialogHeader>
         <DialogTitle class="flex items-center gap-2">
           <File class="h-5 w-5 text-accent" />
@@ -200,8 +200,12 @@ function onOpenChange(open: boolean) {
         </DialogDescription>
       </DialogHeader>
 
-      <!-- 2×2 Option Grid -->
-      <div class="option-grid">
+      <!-- Side-by-side body wrapper -->
+      <div class="new-file-body">
+
+        <!-- LEFT: 2×2 Option Grid -->
+        <div class="option-grid-panel">
+          <div class="option-grid">
         <button
           v-for="opt in options"
           :key="opt.id"
@@ -229,12 +233,14 @@ function onOpenChange(open: boolean) {
             </div>
           </div>
         </button>
-      </div>
+          </div>
+        </div>
 
-      <!-- Conditional areas -->
+        <!-- RIGHT: Conditional content panel -->
+        <div v-if="selectedOption !== 'blank'" class="content-panel">
 
-      <!-- Paste: Python Code Editor -->
-      <div v-if="selectedOption === 'paste' && pythonAvailable" class="paste-area">
+          <!-- Paste: Python Code Editor -->
+          <div v-if="selectedOption === 'paste' && pythonAvailable" class="paste-area">
         <CodeEditor
           v-model:model-value="pastedCode"
           :single-line="false"
@@ -287,6 +293,9 @@ function onOpenChange(open: boolean) {
             </button>
           </div>
         </div>
+
+        </div>
+        </div>
       </div>
 
       <DialogFooter>
@@ -302,12 +311,46 @@ function onOpenChange(open: boolean) {
 </template>
 
 <style scoped>
+/* ── Side-by-side body container ── */
+.new-file-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .new-file-body {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 24px;
+  }
+}
+
+/* ── Left panel (2×2 grid wrapper) ── */
+.option-grid-panel {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .option-grid-panel {
+    flex-shrink: 0;
+    width: 320px;
+  }
+}
+
+/* ── Right panel (conditional content wrapper) ── */
+.content-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ── 2×2 Option Grid ── */
 .option-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-bottom: 4px;
 }
 
 .option-card {
@@ -386,13 +429,15 @@ function onOpenChange(open: boolean) {
 }
 
 /* ── Paste Area (CodeEditor) ── */
-.paste-area {
-  margin-top: 4px;
-}
-
 .paste-editor {
   min-height: 200px;
   max-height: 320px;
+}
+
+@media (min-width: 640px) {
+  .paste-editor {
+    max-height: 500px;
+  }
 }
 
 .paste-editor :deep(.code-editor-host) {
@@ -415,7 +460,6 @@ function onOpenChange(open: boolean) {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 4px;
   padding: 8px 0;
 }
 
@@ -439,8 +483,15 @@ function onOpenChange(open: boolean) {
   gap: 16px;
   max-height: 340px;
   overflow-y: auto;
-  margin-top: 4px;
   padding-right: 6px;
+  flex: 1;
+}
+
+@media (min-width: 640px) {
+  .preset-section {
+    max-height: 55vh;
+    min-height: 300px;
+  }
 }
 
 /* Category header */
