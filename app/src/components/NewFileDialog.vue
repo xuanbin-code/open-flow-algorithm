@@ -321,8 +321,8 @@ function onOpenChange(open: boolean) {
 
 /* ── Left panel (2×2 grid wrapper) ── */
 .option-grid-panel {
-  flex-shrink: 0;
-  width: 320px;
+  flex: 1;
+  min-width: 0;
 }
 
 /* ── Right panel (conditional content wrapper) ── */
