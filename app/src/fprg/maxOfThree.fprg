@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="三数最大值"/>
+        <attribute name="authors" value="Open Flow Algorithm"/>
+        <attribute name="about" value="输入三个整数，比较并输出最大值"/>
+        <attribute name="saved" value="2026-06-23"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="a, b, c, max" type="Integer" array="False" size=""/>
+            <output expression="&quot;请输入三个整数：&quot;" newline="True"/>
+            <input variable="a"/>
+            <input variable="b"/>
+            <input variable="c"/>
+            <if expression="a &gt; b">
+                <then>
+                    <if expression="a &gt; c">
+                        <then>
+                            <assign variable="max" expression="a"/>
+                        </then>
+                        <else>
+                            <assign variable="max" expression="c"/>
+                        </else>
+                    </if>
+                </then>
+                <else>
+                    <if expression="b &gt; c">
+                        <then>
+                            <assign variable="max" expression="b"/>
+                        </then>
+                        <else>
+                            <assign variable="max" expression="c"/>
+                        </else>
+                    </if>
+                </else>
+            </if>
+            <output expression="&quot;最大值为：&quot; &amp; max" newline="True"/>
+        </body>
+    </function>
+</flowgorithm>

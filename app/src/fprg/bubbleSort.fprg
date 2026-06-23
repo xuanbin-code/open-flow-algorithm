@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="冒泡排序"/>
+        <attribute name="authors" value="Open Flow Algorithm"/>
+        <attribute name="about" value="输入数组并执行冒泡排序"/>
+        <attribute name="saved" value="2026-06-23"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="N, i, j, temp, val" type="Integer" array="False" size=""/>
+            <declare name="arr" type="Integer" array="True" size=""/>
+            <output expression="&quot;请输入数组大小 N：&quot;" newline="True"/>
+            <input variable="N"/>
+            <for variable="i" start="0" end="N - 1" step="1">
+                <output expression="&quot;请输入第 &quot; &amp; (i + 1) &amp; &quot; 个元素：&quot;" newline="False"/>
+                <input variable="val"/>
+                <assign variable="arr[i]" expression="val"/>
+            </for>
+            <output expression="&quot;排序前：&quot;" newline="True"/>
+            <for variable="i" start="0" end="N - 1" step="1">
+                <output expression="arr[i] &amp; &quot; &quot;" newline="False"/>
+            </for>
+            <output expression="&quot;&quot;" newline="True"/>
+            <for variable="i" start="0" end="N - 2" step="1">
+                <for variable="j" start="0" end="N - 2 - i" step="1">
+                    <if expression="arr[j] &gt; arr[j + 1]">
+                        <then>
+                            <assign variable="temp" expression="arr[j]"/>
+                            <assign variable="arr[j]" expression="arr[j + 1]"/>
+                            <assign variable="arr[j + 1]" expression="temp"/>
+                        </then>
+                        <else></else>
+                    </if>
+                </for>
+            </for>
+            <output expression="&quot;排序后：&quot;" newline="True"/>
+            <for variable="i" start="0" end="N - 1" step="1">
+                <output expression="arr[i] &amp; &quot; &quot;" newline="False"/>
+            </for>
+            <output expression="&quot;&quot;" newline="True"/>
+        </body>
+    </function>
+</flowgorithm>
