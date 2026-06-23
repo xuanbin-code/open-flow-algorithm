@@ -60,7 +60,8 @@ function defaultValueString(type: string): string {
     case 'Integer': return '0'
     case 'Real': return '0.0'
     case 'Boolean': return 'false'
-    default: return ''
+    case 'String': return ''
+    default: return '0'  // unknown/empty type → default to numeric
   }
 }
 
@@ -159,7 +160,10 @@ function onKeydown(e: KeyboardEvent) {
         >
           <Label class="w-28 shrink-0 text-sm font-medium text-right">
             {{ input.name }}
-            <span class="text-xs text-muted-foreground ml-0.5">
+            <span
+              v-if="typeLabels[input.type]"
+              class="text-xs text-muted-foreground ml-0.5"
+            >
               ({{ $t('execution.' + typeLabels[input.type]) }})
             </span>
           </Label>
@@ -193,6 +197,15 @@ function onKeydown(e: KeyboardEvent) {
                 {{ input.value === 'true' ? $t('common.on') : $t('common.off') }}
               </span>
             </div>
+            <!-- Unknown/empty type: text input fallback -->
+            <Input
+              v-else
+              v-model="input.value"
+              data-param-input
+              type="text"
+              class="h-8 text-sm"
+              @keydown="onKeydown"
+            />
           </div>
         </div>
       </div>

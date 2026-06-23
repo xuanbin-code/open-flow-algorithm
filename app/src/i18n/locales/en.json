@@ -38,7 +38,8 @@
     "switchToSystem": "Switch to Follow System",
     "manageFunctions": "Manage Functions",
     "addFunction": "Add Function",
-    "exportPython": "Export as Python Code…"
+    "exportPython": "Export as Python Code…",
+    "importPython": "Import Python Code…"
   },
   "quickActions": {
     "save": "Save",
@@ -412,6 +413,24 @@
   "fileDialog": {
     "flowgorithmFile": "Flowgorithm File",
     "pythonFile": "Python File"
+  },
+  "newFileDialog": {
+    "title": "New File",
+    "description": "Choose how to create a new flowchart",
+    "blankTitle": "Blank Flowchart",
+    "blankDesc": "Create an empty flowchart with Start and End nodes",
+    "pasteTitle": "Paste Python Code",
+    "pasteDesc": "Paste Python code to auto-generate a flowchart",
+    "openTitle": "Open Python File",
+    "openDesc": "Import a .py file and convert it to a flowchart",
+    "pastePlaceholder": "Paste your Python code here...",
+    "createButton": "Create",
+    "pythonNotAvailable": "Python code conversion requires the desktop app",
+    "parseError": "Failed to parse Python code: {message}",
+    "parsing": "Parsing Python code...",
+    "convertSuccess": "Flowchart created from Python code",
+    "browseButton": "Browse...",
+    "noFileSelected": "No file selected"
   },
   "sidebar": {
     "expand": "Expand sidebar",

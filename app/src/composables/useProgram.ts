@@ -27,7 +27,7 @@ import {
   type FlowNode,
   type FlowEdge,
 } from '../engine/flowchartEngine'
-import { showOpenDialog, showSaveDialog, readFile, writeFile, getLastFile } from '../platform'
+import { showOpenDialog, showSaveDialog, readFile, writeFile, getLastFile, parsePythonCode } from '../platform'
 import { useI18n } from 'vue-i18n'
 
 export interface UseProgramOptions {
@@ -75,6 +75,7 @@ export interface UseProgramReturn {
   handleOpen: () => Promise<void>
   handleSave: () => Promise<void>
   handleSaveAs: () => Promise<void>
+  loadProgramFromPython: (code: string) => Promise<void>
   initApp: () => Promise<void>
   refreshRecentFiles: () => Promise<void>
   doFitToStartNode: () => Promise<void>
@@ -248,6 +249,39 @@ export function useProgram(options: UseProgramOptions): UseProgramReturn {
     isNewFile.value = true
     fileLoadVersion.value++
     // 推迟到下一微任务：等 Vue pre-flush watcher 记录完旧值后再清空历史
+    Promise.resolve().then(() => programHistory.clear())
+  }
+
+  /** 从 Python 代码解析并加载为流程图 */
+  async function loadProgramFromPython(code: string) {
+    const ast = await parsePythonCode(code)
+
+    // 验证 AST 结构
+    if (!ast || typeof ast !== 'object' || !(ast as any).functions) {
+      throw new Error('Python backend returned an invalid program AST')
+    }
+
+    // 清理执行状态
+    onBeforeLoad?.value?.()
+
+    // 清理函数执行标记
+    for (const key of Object.keys(functionExecutionEnabled)) {
+      delete functionExecutionEnabled[key]
+    }
+
+    activeFunctionName.value = 'Main'
+    program.value = ast as unknown as Program
+    engine.value = new FlowchartEngine(activeFunction.value, LP, { program: program.value })
+    nodes.value = [...engine.value.nodes]
+    edges.value = [...engine.value.edges]
+    currentFilePath.value = null
+    isNewFile.value = true
+    fileLoadVersion.value++
+
+    // 重置子函数执行标记
+    resetFunctionExecutionToggles(true)
+
+    // 推迟到下一微任务：清空 undo 历史
     Promise.resolve().then(() => programHistory.clear())
   }
 
@@ -438,6 +472,7 @@ export function useProgram(options: UseProgramOptions): UseProgramReturn {
     handleOpen,
     handleSave,
     handleSaveAs,
+    loadProgramFromPython,
     initApp,
     refreshRecentFiles,
     doFitToStartNode,
