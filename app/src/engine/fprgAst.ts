@@ -684,18 +684,19 @@ export function isStatementEmpty(stmt: Statement): boolean {
 }
 
 // ============================================================
-// Type name localization (English → Chinese)
+// Type name localization (English → current locale)
 // ============================================================
 
-const TYPE_NAME_CN: Record<string, string> = {
-  'Integer': t('nodes.typeShort.Integer'),
-  'Real':    t('nodes.typeShort.Real'),
-  'Boolean': t('nodes.typeShort.Boolean'),
-  'String':  t('nodes.typeShort.String'),
+const TYPE_TO_I18N_KEY: Record<string, string> = {
+  'Integer': 'nodes.typeShort.Integer',
+  'Real':    'nodes.typeShort.Real',
+  'Boolean': 'nodes.typeShort.Boolean',
+  'String':  'nodes.typeShort.String',
 }
 
 export function typeNameToCN(en: string): string {
-  return TYPE_NAME_CN[en] ?? en
+  const key = TYPE_TO_I18N_KEY[en]
+  return key ? t(key) : en
 }
 
 // ============================================================
