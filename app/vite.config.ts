@@ -1,8 +1,19 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import { readFileSync } from 'node:fs'
 
 const host = process.env.TAURI_DEV_HOST
+
+/** Read the app version from tauri.conf.json for build-time injection. */
+function readAppVersion(): string {
+  try {
+    const config = JSON.parse(readFileSync('src-tauri/tauri.conf.json', 'utf-8'))
+    return config.version || '0.0.0'
+  } catch {
+    return '0.0.0'
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -10,6 +21,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [vue()],
+    define: {
+      __APP_VERSION__: JSON.stringify(readAppVersion()),
+    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),

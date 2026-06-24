@@ -7,7 +7,7 @@
 export { Sun, Moon, Monitor, Settings, X, ChevronRight, ChevronLeft, GripVertical, Keyboard, Check, Circle, SquareFunction, Save, FolderOpen, Info, File, LayoutTemplate } from '@lucide/vue'
 
 // 操作按钮
-export { Plus, Trash2, Copy } from '@lucide/vue'
+export { Plus, Trash2, Copy, Download } from '@lucide/vue'
 
 // 执行工具栏
 export { Play, StepForward, Pause, Square } from '@lucide/vue'

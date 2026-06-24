@@ -4,7 +4,7 @@ import { useSettingsStore } from '../../stores/settings'
 import type { ThemeMode } from '../../stores/settings'
 import { useShortcutStore } from '../../stores/shortcuts'
 import { ACCENT_PRESETS } from '../../lib/colorPalette'
-import { Sun, Moon, Monitor, Settings, Keyboard, Check, Undo2, Info, ExternalLink } from '@/lib/icons'
+import { Sun, Moon, Monitor, Settings, Keyboard, Check, Undo2, Info, ExternalLink, RefreshCw, Download } from '@/lib/icons'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { isTauri } from '@/platform'
 import { Button } from '@/components/ui/button'
@@ -29,6 +29,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import type { ShortcutActionId } from '../../types/shortcuts'
 import { comboToString } from '../../types/shortcuts'
 import { useShortcutCapture } from '../../composables/useShortcutCapture'
+import { useUpdater } from '@/composables/useUpdater'
 
 // ============================================================
 // Props & Emits
@@ -183,6 +184,8 @@ const SHORTCUT_ACTION_IDS: { id: ShortcutActionId; labelKey: string }[] = [
 
 const GITHUB_REPO = 'https://github.com/xuanbin-code/open-flow-algorithm'
 
+const appVersion = __APP_VERSION__
+
 async function openExternal(url: string) {
   if (isTauri()) {
     try {
@@ -194,6 +197,28 @@ async function openExternal(url: string) {
   } else {
     window.open(url, '_blank', 'noopener,noreferrer')
   }
+}
+
+// ============================================================
+// Updater
+// ============================================================
+
+const {
+  status: updateStatus,
+  latestVersion,
+  downloadProgress,
+  errorMessage: updateError,
+  checkForUpdates,
+  downloadAndInstall,
+  isTauri: isDesktop,
+} = useUpdater()
+
+async function handleCheckUpdates() {
+  await checkForUpdates()
+}
+
+async function handleDownloadAndInstall() {
+  await downloadAndInstall()
 }
 </script>
 
@@ -464,7 +489,7 @@ async function openExternal(url: string) {
                   <p class="text-xs text-muted-foreground mt-1">{{ $t('about.description') }}</p>
                 </div>
                 <span class="text-xs text-muted-foreground bg-secondary px-2.5 py-0.5 rounded-full">
-                  {{ $t('about.version') }} 0.1.0
+                  {{ $t('about.version') }} {{ appVersion }}
                 </span>
               </div>
 
@@ -498,6 +523,57 @@ async function openExternal(url: string) {
                   <ExternalLink :size="15" class="mr-2" />
                   {{ $t('about.reportIssue') }}
                 </Button>
+              </div>
+
+              <Separator />
+
+              <!-- Check for Updates -->
+              <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-medium">{{ $t('about.checkUpdates') }}</span>
+                  <span class="text-xs text-muted-foreground">{{ $t('about.checkUpdatesDesc') }}</span>
+                </div>
+
+                <p v-if="!isDesktop" class="text-xs text-muted-foreground">
+                  {{ $t('about.updatesDesktopOnly') }}
+                </p>
+
+                <template v-else>
+                  <Button
+                    variant="outline"
+                    class="w-full"
+                    :disabled="updateStatus === 'checking' || updateStatus === 'downloading' || updateStatus === 'installing'"
+                    @click="handleCheckUpdates"
+                  >
+                    <RefreshCw :size="15" :class="['mr-2', updateStatus === 'checking' ? 'animate-spin' : '']" />
+                    <template v-if="updateStatus === 'checking'">{{ $t('about.checking') }}</template>
+                    <template v-else-if="updateStatus === 'downloading'">{{ $t('about.downloading') }} ({{ downloadProgress }}%)</template>
+                    <template v-else-if="updateStatus === 'installing'">{{ $t('about.installing') }}</template>
+                    <template v-else>{{ $t('about.checkForUpdates') }}</template>
+                  </Button>
+
+                  <!-- Status messages -->
+                  <p v-if="updateStatus === 'up-to-date'" class="text-xs text-green-600 dark:text-green-400">
+                    {{ $t('about.upToDate') }}
+                  </p>
+                  <p v-if="updateStatus === 'available'" class="text-xs text-accent">
+                    {{ $t('about.newVersionAvailable', { version: latestVersion }) }}
+                  </p>
+                  <p v-if="updateStatus === 'error'" class="text-xs text-red-600 dark:text-red-400">
+                    {{ $t('about.updateError') }}: {{ updateError }}
+                  </p>
+
+                  <!-- Download & Install button (when update available) -->
+                  <Button
+                    v-if="updateStatus === 'available'"
+                    variant="default"
+                    class="w-full"
+                    @click="handleDownloadAndInstall"
+                  >
+                    <Download :size="15" class="mr-2" />
+                    {{ $t('about.downloadAndInstall') }}
+                  </Button>
+                </template>
               </div>
             </div>
 

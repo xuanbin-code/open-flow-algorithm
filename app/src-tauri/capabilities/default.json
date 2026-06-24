@@ -8,6 +8,9 @@
     "dialog:default",
     "fs:default",
     "opener:default",
+    "updater:default",
+    "updater:allow-check",
+    "updater:allow-download-and-install",
     {
       "identifier": "fs:allow-write-text-file",
       "allow": [{ "path": "**" }]

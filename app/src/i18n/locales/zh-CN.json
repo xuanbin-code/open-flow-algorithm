@@ -78,7 +78,18 @@
     "version": "版本",
     "repo": "GitHub 仓库",
     "reportIssue": "反馈问题",
-    "reportIssueDesc": "发现 bug 或有功能建议？欢迎提交 Issue。"
+    "reportIssueDesc": "发现 bug 或有功能建议？欢迎提交 Issue。",
+    "checkUpdates": "更新",
+    "checkUpdatesDesc": "检查并安装应用的最新版本。",
+    "checkForUpdates": "检查更新",
+    "checking": "正在检查...",
+    "downloading": "正在下载",
+    "installing": "正在安装...",
+    "upToDate": "你正在运行最新版本。",
+    "newVersionAvailable": "发现新版本 {version}。",
+    "updateError": "检查更新失败",
+    "downloadAndInstall": "下载并安装",
+    "updatesDesktopOnly": "更新仅在桌面应用中可用。"
   },
   "shortcuts": {
     "title": "键盘快捷键",

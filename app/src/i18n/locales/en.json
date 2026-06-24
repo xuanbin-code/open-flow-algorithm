@@ -78,7 +78,18 @@
     "version": "Version",
     "repo": "GitHub Repository",
     "reportIssue": "Report an Issue",
-    "reportIssueDesc": "Found a bug or have a feature request? Feel free to open an issue."
+    "reportIssueDesc": "Found a bug or have a feature request? Feel free to open an issue.",
+    "checkUpdates": "Updates",
+    "checkUpdatesDesc": "Check for and install the latest version of the app.",
+    "checkForUpdates": "Check for Updates",
+    "checking": "Checking...",
+    "downloading": "Downloading",
+    "installing": "Installing...",
+    "upToDate": "You are running the latest version.",
+    "newVersionAvailable": "Version {version} is available.",
+    "updateError": "Update check failed",
+    "downloadAndInstall": "Download & Install",
+    "updatesDesktopOnly": "Updates are only available in the desktop app."
   },
   "shortcuts": {
     "title": "Keyboard Shortcuts",
